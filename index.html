@@ -21,7 +21,7 @@
         .ai-logo {
             height: 60px;
             object-fit: contain;
-			margin-top: 30px;
+            margin-top: 30px;
             margin-bottom: 15px;
         }
         .ai-type-badge {
@@ -34,13 +34,13 @@
             top: 10px;
             left: 10px;
         }
-		.academic-badge {
-			position: absolute;
-			top: 10px;
-			left: 50%;
-			transform: translateX(-50%);
-			z-index: 1;
-		}
+        .academic-badge {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1;
+        }
         .search-box {
             max-width: 600px;
             margin: 0 auto 30px;
@@ -92,9 +92,17 @@
                 flex-wrap: wrap;
             }
             .filters .btn {
-                margin-bottom: 5px;
-                font-size: 0.8rem;
-                padding: 0.25rem 0.5rem;
+                margin-bottom: 8px;
+                font-size: 0.9rem; /* Aumentar um pouco o tamanho da fonte */
+                padding: 0.5rem 1rem; /* Aumentar área de toque */
+                touch-action: manipulation; /* Melhorar resposta ao toque */
+                min-width: 120px; /* Garantir largura mínima para clicabilidade */
+            }
+            .filters .col-auto {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 8px; /* Espaçamento consistente */
             }
             .ai-logo {
                 height: 50px;
@@ -106,28 +114,28 @@
             border-radius: 20px;
             font-size: 0.9rem;
         }
-		.social-links a:hover {
-			color: #007bff; /* Cor azul do Bootstrap, ou escolha outra */
-			transition: color 0.3s ease;
-		}
-		.social-links a.linkedin:hover {
-			color: #0077b5; /* Cor do LinkedIn */
-		}
-		.social-links a.twitter-x:hover {
-			color: #000000; /* Cor do X */
-		}
-		.social-links a.facebook:hover {
-			color: #1877f2; /* Cor do Facebook */
-		}
-		.social-links a.instagram:hover {
-			color: #e4405f; /* Cor do Instagram */
-		}
-		.social-links a.pinterest:hover {
-			color: #bd081c; /* Cor do Pinterest */
-		}
-		.social-links a.email:hover {
-			color: #dc3545; /* Cor para e-mail, ou escolha outra */
-		}
+        .social-links a:hover {
+            color: #007bff; /* Cor azul do Bootstrap, ou escolha outra */
+            transition: color 0.3s ease;
+        }
+        .social-links a.linkedin:hover {
+            color: #0077b5; /* Cor do LinkedIn */
+        }
+        .social-links a.twitter-x:hover {
+            color: #000000; /* Cor do X */
+        }
+        .social-links a.facebook:hover {
+            color: #1877f2; /* Cor do Facebook */
+        }
+        .social-links a.instagram:hover {
+            color: #e4405f; /* Cor do Instagram */
+        }
+        .social-links a.pinterest:hover {
+            color: #bd081c; /* Cor do Pinterest */
+        }
+        .social-links a.email:hover {
+            color: #dc3545; /* Cor para e-mail, ou escolha outra */
+        }
     </style>
 </head>
 <body>
@@ -144,7 +152,10 @@
                 <i class="bi bi-robot"></i> Catálogo de IAs
             </h1>
             <p class="lead text-muted">
-                Explore os principais modelos LLM e sistemas multiagentes disponíveis
+                <strong>Explore os principais modelos LLM e sistemas multiagentes disponíveis</strong>
+            </p>
+            <p class="text-muted small mt-2">
+                Esta página foi inteiramente desenvolvida usando as LLMs: Claude, ChatGPT, Grok e Gemini.
             </p>
             
             <div class="search-box">
@@ -232,31 +243,29 @@
                         </div>
                     </div>
                 </div>
-				<br/>
-				<div class="row g-2 justify-content-center">
-					<div class="col-auto">
-						<div class="btn-group me-2" role="group">
-							<button
-								type="button"
-								class="btn btn-outline-success"
-								:class="{ active: academicOnly }"
-								@click="academicOnly = !academicOnly"
-							>
-								<i class="bi bi-mortarboard-fill me-1"></i> Acadêmicos
-							</button>
-						</div>
-						<div class="btn-group me-2" role="group">
-							<button 
-								type="button" 
-								class="btn btn-outline-danger"
-								:class="{ active: showOnlyFavorites }"
-								@click="showOnlyFavorites = !showOnlyFavorites"
-							>
-								<i class="bi bi-heart-fill me-1"></i> Favoritos
-							</button>
-						</div>
-					</div>
-				</div>
+                <br/>
+                <div class="row g-2 justify-content-center">
+                    <div class="col-auto">
+                        <button
+                            type="button"
+                            class="btn btn-outline-success me-2"
+                            :class="{ active: academicOnly }"
+                            @click="toggleAcademicFilter"
+                            @touchstart="toggleAcademicFilter"
+                        >
+                            <i class="bi bi-mortarboard-fill me-1"></i> Acadêmicos
+                        </button>
+                        <button 
+                            type="button" 
+                            class="btn btn-outline-danger me-2"
+                            :class="{ active: showOnlyFavorites }"
+                            @click="toggleFavoritesFilter"
+                            @touchstart="toggleFavoritesFilter"
+                        >
+                            <i class="bi bi-heart-fill me-1"></i> Favoritos
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <div class="mt-3">
@@ -290,16 +299,16 @@
                           }">
                         {{ ai.difficulty === 'facil' ? 'Fácil' : ai.difficulty === 'medio' ? 'Médio' : 'Avançado' }}
                     </span>
-					<span v-if="ai.academic" class="academic-badge badge bg-success">
-						<i class="bi bi-mortarboard-fill me-1"></i> Acadêmico
-					</span>
+                    <span v-if="ai.academic" class="academic-badge badge bg-success">
+                        <i class="bi bi-mortarboard-fill me-1"></i> Acadêmico
+                    </span>
                     <div class="card-body text-center">
-						<img 
-							:src="getLogoWithFallback(ai.name)" 
-							:alt="ai.name + ' logo'" 
-							class="ai-logo"
-							@error="onLogoError($event, ai.name)"
-						>
+                        <img 
+                            :src="getLogoWithFallback(ai.name)" 
+                            :alt="ai.name + ' logo'" 
+                            class="ai-logo"
+                            @error="onLogoError($event, ai.name)"
+                        >
                         <h3 class="h4">{{ ai.name }}</h3>
                         <p class="text-muted">{{ ai.description }}</p>
                         <ul class="features-list text-start" v-if="ai.features && ai.features.length">
@@ -325,31 +334,31 @@
             </div>
         </div>
 
-		<footer class="mt-5 pt-4 text-center text-muted">
-			<!--p>Atualizado em {{ currentDate }}</p-->
-			<p>Atualizado em 11/05/2025</p>
-			<p class="small">Desenvolvido com <i class="bi bi-heart-fill text-danger"></i> para auxiliar na jornada de IA</p>
-			<div class="social-links mt-3">
-				<a href="https://www.linkedin.com/in/rafael-quintino-gomes-rosa/" target="_blank" class="text-muted mx-2" title="LinkedIn">
-					<i class="bi bi-linkedin" style="font-size: 1.5rem;"></i>
-				</a>
-				<a href="https://x.com/rafael_quintino" target="_blank" class="text-muted mx-2" title="X">
-					<i class="bi bi-twitter-x" style="font-size: 1.5rem;"></i>
-				</a>
-				<a href="https://www.facebook.com/rafquint" target="_blank" class="text-muted mx-2" title="Facebook">
-					<i class="bi bi-facebook" style="font-size: 1.5rem;"></i>
-				</a>
-				<a href="https://www.instagram.com/rafquint/" target="_blank" class="text-muted mx-2" title="Instagram">
-					<i class="bi bi-instagram" style="font-size: 1.5rem;"></i>
-				</a>
-				<a href="https://br.pinterest.com/rafquint/" target="_blank" class="text-muted mx-2" title="Pinterest">
-					<i class="bi bi-pinterest" style="font-size: 1.5rem;"></i>
-				</a>
-				<a href="mailto:rafquint@gmail.com" class="text-muted mx-2" title="E-mail">
-					<i class="bi bi-envelope-fill" style="font-size: 1.5rem;"></i>
-				</a>
-			</div>
-		</footer>
+        <footer class="mt-5 pt-4 text-center text-muted">
+            <!--p>Atualizado em {{ currentDate }}</p-->
+            <p>Atualizado em 11/05/2025</p>
+            <p class="small">Desenvolvido com <i class="bi bi-heart-fill text-danger"></i> para auxiliar na jornada de IA</p>
+            <div class="social-links mt-3">
+                <a href="https://www.linkedin.com/in/rafael-quintino-gomes-rosa/" target="_blank" class="text-muted mx-2" title="LinkedIn">
+                    <i class="bi bi-linkedin" style="font-size: 1.5rem;"></i>
+                </a>
+                <a href="https://x.com/rafael_quintino" target="_blank" class="text-muted mx-2" title="X">
+                    <i class="bi bi-twitter-x" style="font-size: 1.5rem;"></i>
+                </a>
+                <a href="https://www.facebook.com/rafquint" target="_blank" class="text-muted mx-2" title="Facebook">
+                    <i class="bi bi-facebook" style="font-size: 1.5rem;"></i>
+                </a>
+                <a href="https://www.instagram.com/rafquint/" target="_blank" class="text-muted mx-2" title="Instagram">
+                    <i class="bi bi-instagram" style="font-size: 1.5rem;"></i>
+                </a>
+                <a href="https://br.pinterest.com/rafquint/" target="_blank" class="text-muted mx-2" title="Pinterest">
+                    <i class="bi bi-pinterest" style="font-size: 1.5rem;"></i>
+                </a>
+                <a href="mailto:rafquint@gmail.com" class="text-muted mx-2" title="E-mail">
+                    <i class="bi bi-envelope-fill" style="font-size: 1.5rem;"></i>
+                </a>
+            </div>
+        </footer>
     </div>
 
     <!-- Vue.js 3 -->
@@ -370,1476 +379,1476 @@
                 const currentDate = ref(new Date().toLocaleDateString('pt-BR'));
                 const isLoading = ref(false);
                 const favorites = ref(JSON.parse(localStorage.getItem('aiFavorites')) || []);
-				const showOnlyFavorites = ref(false);
-				const academicOnly = ref(false);
+                const showOnlyFavorites = ref(false);
+                const academicOnly = ref(false);
                 
                 // Dataset com logos reais
                 const aisData = {
-				  "ais": [
-					{
-					  "id": 1,
-					  "name": "ChatGPT",
-					  "type": "llm",
-					  "description": "Assistente de IA conversacional desenvolvido pela OpenAI, um dos mais populares e versáteis do mercado.",
-					  "developer": "OpenAI",
-					  "website": "https://chat.openai.com",
-					  "tutorial": "https://platform.openai.com/docs/guides/gpt",
-					  "difficulty": "facil",
-					  "features": [
-						"Responde perguntas em diversos assuntos",
-						"Escreve textos e auxilia em redações",
-						"Ajuda com códigos de programação",
-						"Integração com plugins e navegação web",
-						"Processamento de imagens com GPT-4o"
-					  ]
-					},
-					{
-					  "id": 2,
-					  "name": "Claude",
-					  "type": "llm",
-					  "description": "Assistente de IA conversacional da Anthropic, conhecido por respostas detalhadas e seguras.",
-					  "developer": "Anthropic",
-					  "website": "https://claude.ai",
-					  "tutorial": "https://docs.anthropic.com",
-					  "difficulty": "facil",
-					  "features": [
-						"Responde com respostas detalhadas",
-						"Analisa documentos longos (até 150.000 tokens)",
-						"Forte em contextos educacionais",
-						"Processamento de imagens (Claude 3)",
-						"Baixo índice de alucinações"
-					  ]
-					},
-					{
-					  "id": 3,
-					  "name": "Copilot",
-					  "type": "llm",
-					  "description": "Assistente de código e produtividade da Microsoft integrado ao Windows e aplicativos Office.",
-					  "developer": "Microsoft",
-					  "website": "https://copilot.microsoft.com",
-					  "tutorial": "https://learn.microsoft.com/copilot",
-					  "difficulty": "facil",
-					  "features": [
-						"Integrado ao Windows 11",
-						"Ajuda em todas as aplicações Office",
-						"Responde perguntas gerais",
-						"Geração de imagens com DALL-E",
-						"Assistência em tempo real no trabalho"
-					  ]
-					},
-					{
-					  "id": 4,
-					  "name": "Gemini",
-					  "type": "llm",
-					  "description": "Modelo de IA multimodal do Google, capaz de analisar texto e imagens simultaneamente.",
-					  "developer": "Google",
-					  "website": "https://gemini.google.com",
-					  "tutorial": "https://ai.google.dev/gemini",
-					  "difficulty": "facil",
-					  "features": [
-						"Analisa imagens e texto",
-						"Integrado ao Gmail e Docs",
-						"Responde com base em conhecimentos do Google",
-						"Versão móvel disponível",
-						"API para desenvolvedores"
-					  ]
-					},
-					{
-					  "id": 5,
-					  "name": "DeepSeek",
-					  "type": "llm",
-					  "description": "Modelo LLM avançado com forte capacidade em programação e processamento de línguas.",
-					  "developer": "DeepSeek",
-					  "website": "https://deepseek.com",
-					  "tutorial": "https://github.com/deepseek-ai/DeepSeek-Coder",
-					  "difficulty": "medio",
-					  "features": [
-						"Especializado em código",
-						"Multilíngue com bom suporte a português",
-						"Ótimo para tarefas técnicas",
-						"Versão code-instruct para programação",
-						"Modelos abertos disponíveis para download"
-					  ]
-					},
-					{
-					  "id": 6,
-					  "name": "Pi",
-					  "type": "llm",
-					  "description": "Assistente conversacional da Inflection AI com foco em interações mais naturais e empáticas.",
-					  "developer": "Inflection AI",
-					  "website": "https://pi.ai",
-					  "difficulty": "facil",
-					  "features": [
-						"Conversas empáticas e naturais",
-						"Bom para discussões filosóficas",
-						"Versão gratuita sem limitações",
-						"Disponível como aplicativo móvel",
-						"Design minimalista e amigável"
-					  ]
-					},
-					{
-					  "id": 7,
-					  "name": "Perplexity",
-					  "type": "llm",
-					  "description": "Motor de busca alimentado por IA que fornece respostas detalhadas com citações e fontes.",
-					  "developer": "Perplexity AI",
-					  "website": "https://perplexity.ai",
-					  "tutorial": "https://support.perplexity.ai",
-					  "difficulty": "facil",
-					  "features": [
-						"Busca com fontes verificadas",
-						"Respostas sempre atualizadas",
-						"Excelente para pesquisas acadêmicas",
-						"Integração com Copilot API",
-						"Versão gratuita com limites generosos"
-					  ]
-					},
-					{
-					  "id": 8,
-					  "name": "Bing Chat (Copilot)",
-					  "type": "llm",
-					  "description": "Assistente de IA integrado ao buscador Bing da Microsoft, com acesso à internet.",
-					  "developer": "Microsoft",
-					  "website": "https://bing.com",
-					  "difficulty": "facil",
-					  "features": [
-						"Acesso a informações atualizadas",
-						"Integrado ao navegador Edge",
-						"Gera imagens com DALL-E",
-						"Pesquisa visual com análise de imagens",
-						"Suporte a diversos formatos de resposta"
-					  ]
-					},
-					{
-					  "id": 9,
-					  "name": "Llama 3",
-					  "type": "llm",
-					  "description": "Modelo de código aberto da Meta, com versões gratuitas para uso pessoal e comercial.",
-					  "developer": "Meta",
-					  "website": "https://llama.meta.com",
-					  "tutorial": "https://github.com/meta-llama/llama",
-					  "difficulty": "medio",
-					  "features": [
-						"Open source e gratuito",
-						"Pode ser usado offline",
-						"Bom para desenvolvedores",
-						"Modelos de vários tamanhos (8B a 70B)",
-						"Licença permissiva para uso comercial"
-					  ]
-					},
-					{
-					  "id": 10,
-					  "name": "AutoGPT",
-					  "type": "multiagent",
-					  "description": "Sistema autônomo que funciona como vários agentes coordenados para resolver tarefas complexas.",
-					  "developer": "Comunidade OpenAI",
-					  "website": "https://github.com/Significant-Gravitas/Auto-GPT",
-					  "tutorial": "https://docs.agpt.co",
-					  "difficulty": "avancado",
-					  "features": [
-						"Executa tarefas sem supervisão",
-						"Pode acessar a internet",
-						"Resolve problemas complexos sozinho",
-						"Memória de longo prazo",
-						"Suporte a plug-ins personalizados"
-					  ]
-					},
-					{
-					  "id": 11,
-					  "name": "LangChain",
-					  "type": "multiagent",
-					  "description": "Framework para desenvolvimento de aplicações que utilizam LLMs em fluxos de trabalho complexos.",
-					  "developer": "LangChain",
-					  "website": "https://langchain.com",
-					  "tutorial": "https://python.langchain.com/docs/get_started",
-					  "difficulty": "avancado",
-					  "features": [
-						"Conecta IAs com outras ferramentas",
-						"Cria agentes customizados",
-						"Automatiza tarefas complexas",
-						"Gerenciamento de memória e contexto",
-						"Integrações com centenas de ferramentas"
-					  ]
-					},
-					{
-					  "id": 12,
-					  "name": "Cursor",
-					  "type": "llm",
-					  "description": "IDE inteligente otimizada para programação assistida por IA, baseada no VSCode.",
-					  "developer": "Cursor",
-					  "website": "https://cursor.sh",
-					  "tutorial": "https://docs.cursor.sh",
-					  "difficulty": "medio",
-					  "features": [
-						"Completa e refatora código",
-						"Explica códigos complexos",
-						"Funciona como um VSCode melhorado",
-						"Chat contextual integrado",
-						"Suporta múltiplos modelos de IA"
-					  ]
-					},
-					{
-					  "id": 13,
-					  "name": "Codeium",
-					  "type": "llm",
-					  "description": "Assistente de código gratuito que funciona como plugin em diversos IDEs e editores.",
-					  "developer": "Codeium",
-					  "website": "https://codeium.com",
-					  "tutorial": "https://docs.codeium.com",
-					  "difficulty": "medio",
-					  "features": [
-						"Completa código em tempo real",
-						"Versão gratuita completa",
-						"Suporta +20 linguagens",
-						"Funciona em vários IDEs",
-						"Documentação automática de código"
-					  ]
-					},
-					{
-					  "id": 14,
-					  "name": "Midjourney",
-					  "type": "llm",
-					  "description": "IA generativa de imagens de alta qualidade, acessível via Discord.",
-					  "developer": "Midjourney",
-					  "website": "https://midjourney.com",
-					  "tutorial": "https://docs.midjourney.com",
-					  "difficulty": "medio",
-					  "features": [
-						"Gera imagens realistas ou artísticas",
-						"Funciona pelo Discord",
-						"Qualidade visual excepcional",
-						"Sistema de variações e modificações",
-						"Suporte a diferentes estilos e aspectos"
-					  ]
-					},
-					{
-					  "id": 15,
-					  "name": "DALL-E 3",
-					  "type": "llm",
-					  "description": "Gerador de imagens da OpenAI que cria visuals de alta qualidade a partir de descrições textuais.",
-					  "developer": "OpenAI",
-					  "website": "https://openai.com/dall-e-3",
-					  "difficulty": "facil",
-					  "features": [
-						"Integrado ao ChatGPT Plus",
-						"Interface simples de usar",
-						"Entende bem instruções em português",
-						"Alta fidelidade ao prompt textual",
-						"Evita conteúdo problemático"
-					  ]
-					},
-					{
-					  "id": 16,
-					  "name": "AgentGPT",
-					  "type": "multiagent",
-					  "description": "Sistema que permite criar e implantar agentes de IA autônomos diretamente no navegador.",
-					  "developer": "Rework AI",
-					  "website": "https://agentgpt.reworkd.ai",
-					  "difficulty": "medio",
-					  "features": [
-						"Cria agentes no navegador",
-						"Interface visual para configuração",
-						"Não requer programação",
-						"Personalização de objetivos",
-						"Versão gratuita disponível"
-					  ]
-					},
-					{
-					  "id": 17,
-					  "name": "Anthropic Claude API",
-					  "type": "llm",
-					  "description": "API do Claude para desenvolvedores integrarem IA em aplicações próprias.",
-					  "developer": "Anthropic",
-					  "website": "https://anthropic.com/api",
-					  "tutorial": "https://docs.anthropic.com/claude/docs",
-					  "difficulty": "avancado",
-					  "features": [
-						"Para desenvolvedores",
-						"Modelo Claude 3 Opus e Sonnet",
-						"Pay-as-you-go",
-						"Limites de contexto extensos",
-						"Sistema de filtro de segurança configurável"
-					  ]
-					},
-					{
-					  "id": 18,
-					  "name": "BabyAGI",
-					  "type": "multiagent",
-					  "description": "Sistema simples de gerenciamento de tarefas potencializado por IA que automatiza fluxos de trabalho.",
-					  "developer": "Yohei Nakajima",
-					  "website": "https://github.com/yoheinakajima/babyagi",
-					  "difficulty": "avancado",
-					  "features": [
-						"Gerencia e executa tarefas",
-						"Aprende enquanto trabalha",
-						"Personalizável via código",
-						"Base para sistemas de agentes múltiplos",
-						"Integração com diferentes LLMs"
-					  ]
-					},
-					{
-					  "id": 19,
-					  "name": "Stable Diffusion",
-					  "type": "llm",
-					  "description": "Modelo open-source para geração de imagens que pode ser executado localmente ou via serviços web.",
-					  "developer": "Stability AI",
-					  "website": "https://stability.ai/stable-diffusion",
-					  "tutorial": "https://github.com/CompVis/stable-diffusion",
-					  "difficulty": "medio",
-					  "features": [
-						"Geração de imagens localmente",
-						"Várias interfaces (webUI, Automatic1111)",
-						"Extensões e plugins da comunidade",
-						"Personalização com LoRA e embeddings",
-						"Open-source e totalmente gratuito"
-					  ]
-					},
-					{
-					  "id": 20,
-					  "name": "Falcon",
-					  "type": "llm",
-					  "description": "Modelo de linguagem de código aberto treinado pelo Technology Innovation Institute (TII).",
-					  "developer": "TII",
-					  "website": "https://falconllm.tii.ae",
-					  "tutorial": "https://huggingface.co/tiiuae",
-					  "difficulty": "avancado",
-					  "features": [
-						"Completamente open-source",
-						"Diferentes tamanhos (7B, 40B, 180B)",
-						"Bom desempenho em vários benchmarks",
-						"Pode ser executado localmente",
-						"Licença permissiva para uso comercial"
-					  ]
-					},
-					{
-					  "id": 21,
-					  "name": "Whisper",
-					  "type": "llm",
-					  "description": "Sistema de reconhecimento de fala automático da OpenAI com excelente desempenho multilíngue.",
-					  "developer": "OpenAI",
-					  "website": "https://openai.com/research/whisper",
-					  "tutorial": "https://github.com/openai/whisper",
-					  "difficulty": "medio",
-					  "features": [
-						"Transcrição precisa em múltiplos idiomas",
-						"Modelo open-source",
-						"Pode ser executado offline",
-						"Várias implementações e interfaces",
-						"Capaz de traduzir diretamente para inglês"
-					  ]
-					},
-					{
-					  "id": 22,
-					  "name": "Mistral",
-					  "type": "llm",
-					  "description": "Família de modelos de linguagem eficientes e de alto desempenho disponíveis em código aberto.",
-					  "developer": "Mistral AI",
-					  "website": "https://mistral.ai",
-					  "tutorial": "https://docs.mistral.ai",
-					  "difficulty": "medio",
-					  "features": [
-						"Alto desempenho com tamanho reduzido",
-						"Modelos especializados para código",
-						"Versões otimizadas para eficiência",
-						"Open-source e uso comercial permitido",
-						"Disponível via API ou download"
-					  ]
-					},
-					{
-					  "id": 23,
-					  "name": "Bard (antigo Gemini)",
-					  "type": "llm",
-					  "description": "Antigo assistente de IA do Google, agora integrado ao Gemini e outros serviços Google.",
-					  "developer": "Google",
-					  "website": "https://bard.google.com",
-					  "difficulty": "facil",
-					  "features": [
-						"Integração com serviços Google",
-						"Pesquisa em tempo real",
-						"Suporte multilíngue",
-						"Versão gratuita disponível",
-						"Interface simples e intuitiva"
-					  ]
-					},
-					{
-					  "id": 24,
-					  "name": "GPT-4o",
-					  "type": "llm",
-					  "description": "Modelo multimodal da OpenAI que processa texto, imagens e áudio com alta eficiência e qualidade.",
-					  "developer": "OpenAI",
-					  "website": "https://openai.com/gpt-4o",
-					  "tutorial": "https://platform.openai.com/docs/models",
-					  "difficulty": "facil",
-					  "features": [
-						"Processamento de imagens e texto",
-						"Entrada e saída de áudio",
-						"Resposta em tempo real",
-						"Disponível no ChatGPT Plus",
-						"Capacidades multimodais integradas"
-					  ]
-					},
-					{
-					  "id": 25,
-					  "name": "LM Studio",
-					  "type": "llm",
-					  "description": "Aplicativo desktop para download e execução local de modelos de IA em computadores pessoais.",
-					  "developer": "LM Studio",
-					  "website": "https://lmstudio.ai",
-					  "tutorial": "https://github.com/lmstudio-ai/lmstudio",
-					  "difficulty": "medio",
-					  "features": [
-						"Interface gráfica para modelos locais",
-						"Suporta dezenas de modelos prontos",
-						"Otimizado para hardware comum",
-						"Não requer conexão à internet",
-						"Gratuito para uso pessoal"
-					  ]
-					},
-					{
-					  "id": 26,
-					  "name": "Ollama",
-					  "type": "llm",
-					  "description": "Framework para executar, gerenciar e personalizar modelos de IA localmente com interface simples.",
-					  "developer": "Ollama",
-					  "website": "https://ollama.ai",
-					  "tutorial": "https://github.com/ollama/ollama",
-					  "difficulty": "medio",
-					  "features": [
-						"Execução local de LLMs",
-						"Interface por linha de comando",
-						"Baixo consumo de recursos",
-						"Biblioteca de modelos otimizados",
-						"Integração com outras ferramentas"
-					  ]
-					},
-					{
-					  "id": 27,
-					  "name": "Poe",
-					  "type": "llm",
-					  "description": "Plataforma que oferece acesso a múltiplos modelos de IA através de uma interface unificada.",
-					  "developer": "Quora",
-					  "website": "https://poe.com",
-					  "difficulty": "facil",
-					  "features": [
-						"Acesso a diversos modelos em um só lugar",
-						"Claude, GPT-4, Google, entre outros",
-						"Criação de bots personalizados",
-						"Compartilhamento de conversas",
-						"Interface limpa e responsiva"
-					  ]
-					},
-					{
-					  "id": 28,
-					  "name": "GPTs (Custom GPTs)",
-					  "type": "llm",
-					  "description": "Versões personalizadas do ChatGPT criadas por usuários para tarefas ou temas específicos.",
-					  "developer": "OpenAI",
-					  "website": "https://chat.openai.com/gpts",
-					  "tutorial": "https://openai.com/docs/gpts",
-					  "difficulty": "medio",
-					  "features": [
-						"Personalização sem programação",
-						"Criação de IAs especializadas",
-						"Possibilidade de uso de ferramentas",
-						"Marketplace integrado",
-						"Criação gratuita para assinantes Plus"
-					  ]
-					},
-					{
-					  "id": 29,
-					  "name": "Sora",
-					  "type": "llm",
-					  "description": "Modelo de geração de vídeo da OpenAI que cria clipes realistas a partir de descrições textuais.",
-					  "developer": "OpenAI",
-					  "website": "https://openai.com/sora",
-					  "difficulty": "avancado",
-					  "features": [
-						"Geração de vídeos realistas",
-						"Compreensão de física e movimento",
-						"Cenas complexas com múltiplos elementos",
-						"Acesso limitado (em preview)",
-						"Alta fidelidade visual"
-					  ]
-					},
-					{
-					  "id": 30,
-					  "name": "Character.AI",
-					  "type": "llm",
-					  "description": "Plataforma para criar e conversar com personagens de IA personalizados em diversos estilos.",
-					  "developer": "Character.AI",
-					  "website": "https://character.ai",
-					  "difficulty": "facil",
-					  "features": [
-						"Criação de personagens personalizados",
-						"Comunidade ativa de criadores",
-						"Conversas temáticas e roleplay",
-						"Versão gratuita disponível",
-						"Personagens de ficção e históricos"
-					  ]
-					},
-					{
-					  "id": 31,
-					  "name": "Synthesia",
-					  "type": "llm",
-					  "description": "Plataforma para criação de vídeos com apresentadores virtuais gerados por IA.",
-					  "developer": "Synthesia",
-					  "website": "https://www.synthesia.io",
-					  "tutorial": "https://help.synthesia.io",
-					  "difficulty": "medio",
-					  "features": [
-						"Criação de vídeos com avatares virtuais",
-						"Mais de 120 avatares disponíveis",
-						"Suporte a mais de 60 idiomas",
-						"Edição de texto para vídeo",
-						"Templates prontos para uso"
-					  ]
-					},
-					{
-					  "id": 32,
-					  "name": "ElevenLabs",
-					  "type": "llm",
-					  "description": "Plataforma de síntese de voz com qualidade quase humana e opções de personalização.",
-					  "developer": "ElevenLabs",
-					  "website": "https://elevenlabs.io",
-					  "tutorial": "https://docs.elevenlabs.io",
-					  "difficulty": "medio",
-					  "features": [
-						"Vozes realistas em diversos idiomas",
-						"Clonagem de voz (com permissão)",
-						"API para desenvolvedores",
-						"Controle de entonação e emoção",
-						"Versão gratuita com limites"
-					  ]
-					},
-					{
-					  "id": 33,
-					  "name": "Runway",
-					  "type": "llm",
-					  "description": "Plataforma de criação e edição de mídia com ferramentas de IA para vídeo, imagem e áudio.",
-					  "developer": "Runway",
-					  "website": "https://runway.ml",
-					  "tutorial": "https://help.runwayml.com",
-					  "difficulty": "medio",
-					  "features": [
-						"Edição de vídeo com IA",
-						"Geração de vídeo a partir de texto",
-						"Remoção de objetos em vídeos",
-						"Extensão do conteúdo de imagens",
-						"Ferramentas criativas integradas"
-					  ]
-					},
-					{
-					  "id": 34,
-					  "name": "Langchain.js",
-					  "type": "multiagent",
-					  "description": "Versão JavaScript do framework Langchain para construção de aplicações e agentes de IA.",
-					  "developer": "LangChain",
-					  "website": "https://js.langchain.com",
-					  "tutorial": "https://js.langchain.com/docs",
-					  "difficulty": "avancado",
-					  "features": [
-						"Integração com frontend web",
-						"Construção de agentes em JavaScript",
-						"Componentes reutilizáveis",
-						"Compatível com Node.js e browsers",
-						"Suporte a múltiplos LLMs"
-					  ]
-					},
-					{
-					  "id": 35,
-					  "name": "LocalAI",
-					  "type": "llm",
-					  "description": "Drop-in substituto de código aberto para APIs de IA, executando modelos localmente.",
-					  "developer": "Mudler",
-					  "website": "https://github.com/mudler/LocalAI",
-					  "tutorial": "https://localai.io/docs",
-					  "difficulty": "avancado",
-					  "features": [
-						"APIs compatíveis com OpenAI",
-						"Execução local sem internet",
-						"Suporte a múltiplos modelos",
-						"Baixo consumo de recursos",
-						"Privacidade total dos dados"
-					  ]
-					},
-					{
-					  "id": 36,
-					  "name": "OpenInterpreter",
-					  "type": "multiagent",
-					  "description": "Permite que LLMs executem código diretamente no seu computador, com permissão do usuário.",
-					  "developer": "KillianLucas",
-					  "website": "https://github.com/KillianLucas/open-interpreter",
-					  "tutorial": "https://docs.openinterpreter.com",
-					  "difficulty": "avancado",
-					  "features": [
-						"Execução de código em tempo real",
-						"Automação supervisionada pelo usuário",
-						"Interface por terminal",
-						"Acesso a recursos locais",
-						"Processamento local ou via API"
-					  ]
-					},
-					{
-					  "id": 37,
-					  "name": "Replicate",
-					  "type": "llm",
-					  "description": "Plataforma que fornece acesso a centenas de modelos de IA através de APIs unificadas.",
-					  "developer": "Replicate",
-					  "website": "https://replicate.com",
-					  "tutorial": "https://replicate.com/docs",
-					  "difficulty": "medio",
-					  "features": [
-						"Marketplace de modelos de IA",
-						"API simples e unificada",
-						"Hospedagem de modelos personalizados",
-						"Pay-as-you-go sem compromisso",
-						"Integração fácil com aplicações"
-					  ]
-					},
-					{
-					  "id": 38,
-					  "name": "HuggingFace Transformers",
-					  "type": "llm",
-					  "description": "Biblioteca que dá acesso a milhares de modelos pré-treinados e ferramentas para NLP e visão computacional.",
-					  "developer": "HuggingFace",
-					  "website": "https://huggingface.co/transformers",
-					  "tutorial": "https://huggingface.co/docs/transformers",
-					  "difficulty": "avancado",
-					  "features": [
-						"Acesso a milhares de modelos",
-						"Suporte a PyTorch e TensorFlow",
-						"Pipeline para tarefas prontas",
-						"Open-source e gratuito",
-						"Comunidade ativa de contribuidores"
-					  ]
-					},
-					{
-					  "id": 39,
-					  "name": "Tavily",
-					  "type": "llm",
-					  "description": "API de busca especializada para construção de aplicações de IA com informações precisas e atualizadas.",
-					  "developer": "Tavily AI",
-					  "website": "https://tavily.com",
-					  "tutorial": "https://docs.tavily.com",
-					  "difficulty": "medio",
-					  "features": [
-						"Busca semântica avançada",
-						"Pesquisa em tempo real na web",
-						"Integração simples com LangChain",
-						"API para desenvolvedores",
-						"Resultados estruturados e contextuais"
-					  ]
-					},
-					{
-					  "id": 40,
-					  "name": "GPT4All",
-					  "type": "llm",
-					  "description": "Assistente local de IA que executa LLMs diretamente no computador sem enviar dados para a nuvem.",
-					  "developer": "Nomic AI",
-					  "website": "https://gpt4all.io",
-					  "tutorial": "https://docs.gpt4all.io",
-					  "difficulty": "medio",
-					  "features": [
-						"Execução offline completa",
-						"Interface gráfica amigável",
-						"Suporte a múltiplos modelos locais",
-						"Chat e processamento de documentos",
-						"Totalmente gratuito e open-source"
-					  ]
-					},
-					{
-						"id": 41,
-						"name": "Grok",
-						"type": "llm",
-						"description": "Assistente conversacional da xAI, projetado para respostas úteis e verdadeiras, com integração em plataformas X.",
-						"developer": "xAI",
-						"website": "https://grok.com",
-						"tutorial": "https://x.ai/api",
-						"difficulty": "facil",
-						"features": [
-							"Respostas baseadas em fatos",
-							"Integração com plataforma X",
-							"Suporte a voz e texto",
-							"Planos gratuitos e SuperGrok"
-						]
-					},
-					{
-						"id": 42,
-						"name": "Cohere",
-						"type": "llm",
-						"description": "Plataforma de IA para embeddings e geração de texto, ideal para aplicações empresariais.",
-						"developer": "Cohere",
-						"website": "https://cohere.com",
-						"tutorial": "https://docs.cohere.com",
-						"difficulty": "avancado",
-						"features": [
-							"Geração de embeddings para busca",
-							"Suporte a classificação de texto",
-							"Integração via API",
-							"Foco em aplicações corporativas"
-						]
-					},
-					{
-						"id": 43,
-						"name": "CrewAI",
-						"type": "multiagent",
-						"description": "Framework para orquestração de agentes colaborativos, ideal para automação de tarefas em equipe.",
-						"developer": "CrewAI",
-						"website": "https://crewai.com",
-						"tutorial": "https://docs.crewai.com",
-						"difficulty": "avancado",
-						"features": [
-							"Coordenação de múltiplos agentes",
-							"Automação de fluxos colaborativos",
-							"Integração com LLMs externos",
-							"Personalização avançada"
-						]
-					},
-					{
-						"id": 44,
-						"name": "Agno",
-						"type": "multiagent",
-						"description": "Framework Python para transformar LLMs em agentes, com suporte a bancos de dados e ferramentas externas.",
-						"developer": "Agno (ex-Phidata)",
-						"website": "https://www.agnostic.ai",
-						"tutorial": "https://docs.agnostic.ai",
-						"difficulty": "avancado",
-						"features": [
-							"Conexão com Postgres, Pinecone, etc.",
-							"Suporte a função de chamada",
-							"Interface para projetos locais e na nuvem",
-							"Integração com múltiplos LLMs"
-						]
-					},
-					{
-					  "id": 45,
-					  "name": "IBM Watson",
-					  "type": "multiagent",
-					  "description": "Plataforma de IA da IBM para empresas, com soluções em áreas como saúde, finanças e atendimento ao cliente.",
-					  "developer": "IBM",
-					  "website": "https://www.ibm.com/br-pt/cloud/watson",
-					  "tutorial": "https://cloud.ibm.com/docs/watson",
-					  "difficulty": "avancado",
-					  "features": [
-						"Processamento de linguagem natural",
-						"Análise de dados e previsão",
-						"Criação de chatbots e assistentes virtuais"
-					  ]
-					},
-					{
-					  "id": 46,
-					  "name": "Salesforce Einstein",
-					  "type": "multiagent",
-					  "description": "Plataforma de IA da Salesforce para automatizar tarefas de vendas, marketing e atendimento ao cliente.",
-					  "developer": "Salesforce",
-					  "website": "https://www.salesforce.com/br/produtos/einstein/",
-					  "difficulty": "avancado",
-					  "features": [
-						"Previsão de vendas e oportunidades",
-						"Personalização de campanhas de marketing",
-						"Chatbots para atendimento ao cliente"
-					  ]
-					},
-					{
-					  "id": 47,
-					  "name": "Notion AI",
-					  "type": "llm",
-					  "description": "Funcionalidade de IA integrada ao Notion para auxiliar em tarefas como escrita, resumo e organização de informações.",
-					  "developer": "Notion",
-					  "website": "https://www.notion.so/product/ai",
-					  "difficulty": "facil",
-					  "features": [
-						"Geração de textos em documentos Notion",
-						"Resumo de notas e reuniões",
-						"Organização de informações em tabelas e listas"
-					  ]
-					},
-					{
-					  "id": 48,
-					  "name": "GrammarlyGO",
-					  "type": "llm",
-					  "description": "Assistente de escrita da Grammarly com funcionalidades de IA para gerar textos, reescrever frases e mais.",
-					  "developer": "Grammarly",
-					  "website": "https://www.grammarly.com/gogo",
-					  "difficulty": "facil",
-					  "features": [
-						"Geração de rascunhos de texto",
-						"Reescrita e aprimoramento de frases",
-						"Correção gramatical e ortográfica"
-					  ]
-					},
-					{
-					  "id": 49,
-					  "name": "Jasper",
-					  "type": "llm",
-					  "description": "Plataforma de IA para criação de conteúdo de marketing, incluindo textos, imagens e vídeos.",
-					  "developer": "Jasper",
-					  "website": "https://www.jasper.ai/",
-					  "difficulty": "medio",
-					  "features": [
-						"Geração de conteúdo para marketing",
-						"Templates para diferentes formatos",
-						"Otimização para SEO"
-					  ]
-					},
-					{
-					  "id": 50,
-					  "name": "Amazon Bedrock",
-					  "type": "llm",
-					  "description": "Serviço da Amazon para acessar diversos modelos de IA de diferentes fornecedores através de uma API unificada.",
-					  "developer": "Amazon",
-					  "website": "https://aws.amazon.com/bedrock/",
-					  "difficulty": "avancado",
-					  "features": [
-						"Acesso a múltiplos modelos (AI21, Anthropic, etc.)",
-						"API para integração em aplicações",
-						"Escalável para empresas"
-					  ]
-					},
-					{
-					  "id": 51,
-					  "name": "HuggingChat",
-					  "type": "llm",
-					  "description": "Assistente de chat de código aberto da Hugging Face, com foco em pesquisa e desenvolvimento de IA.",
-					  "developer": "Hugging Face",
-					  "website": "https://huggingface.co/chat/",
-					  "difficulty": "medio",
-					  "features": [
-						"Baseado em modelos de código aberto",
-						"Acesso à comunidade de pesquisa",
-						"Ferramenta para desenvolvedores"
-					  ]
-					},
-					{
-					  "id": 52,
-					  "name": "Firefly",
-					  "type": "llm",
-					  "description": "IA generativa de imagens da Adobe, integrada aos aplicativos Creative Cloud.",
-					  "developer": "Adobe",
-					  "website": "https://www.adobe.com/br/sensei/generative-ai/firefly.html",
-					  "difficulty": "medio",
-					  "features": [
-						"Gera imagens a partir de texto",
-						"Edita imagens existentes",
-						"Integrado ao Photoshop e Illustrator"
-					  ]
-					},
-					{
-						"id": 53,
-						"name": "MGX",
-						"type": "multiagent",
-						"description": "Plataforma multiagente baseada em SOPs de software, permitindo interação com uma equipe de IA para criar websites, jogos e mais.",
-						"developer": "MetaGPT",
-						"website": "https://mgx.dev",
-						"tutorial": "https://docs.mgx.dev",
-						"difficulty": "medio",
-						"features": [
-							"Interação com equipe de IA (líder, engenheiro, analista, etc.)",
-							"Criação de websites, blogs, jogos e analytics",
-							"Baseado em processos reais de software",
-							"Suporte 24/7 com interface conversacional"
-						]
-					},
-					{
-						"id": 54,
-						"name": "Taskonomy",
-						"type": "multiagent",
-						"description": "Framework para orquestração de agentes de IA que colaboram em tarefas complexas, com foco em modularidade e escalabilidade.",
-						"developer": "Taskonomy Team",
-						"website": "https://taskonomy.ai",
-						"tutorial": "https://docs.taskonomy.ai",
-						"difficulty": "avancado",
-						"features": [
-							"Orquestração de agentes modulares",
-							"Suporte a fluxos de trabalho dinâmicos",
-							"Integração com LLMs e ferramentas externas",
-							"Foco em automação empresarial"
-						]
-					},
-					{
-						"id": 55,
-						"name": "MultiOn",
-						"type": "multiagent",
-						"description": "Sistema multiagente para automação de tarefas na web, permitindo que agentes colaborem em navegação e interação online.",
-						"developer": "MultiOn",
-						"website": "https://multion.ai",
-						"tutorial": "https://docs.multion.ai",
-						"difficulty": "medio",
-						"features": [
-							"Navegação autônoma na web",
-							"Colaboração entre múltiplos agentes",
-							"Integração com navegadores modernos",
-							"Interface amigável para configuração"
-						]
-					},
-					{
-						"id": 56,
-						"name": "Lagent",
-						"type": "multiagent",
-						"description": "Framework leve para construção de agentes de IA que executam ações baseadas em LLMs, com suporte a ferramentas externas.",
-						"developer": "Lagent Team",
-						"website": "https://github.com/InternLM/lagent",
-						"tutorial": "https://lagent.readthedocs.io",
-						"difficulty": "avancado",
-						"features": [
-							"Execução de ações com ferramentas externas",
-							"Suporte a LLMs como InternLM",
-							"Estrutura leve e personalizável",
-							"Ideal para pesquisa e desenvolvimento"
-						]
-					},
-					{
-						"id": 57,
-						"name": "XAI Swarm",
-						"type": "multiagent",
-						"description": "Framework da xAI para sistemas multiagentes colaborativos, projetado para tarefas complexas com integração à plataforma X.",
-						"developer": "xAI",
-						"website": "https://x.ai/swarm",
-						"tutorial": "https://x.ai/docs/swarm",
-						"difficulty": "avancado",
-						"features": [
-							"Colaboração entre agentes especializados",
-							"Integração com Grok e plataforma X",
-							"Suporte a fluxos de trabalho complexos",
-							"Foco em escalabilidade e segurança"
-						]
-					},
-					{
-						"id": 58,
-						"name": "AutoGen",
-						"type": "multiagent",
-						"description": "Framework de código aberto da Microsoft para criar sistemas multiagentes colaborativos, com suporte a conversas e ferramentas.",
-						"developer": "Microsoft",
-						"website": "https://microsoft.github.io/autogen",
-						"tutorial": "https://microsoft.github.io/autogen/docs",
-						"difficulty": "avancado",
-						"features": [
-							"Conversa dinâmica entre agentes",
-							"Suporte a LLMs e ferramentas externas",
-							"Flexibilidade na definição de fluxos",
-							"Comunidade ativa de desenvolvedores"
-						]
-					},
-					{
-						"id": 59,
-						"name": "CAMEL",
-						"type": "multiagent",
-						"description": "Framework de role-playing para colaboração entre agentes de IA, focado em tarefas específicas via interações conversacionais.",
-						"developer": "CAMEL Team",
-						"website": "https://camel-ai.org",
-						"tutorial": "https://github.com/camel-ai/camel",
-						"difficulty": "avancado",
-						"features": [
-							"Role-playing para colaboração de agentes",
-							"Suporte a tarefas específicas",
-							"Integração com LLMs conversacionais",
-							"Estrutura open-source"
-						]
-					},
-					{
-						"id": 60,
-						"name": "JARVIS",
-						"type": "multiagent",
-						"description": "Sistema multiagente inspirado em assistentes fictícios, projetado para automação de tarefas e integração com LLMs.",
-						"developer": "Hugging Face",
-						"website": "https://huggingface.co/spaces/HuggingFaceH4/JARVIS",
-						"tutorial": "https://github.com/huggingface/JARVIS",
-						"difficulty": "avancado",
-						"features": [
-							"Automação de tarefas complexas",
-							"Integração com modelos Hugging Face",
-							"Suporte a interações multimodais",
-							"Estrutura modular para personalização"
-						]
-					},
-					{
-						"id": 61,
-						"name": "Manus",
-						"type": "multiagent",
-						"description": "Agente de IA autônomo que executa tarefas complexas sem supervisão, como pesquisa, análise de dados, criação de sites e automação de fluxos de trabalho.",
-						"developer": "Monica (Butterfly Effect)",
-						"website": "https://manus.im",
-						"tutorial": "https://manus.im/docs",
-						"difficulty": "medio",
-						"features": [
-							"Execução autônoma de tarefas multi-etapas",
-							"Arquitetura multiagente com subagentes especializados",
-							"Integração com ferramentas externas e navegação web",
-							"Operação assíncrona na nuvem com transparência"
-						]
-					},
-					{
-						"id": 62,
-						"name": "Qwen",
-						"type": "multiagent",
-						"description": "Família de modelos de IA multimodal da Alibaba Cloud, capaz de processar texto, imagens, áudio e vídeo, com suporte a tarefas como geração de conteúdo, codificação e automação de agentes.",
-						"developer": "Alibaba Cloud",
-						"website": "https://qwen.ai",
-						"tutorial": "https://qwenlm.github.io",
-						"difficulty": "medio",
-						"features": [
-							"Suporte multimodal (texto, imagem, áudio, vídeo)",
-							"Processamento de contexto longo (até 128.000 tokens)",
-							"Integração com ferramentas externas e busca na web",
-							"Modelos open-source e proprietários disponíveis"
-						]
-					},
-					{
-						"id": 63,
-						"name": "NotebookLM",
-						"type": "llm",
-						"description": "Ferramenta do Google para organizar e sintetizar notas de pesquisa, criando resumos, tabelas e respostas baseadas em documentos carregados.",
-						"developer": "Google",
-						"website": "https://notebooklm.google.com",
-						"tutorial": "https://support.google.com/notebooklm",
-						"difficulty": "facil",
-						"academic": true,
-						"features": [
-							"Resumo automático de artigos e notas",
-							"Geração de tabelas e cronogramas a partir de documentos",
-							"Respostas baseadas em PDFs e textos carregados",
-							"Integração com Google Drive",
-							"Interface colaborativa para equipes acadêmicas"
-						]
-					},
-					{
-						"id": 64,
-						"name": "AnswerThis",
-						"type": "llm",
-						"description": "Plataforma de IA que responde perguntas acadêmicas com base em artigos científicos, fornecendo citações precisas e resumos.",
-						"developer": "AnswerThis Team",
-						"website": "https://answerthis.io",
-						"tutorial": "https://docs.answerthis.io",
-						"difficulty": "facil",
-						"academic": true,
-						"features": [
-							"Respostas baseadas em artigos revisados por pares",
-							"Citações automáticas no formato APA, MLA, etc.",
-							"Resumo de papers em linguagem acessível",
-							"Busca semântica em bases acadêmicas",
-							"Versão gratuita com limites"
-						]
-					},
-					{
-						"id": 65,
-						"name": "Elicit",
-						"type": "llm",
-						"description": "Assistente de pesquisa que automatiza revisão de literatura, extraindo informações de artigos científicos e organizando dados.",
-						"developer": "Elicit",
-						"website": "https://elicit.org",
-						"tutorial": "https://elicit.org/help",
-						"difficulty": "medio",
-						"academic": true,
-						"features": [
-							"Extração de dados de artigos (métodos, resultados, etc.)",
-							"Busca semântica em bases como PubMed",
-							"Organização de resultados em tabelas",
-							"Suporte a revisão sistemática de literatura",
-							"Integração com fluxos de pesquisa acadêmica"
-						]
-					},
-					{
-						"id": 66,
-						"name": "SciSpace",
-						"type": "llm",
-						"description": "Plataforma para análise e descoberta de artigos científicos, com ferramentas para resumo, explicação de conceitos e escrita acadêmica.",
-						"developer": "SciSpace",
-						"website": "https://typeset.io",
-						"tutorial": "https://typeset.io/help",
-						"difficulty": "facil",
-						"academic": true,
-						"features": [
-							"Resumo e explicação de artigos em linguagem simples",
-							"Formatação automática de citações (APA, MLA, etc.)",
-							"Busca em mais de 200 milhões de artigos",
-							"Assistente de escrita para papers",
-							"Ferramentas colaborativas para equipes"
-						]
-					},
-					{
-						"id": 67,
-						"name": "Consensus",
-						"type": "llm",
-						"description": "Motor de busca acadêmico alimentado por IA que responde perguntas com base em evidências científicas, incluindo citações.",
-						"developer": "Consensus",
-						"website": "https://consensus.app",
-						"tutorial": "https://consensus.app/help",
-						"difficulty": "facil",
-						"academic": true,
-						"features": [
-							"Respostas baseadas em artigos revisados por pares",
-							"Citações diretas de fontes acadêmicas",
-							"Análise de consenso em tópicos científicos",
-							"Interface intuitiva para estudantes",
-							"Versão gratuita com funcionalidades básicas"
-						]
-					},
-					{
-						"id": 68,
-						"name": "ResearchRabbit",
-						"type": "llm",
-						"description": "Ferramenta para descoberta de literatura acadêmica, criando mapas visuais de artigos relacionados e sugerindo novas leituras.",
-						"developer": "ResearchRabbit",
-						"website": "https://researchrabbit.ai",
-						"tutorial": "https://researchrabbit.ai/help",
-						"difficulty": "medio",
-						"academic": true,
-						"features": [
-							"Mapas visuais de artigos interconectados",
-							"Sugestões personalizadas de leitura",
-							"Integração com bases como PubMed e arXiv",
-							"Organização de bibliotecas de pesquisa",
-							"Gratuito para pesquisadores e estudantes"
-						]
-					},
-					{
-						"id": 69,
-						"name": "Connected Papers",
-						"type": "llm",
-						"description": "Ferramenta que gera gráficos visuais de artigos acadêmicos relacionados, ajudando a explorar literatura relevante.",
-						"developer": "Connected Papers",
-						"website": "https://www.connectedpapers.com",
-						"tutorial": "https://www.connectedpapers.com/about",
-						"difficulty": "facil",
-						"academic": true,
-						"features": [
-							"Gráficos visuais de artigos relacionados",
-							"Exploração de citações e referências",
-							"Suporte a bases como Semantic Scholar",
-							"Ideal para revisão de literatura",
-							"Acesso gratuito com limites"
-						]
-					},
-					{
-						"id": 70,
-						"name": "Scite",
-						"type": "llm",
-						"description": "Plataforma que analisa citações em artigos acadêmicos, indicando se são de suporte ou contraditórias, ideal para avaliar a confiabilidade de papers.",
-						"developer": "Scite",
-						"website": "https://scite.ai",
-						"tutorial": "https://help.scite.ai",
-						"difficulty": "facil",
-						"academic": true,
-						"features": [
-							"Análise de citações com contexto (suporte ou contradição)",
-							"Busca semântica em mais de 1 bilhão de citações",
-							"Relatórios de citação para papers específicos",
-							"Integração com ferramentas de escrita acadêmica",
-							"Versão gratuita com funcionalidades básicas"
-						]
-					},
-					{
-						"id": 71,
-						"name": "Semantic Scholar",
-						"type": "llm",
-						"description": "Ferramenta de busca acadêmica alimentada por IA que recomenda papers relevantes e fornece resumos baseados em inteligência artificial.",
-						"developer": "Allen Institute for AI",
-						"website": "https://semanticscholar.org",
-						"tutorial": "https://semanticscholar.org/about",
-						"difficulty": "facil",
-						"academic": true,
-						"features": [
-							"Busca semântica em mais de 200 milhões de papers",
-							"Resumos gerados por IA para artigos",
-							"Recomendações personalizadas de leitura",
-							"Integração com bases como PubMed e arXiv",
-							"Totalmente gratuito e open-access"
-						]
-					},
-					{
-						"id": 72,
-						"name": "Scholarcy",
-						"type": "llm",
-						"description": "Ferramenta que resume artigos acadêmicos em flashcards e extrai informações-chave, facilitando a compreensão de papers complexos.",
-						"developer": "Scholarcy",
-						"website": "https://scholarcy.com",
-						"tutorial": "https://scholarcy.com/help",
-						"difficulty": "facil",
-						"academic": true,
-						"features": [
-							"Resumos de artigos em formato de flashcards",
-							"Extração de tabelas, figuras e referências",
-							"Exportação de resumos para Word ou Excel",
-							"Suporte a PDFs e artigos online",
-							"Plano gratuito com limites"
-						]
-					},
-					{
-						"id": 73,
-						"name": "Litmaps",
-						"type": "llm",
-						"description": "Ferramenta de visualização que cria mapas de literatura baseados em citações, ajudando a descobrir papers relevantes e tendências de pesquisa.",
-						"developer": "Litmaps",
-						"website": "https://litmaps.com",
-						"tutorial": "https://litmaps.com/help",
-						"difficulty": "medio",
-						"academic": true,
-						"features": [
-							"Mapas visuais baseados em redes de citação",
-							"Busca por papers relacionados a partir de um seed paper",
-							"Filtros por data de publicação e contagem de citações",
-							"Integração com ORCID e bases acadêmicas",
-							"Plano gratuito com funcionalidades limitadas"
-						]
-					},
-					{
-						"id": 74,
-						"name": "ChatPDF",
-						"type": "llm",
-						"description": "Assistente de IA para interação com PDFs, permitindo resumir, extrair informações e responder perguntas sobre artigos acadêmicos.",
-						"developer": "ChatPDF",
-						"website": "https://chatpdf.com",
-						"tutorial": "https://chatpdf.com/help",
-						"difficulty": "facil",
-						"academic": true,
-						"features": [
-							"Resumo e análise de PDFs em linguagem natural",
-							"Extração de fatos e conceitos específicos",
-							"Suporte a múltiplos idiomas, incluindo português",
-							"Limite de 2 PDFs por dia na versão gratuita",
-							"Interface simples sem necessidade de programação"
-						]
-					},
-					{
-						"id": 75,
-						"name": "Inciteful",
-						"type": "llm",
-						"description": "Ferramenta que cria mapas de citação e recomenda papers com base em similaridade, focada em explorar tendências na literatura acadêmica.",
-						"developer": "Inciteful",
-						"website": "https://inciteful.xyz",
-						"tutorial": "https://inciteful.xyz/about",
-						"difficulty": "medio",
-						"academic": true,
-						"features": [
-							"Mapas visuais de citações e similaridade",
-							"Recomendações baseadas em seed papers",
-							"Análise de tendências em áreas de pesquisa",
-							"Integração com Semantic Scholar",
-							"Gratuito com funcionalidades completas"
-						]
-					},
-					{
-						"id": 76,
-						"name": "Paperpal",
-						"type": "llm",
-						"description": "Assistente de escrita acadêmica que sugere melhorias em textos, verifica consistência e ajuda na formatação de manuscritos.",
-						"developer": "Paperpal",
-						"website": "https://paperpal.com",
-						"tutorial": "https://paperpal.com/help",
-						"difficulty": "facil",
-						"academic": true,
-						"features": [
-							"Sugestões de reescrita para clareza e concisão",
-							"Verificação de gramática e estilo acadêmico",
-							"Formatação automática de citações (APA, MLA, etc.)",
-							"Integração com Microsoft Word e navegadores",
-							"Plano gratuito com limites de uso"
-						]
-					},
-					{
-						"id": 77,
-						"name": "Swarm",
-						"type": "multiagent",
-						"description": "Framework experimental da OpenAI para orquestração de sistemas multiagentes, permitindo a criação de fluxos de trabalho colaborativos com agentes especializados.",
-						"developer": "OpenAI",
-						"website": "https://github.com/openai/swarm",
-						"tutorial": "https://github.com/openai/swarm/blob/main/docs",
-						"difficulty": "avancado",
-						"academic": true,
-						"features": [
-							"Orquestração de múltiplos agentes com papéis específicos",
-							"Suporte a fluxos de trabalho sequenciais e concorrentes",
-							"Integração com modelos de linguagem como GPT-4o",
-							"Ideal para automação de tarefas complexas em pesquisa",
-							"Open-source com exemplos para uso acadêmico"
-						]
-					}
-				  ]
-				};
+                  "ais": [
+                    {
+                      "id": 1,
+                      "name": "ChatGPT",
+                      "type": "llm",
+                      "description": "Assistente de IA conversacional desenvolvido pela OpenAI, um dos mais populares e versáteis do mercado.",
+                      "developer": "OpenAI",
+                      "website": "https://chat.openai.com",
+                      "tutorial": "https://platform.openai.com/docs/guides/gpt",
+                      "difficulty": "facil",
+                      "features": [
+                        "Responde perguntas em diversos assuntos",
+                        "Escreve textos e auxilia em redações",
+                        "Ajuda com códigos de programação",
+                        "Integração com plugins e navegação web",
+                        "Processamento de imagens com GPT-4o"
+                      ]
+                    },
+                    {
+                      "id": 2,
+                      "name": "Claude",
+                      "type": "llm",
+                      "description": "Assistente de IA conversacional da Anthropic, conhecido por respostas detalhadas e seguras.",
+                      "developer": "Anthropic",
+                      "website": "https://claude.ai",
+                      "tutorial": "https://docs.anthropic.com",
+                      "difficulty": "facil",
+                      "features": [
+                        "Responde com respostas detalhadas",
+                        "Analisa documentos longos (até 150.000 tokens)",
+                        "Forte em contextos educacionais",
+                        "Processamento de imagens (Claude 3)",
+                        "Baixo índice de alucinações"
+                      ]
+                    },
+                    {
+                      "id": 3,
+                      "name": "Copilot",
+                      "type": "llm",
+                      "description": "Assistente de código e produtividade da Microsoft integrado ao Windows e aplicativos Office.",
+                      "developer": "Microsoft",
+                      "website": "https://copilot.microsoft.com",
+                      "tutorial": "https://learn.microsoft.com/copilot",
+                      "difficulty": "facil",
+                      "features": [
+                        "Integrado ao Windows 11",
+                        "Ajuda em todas as aplicações Office",
+                        "Responde perguntas gerais",
+                        "Geração de imagens com DALL-E",
+                        "Assistência em tempo real no trabalho"
+                      ]
+                    },
+                    {
+                      "id": 4,
+                      "name": "Gemini",
+                      "type": "llm",
+                      "description": "Modelo de IA multimodal do Google, capaz de analisar texto e imagens simultaneamente.",
+                      "developer": "Google",
+                      "website": "https://gemini.google.com",
+                      "tutorial": "https://ai.google.dev/gemini",
+                      "difficulty": "facil",
+                      "features": [
+                        "Analisa imagens e texto",
+                        "Integrado ao Gmail e Docs",
+                        "Responde com base em conhecimentos do Google",
+                        "Versão móvel disponível",
+                        "API para desenvolvedores"
+                      ]
+                    },
+                    {
+                      "id": 5,
+                      "name": "DeepSeek",
+                      "type": "llm",
+                      "description": "Modelo LLM avançado com forte capacidade em programação e processamento de línguas.",
+                      "developer": "DeepSeek",
+                      "website": "https://deepseek.com",
+                      "tutorial": "https://github.com/deepseek-ai/DeepSeek-Coder",
+                      "difficulty": "medio",
+                      "features": [
+                        "Especializado em código",
+                        "Multilíngue com bom suporte a português",
+                        "Ótimo para tarefas técnicas",
+                        "Versão code-instruct para programação",
+                        "Modelos abertos disponíveis para download"
+                      ]
+                    },
+                    {
+                      "id": 6,
+                      "name": "Pi",
+                      "type": "llm",
+                      "description": "Assistente conversacional da Inflection AI com foco em interações mais naturais e empáticas.",
+                      "developer": "Inflection AI",
+                      "website": "https://pi.ai",
+                      "difficulty": "facil",
+                      "features": [
+                        "Conversas empáticas e naturais",
+                        "Bom para discussões filosóficas",
+                        "Versão gratuita sem limitações",
+                        "Disponível como aplicativo móvel",
+                        "Design minimalista e amigável"
+                      ]
+                    },
+                    {
+                      "id": 7,
+                      "name": "Perplexity",
+                      "type": "llm",
+                      "description": "Motor de busca alimentado por IA que fornece respostas detalhadas com citações e fontes.",
+                      "developer": "Perplexity AI",
+                      "website": "https://perplexity.ai",
+                      "tutorial": "https://support.perplexity.ai",
+                      "difficulty": "facil",
+                      "features": [
+                        "Busca com fontes verificadas",
+                        "Respostas sempre atualizadas",
+                        "Excelente para pesquisas acadêmicas",
+                        "Integração com Copilot API",
+                        "Versão gratuita com limites generosos"
+                      ]
+                    },
+                    {
+                      "id": 8,
+                      "name": "Bing Chat (Copilot)",
+                      "type": "llm",
+                      "description": "Assistente de IA integrado ao buscador Bing da Microsoft, com acesso à internet.",
+                      "developer": "Microsoft",
+                      "website": "https://bing.com",
+                      "difficulty": "facil",
+                      "features": [
+                        "Acesso a informações atualizadas",
+                        "Integrado ao navegador Edge",
+                        "Gera imagens com DALL-E",
+                        "Pesquisa visual com análise de imagens",
+                        "Suporte a diversos formatos de resposta"
+                      ]
+                    },
+                    {
+                      "id": 9,
+                      "name": "Llama 3",
+                      "type": "llm",
+                      "description": "Modelo de código aberto da Meta, com versões gratuitas para uso pessoal e comercial.",
+                      "developer": "Meta",
+                      "website": "https://llama.meta.com",
+                      "tutorial": "https://github.com/meta-llama/llama",
+                      "difficulty": "medio",
+                      "features": [
+                        "Open source e gratuito",
+                        "Pode ser usado offline",
+                        "Bom para desenvolvedores",
+                        "Modelos de vários tamanhos (8B a 70B)",
+                        "Licença permissiva para uso comercial"
+                      ]
+                    },
+                    {
+                      "id": 10,
+                      "name": "AutoGPT",
+                      "type": "multiagent",
+                      "description": "Sistema autônomo que funciona como vários agentes coordenados para resolver tarefas complexas.",
+                      "developer": "Comunidade OpenAI",
+                      "website": "https://github.com/Significant-Gravitas/Auto-GPT",
+                      "tutorial": "https://docs.agpt.co",
+                      "difficulty": "avancado",
+                      "features": [
+                        "Executa tarefas sem supervisão",
+                        "Pode acessar a internet",
+                        "Resolve problemas complexos sozinho",
+                        "Memória de longo prazo",
+                        "Suporte a plug-ins personalizados"
+                      ]
+                    },
+                    {
+                      "id": 11,
+                      "name": "LangChain",
+                      "type": "multiagent",
+                      "description": "Framework para desenvolvimento de aplicações que utilizam LLMs em fluxos de trabalho complexos.",
+                      "developer": "LangChain",
+                      "website": "https://langchain.com",
+                      "tutorial": "https://python.langchain.com/docs/get_started",
+                      "difficulty": "avancado",
+                      "features": [
+                        "Conecta IAs com outras ferramentas",
+                        "Cria agentes customizados",
+                        "Automatiza tarefas complexas",
+                        "Gerenciamento de memória e contexto",
+                        "Integrações com centenas de ferramentas"
+                      ]
+                    },
+                    {
+                      "id": 12,
+                      "name": "Cursor",
+                      "type": "llm",
+                      "description": "IDE inteligente otimizada para programação assistida por IA, baseada no VSCode.",
+                      "developer": "Cursor",
+                      "website": "https://cursor.sh",
+                      "tutorial": "https://docs.cursor.sh",
+                      "difficulty": "medio",
+                      "features": [
+                        "Completa e refatora código",
+                        "Explica códigos complexos",
+                        "Funciona como um VSCode melhorado",
+                        "Chat contextual integrado",
+                        "Suporta múltiplos modelos de IA"
+                      ]
+                    },
+                    {
+                      "id": 13,
+                      "name": "Codeium",
+                      "type": "llm",
+                      "description": "Assistente de código gratuito que funciona como plugin em diversos IDEs e editores.",
+                      "developer": "Codeium",
+                      "website": "https://codeium.com",
+                      "tutorial": "https://docs.codeium.com",
+                      "difficulty": "medio",
+                      "features": [
+                        "Completa código em tempo real",
+                        "Versão gratuita completa",
+                        "Suporta +20 linguagens",
+                        "Funciona em vários IDEs",
+                        "Documentação automática de código"
+                      ]
+                    },
+                    {
+                      "id": 14,
+                      "name": "Midjourney",
+                      "type": "llm",
+                      "description": "IA generativa de imagens de alta qualidade, acessível via Discord.",
+                      "developer": "Midjourney",
+                      "website": "https://midjourney.com",
+                      "tutorial": "https://docs.midjourney.com",
+                      "difficulty": "medio",
+                      "features": [
+                        "Gera imagens realistas ou artísticas",
+                        "Funciona pelo Discord",
+                        "Qualidade visual excepcional",
+                        "Sistema de variações e modificações",
+                        "Suporte a diferentes estilos e aspectos"
+                      ]
+                    },
+                    {
+                      "id": 15,
+                      "name": "DALL-E 3",
+                      "type": "llm",
+                      "description": "Gerador de imagens da OpenAI que cria visuals de alta qualidade a partir de descrições textuais.",
+                      "developer": "OpenAI",
+                      "website": "https://openai.com/dall-e-3",
+                      "difficulty": "facil",
+                      "features": [
+                        "Integrado ao ChatGPT Plus",
+                        "Interface simples de usar",
+                        "Entende bem instruções em português",
+                        "Alta fidelidade ao prompt textual",
+                        "Evita conteúdo problemático"
+                      ]
+                    },
+                    {
+                      "id": 16,
+                      "name": "AgentGPT",
+                      "type": "multiagent",
+                      "description": "Sistema que permite criar e implantar agentes de IA autônomos diretamente no navegador.",
+                      "developer": "Rework AI",
+                      "website": "https://agentgpt.reworkd.ai",
+                      "difficulty": "medio",
+                      "features": [
+                        "Cria agentes no navegador",
+                        "Interface visual para configuração",
+                        "Não requer programação",
+                        "Personalização de objetivos",
+                        "Versão gratuita disponível"
+                      ]
+                    },
+                    {
+                      "id": 17,
+                      "name": "Anthropic Claude API",
+                      "type": "llm",
+                      "description": "API do Claude para desenvolvedores integrarem IA em aplicações próprias.",
+                      "developer": "Anthropic",
+                      "website": "https://anthropic.com/api",
+                      "tutorial": "https://docs.anthropic.com/claude/docs",
+                      "difficulty": "avancado",
+                      "features": [
+                        "Para desenvolvedores",
+                        "Modelo Claude 3 Opus e Sonnet",
+                        "Pay-as-you-go",
+                        "Limites de contexto extensos",
+                        "Sistema de filtro de segurança configurável"
+                      ]
+                    },
+                    {
+                      "id": 18,
+                      "name": "BabyAGI",
+                      "type": "multiagent",
+                      "description": "Sistema simples de gerenciamento de tarefas potencializado por IA que automatiza fluxos de trabalho.",
+                      "developer": "Yohei Nakajima",
+                      "website": "https://github.com/yoheinakajima/babyagi",
+                      "difficulty": "avancado",
+                      "features": [
+                        "Gerencia e executa tarefas",
+                        "Aprende enquanto trabalha",
+                        "Personalizável via código",
+                        "Base para sistemas de agentes múltiplos",
+                        "Integração com diferentes LLMs"
+                      ]
+                    },
+                    {
+                      "id": 19,
+                      "name": "Stable Diffusion",
+                      "type": "llm",
+                      "description": "Modelo open-source para geração de imagens que pode ser executado localmente ou via serviços web.",
+                      "developer": "Stability AI",
+                      "website": "https://stability.ai/stable-diffusion",
+                      "tutorial": "https://github.com/CompVis/stable-diffusion",
+                      "difficulty": "medio",
+                      "features": [
+                        "Geração de imagens localmente",
+                        "Várias interfaces (webUI, Automatic1111)",
+                        "Extensões e plugins da comunidade",
+                        "Personalização com LoRA e embeddings",
+                        "Open-source e totalmente gratuito"
+                      ]
+                    },
+                    {
+                      "id": 20,
+                      "name": "Falcon",
+                      "type": "llm",
+                      "description": "Modelo de linguagem de código aberto treinado pelo Technology Innovation Institute (TII).",
+                      "developer": "TII",
+                      "website": "https://falconllm.tii.ae",
+                      "tutorial": "https://huggingface.co/tiiuae",
+                      "difficulty": "avancado",
+                      "features": [
+                        "Completamente open-source",
+                        "Diferentes tamanhos (7B, 40B, 180B)",
+                        "Bom desempenho em vários benchmarks",
+                        "Pode ser executado localmente",
+                        "Licença permissiva para uso comercial"
+                      ]
+                    },
+                    {
+                      "id": 21,
+                      "name": "Whisper",
+                      "type": "llm",
+                      "description": "Sistema de reconhecimento de fala automático da OpenAI com excelente desempenho multilíngue.",
+                      "developer": "OpenAI",
+                      "website": "https://openai.com/research/whisper",
+                      "tutorial": "https://github.com/openai/whisper",
+                      "difficulty": "medio",
+                      "features": [
+                        "Transcrição precisa em múltiplos idiomas",
+                        "Modelo open-source",
+                        "Pode ser executado offline",
+                        "Várias implementações e interfaces",
+                        "Capaz de traduzir diretamente para inglês"
+                      ]
+                    },
+                    {
+                      "id": 22,
+                      "name": "Mistral",
+                      "type": "llm",
+                      "description": "Família de modelos de linguagem eficientes e de alto desempenho disponíveis em código aberto.",
+                      "developer": "Mistral AI",
+                      "website": "https://mistral.ai",
+                      "tutorial": "https://docs.mistral.ai",
+                      "difficulty": "medio",
+                      "features": [
+                        "Alto desempenho com tamanho reduzido",
+                        "Modelos especializados para código",
+                        "Versões otimizadas para eficiência",
+                        "Open-source e uso comercial permitido",
+                        "Disponível via API ou download"
+                      ]
+                    },
+                    {
+                      "id": 23,
+                      "name": "Bard (antigo Gemini)",
+                      "type": "llm",
+                      "description": "Antigo assistente de IA do Google, agora integrado ao Gemini e outros serviços Google.",
+                      "developer": "Google",
+                      "website": "https://bard.google.com",
+                      "difficulty": "facil",
+                      "features": [
+                        "Integração com serviços Google",
+                        "Pesquisa em tempo real",
+                        "Suporte multilíngue",
+                        "Versão gratuita disponível",
+                        "Interface simples e intuitiva"
+                      ]
+                    },
+                    {
+                      "id": 24,
+                      "name": "GPT-4o",
+                      "type": "llm",
+                      "description": "Modelo multimodal da OpenAI que processa texto, imagens e áudio com alta eficiência e qualidade.",
+                      "developer": "OpenAI",
+                      "website": "https://openai.com/gpt-4o",
+                      "tutorial": "https://platform.openai.com/docs/models",
+                      "difficulty": "facil",
+                      "features": [
+                        "Processamento de imagens e texto",
+                        "Entrada e saída de áudio",
+                        "Resposta em tempo real",
+                        "Disponível no ChatGPT Plus",
+                        "Capacidades multimodais integradas"
+                      ]
+                    },
+                    {
+                      "id": 25,
+                      "name": "LM Studio",
+                      "type": "llm",
+                      "description": "Aplicativo desktop para download e execução local de modelos de IA em computadores pessoais.",
+                      "developer": "LM Studio",
+                      "website": "https://lmstudio.ai",
+                      "tutorial": "https://github.com/lmstudio-ai/lmstudio",
+                      "difficulty": "medio",
+                      "features": [
+                        "Interface gráfica para modelos locais",
+                        "Suporta dezenas de modelos prontos",
+                        "Otimizado para hardware comum",
+                        "Não requer conexão à internet",
+                        "Gratuito para uso pessoal"
+                      ]
+                    },
+                    {
+                      "id": 26,
+                      "name": "Ollama",
+                      "type": "llm",
+                      "description": "Framework para executar, gerenciar e personalizar modelos de IA localmente com interface simples.",
+                      "developer": "Ollama",
+                      "website": "https://ollama.ai",
+                      "tutorial": "https://github.com/ollama/ollama",
+                      "difficulty": "medio",
+                      "features": [
+                        "Execução local de LLMs",
+                        "Interface por linha de comando",
+                        "Baixo consumo de recursos",
+                        "Biblioteca de modelos otimizados",
+                        "Integração com outras ferramentas"
+                      ]
+                    },
+                    {
+                      "id": 27,
+                      "name": "Poe",
+                      "type": "llm",
+                      "description": "Plataforma que oferece acesso a múltiplos modelos de IA através de uma interface unificada.",
+                      "developer": "Quora",
+                      "website": "https://poe.com",
+                      "difficulty": "facil",
+                      "features": [
+                        "Acesso a diversos modelos em um só lugar",
+                        "Claude, GPT-4, Google, entre outros",
+                        "Criação de bots personalizados",
+                        "Compartilhamento de conversas",
+                        "Interface limpa e responsiva"
+                      ]
+                    },
+                    {
+                      "id": 28,
+                      "name": "GPTs (Custom GPTs)",
+                      "type": "llm",
+                      "description": "Versões personalizadas do ChatGPT criadas por usuários para tarefas ou temas específicos.",
+                      "developer": "OpenAI",
+                      "website": "https://chat.openai.com/gpts",
+                      "tutorial": "https://openai.com/docs/gpts",
+                      "difficulty": "medio",
+                      "features": [
+                        "Personalização sem programação",
+                        "Criação de IAs especializadas",
+                        "Possibilidade de uso de ferramentas",
+                        "Marketplace integrado",
+                        "Criação gratuita para assinantes Plus"
+                      ]
+                    },
+                    {
+                      "id": 29,
+                      "name": "Sora",
+                      "type": "llm",
+                      "description": "Modelo de geração de vídeo da OpenAI que cria clipes realistas a partir de descrições textuais.",
+                      "developer": "OpenAI",
+                      "website": "https://openai.com/sora",
+                      "difficulty": "avancado",
+                      "features": [
+                        "Geração de vídeos realistas",
+                        "Compreensão de física e movimento",
+                        "Cenas complexas com múltiplos elementos",
+                        "Acesso limitado (em preview)",
+                        "Alta fidelidade visual"
+                      ]
+                    },
+                    {
+                      "id": 30,
+                      "name": "Character.AI",
+                      "type": "llm",
+                      "description": "Plataforma para criar e conversar com personagens de IA personalizados em diversos estilos.",
+                      "developer": "Character.AI",
+                      "website": "https://character.ai",
+                      "difficulty": "facil",
+                      "features": [
+                        "Criação de personagens personalizados",
+                        "Comunidade ativa de criadores",
+                        "Conversas temáticas e roleplay",
+                        "Versão gratuita disponível",
+                        "Personagens de ficção e históricos"
+                      ]
+                    },
+                    {
+                      "id": 31,
+                      "name": "Synthesia",
+                      "type": "llm",
+                      "description": "Plataforma para criação de vídeos com apresentadores virtuais gerados por IA.",
+                      "developer": "Synthesia",
+                      "website": "https://www.synthesia.io",
+                      "tutorial": "https://help.synthesia.io",
+                      "difficulty": "medio",
+                      "features": [
+                        "Criação de vídeos com avatares virtuais",
+                        "Mais de 120 avatares disponíveis",
+                        "Suporte a mais de 60 idiomas",
+                        "Edição de texto para vídeo",
+                        "Templates prontos para uso"
+                      ]
+                    },
+                    {
+                      "id": 32,
+                      "name": "ElevenLabs",
+                      "type": "llm",
+                      "description": "Plataforma de síntese de voz com qualidade quase humana e opções de personalização.",
+                      "developer": "ElevenLabs",
+                      "website": "https://elevenlabs.io",
+                      "tutorial": "https://docs.elevenlabs.io",
+                      "difficulty": "medio",
+                      "features": [
+                        "Vozes realistas em diversos idiomas",
+                        "Clonagem de voz (com permissão)",
+                        "API para desenvolvedores",
+                        "Controle de entonação e emoção",
+                        "Versão gratuita com limites"
+                      ]
+                    },
+                    {
+                      "id": 33,
+                      "name": "Runway",
+                      "type": "llm",
+                      "description": "Plataforma de criação e edição de mídia com ferramentas de IA para vídeo, imagem e áudio.",
+                      "developer": "Runway",
+                      "website": "https://runway.ml",
+                      "tutorial": "https://help.runwayml.com",
+                      "difficulty": "medio",
+                      "features": [
+                        "Edição de vídeo com IA",
+                        "Geração de vídeo a partir de texto",
+                        "Remoção de objetos em vídeos",
+                        "Extensão do conteúdo de imagens",
+                        "Ferramentas criativas integradas"
+                      ]
+                    },
+                    {
+                      "id": 34,
+                      "name": "Langchain.js",
+                      "type": "multiagent",
+                      "description": "Versão JavaScript do framework Langchain para construção de aplicações e agentes de IA.",
+                      "developer": "LangChain",
+                      "website": "https://js.langchain.com",
+                      "tutorial": "https://js.langchain.com/docs",
+                      "difficulty": "avancado",
+                      "features": [
+                        "Integração com frontend web",
+                        "Construção de agentes em JavaScript",
+                        "Componentes reutilizáveis",
+                        "Compatível com Node.js e browsers",
+                        "Suporte a múltiplos LLMs"
+                      ]
+                    },
+                    {
+                      "id": 35,
+                      "name": "LocalAI",
+                      "type": "llm",
+                      "description": "Drop-in substituto de código aberto para APIs de IA, executando modelos localmente.",
+                      "developer": "Mudler",
+                      "website": "https://github.com/mudler/LocalAI",
+                      "tutorial": "https://localai.io/docs",
+                      "difficulty": "avancado",
+                      "features": [
+                        "APIs compatíveis com OpenAI",
+                        "Execução local sem internet",
+                        "Suporte a múltiplos modelos",
+                        "Baixo consumo de recursos",
+                        "Privacidade total dos dados"
+                      ]
+                    },
+                    {
+                      "id": 36,
+                      "name": "OpenInterpreter",
+                      "type": "multiagent",
+                      "description": "Permite que LLMs executem código diretamente no seu computador, com permissão do usuário.",
+                      "developer": "KillianLucas",
+                      "website": "https://github.com/KillianLucas/open-interpreter",
+                      "tutorial": "https://docs.openinterpreter.com",
+                      "difficulty": "avancado",
+                      "features": [
+                        "Execução de código em tempo real",
+                        "Automação supervisionada pelo usuário",
+                        "Interface por terminal",
+                        "Acesso a recursos locais",
+                        "Processamento local ou via API"
+                      ]
+                    },
+                    {
+                      "id": 37,
+                      "name": "Replicate",
+                      "type": "llm",
+                      "description": "Plataforma que fornece acesso a centenas de modelos de IA através de APIs unificadas.",
+                      "developer": "Replicate",
+                      "website": "https://replicate.com",
+                      "tutorial": "https://replicate.com/docs",
+                      "difficulty": "medio",
+                      "features": [
+                        "Marketplace de modelos de IA",
+                        "API simples e unificada",
+                        "Hospedagem de modelos personalizados",
+                        "Pay-as-you-go sem compromisso",
+                        "Integração fácil com aplicações"
+                      ]
+                    },
+                    {
+                      "id": 38,
+                      "name": "HuggingFace Transformers",
+                      "type": "llm",
+                      "description": "Biblioteca que dá acesso a milhares de modelos pré-treinados e ferramentas para NLP e visão computacional.",
+                      "developer": "HuggingFace",
+                      "website": "https://huggingface.co/transformers",
+                      "tutorial": "https://huggingface.co/docs/transformers",
+                      "difficulty": "avancado",
+                      "features": [
+                        "Acesso a milhares de modelos",
+                        "Suporte a PyTorch e TensorFlow",
+                        "Pipeline para tarefas prontas",
+                        "Open-source e gratuito",
+                        "Comunidade ativa de contribuidores"
+                      ]
+                    },
+                    {
+                      "id": 39,
+                      "name": "Tavily",
+                      "type": "llm",
+                      "description": "API de busca especializada para construção de aplicações de IA com informações precisas e atualizadas.",
+                      "developer": "Tavily AI",
+                      "website": "https://tavily.com",
+                      "tutorial": "https://docs.tavily.com",
+                      "difficulty": "medio",
+                      "features": [
+                        "Busca semântica avançada",
+                        "Pesquisa em tempo real na web",
+                        "Integração simples com LangChain",
+                        "API para desenvolvedores",
+                        "Resultados estruturados e contextuais"
+                      ]
+                    },
+                    {
+                      "id": 40,
+                      "name": "GPT4All",
+                      "type": "llm",
+                      "description": "Assistente local de IA que executa LLMs diretamente no computador sem enviar dados para a nuvem.",
+                      "developer": "Nomic AI",
+                      "website": "https://gpt4all.io",
+                      "tutorial": "https://docs.gpt4all.io",
+                      "difficulty": "medio",
+                      "features": [
+                        "Execução offline completa",
+                        "Interface gráfica amigável",
+                        "Suporte a múltiplos modelos locais",
+                        "Chat e processamento de documentos",
+                        "Totalmente gratuito e open-source"
+                      ]
+                    },
+                    {
+                        "id": 41,
+                        "name": "Grok",
+                        "type": "llm",
+                        "description": "Assistente conversacional da xAI, projetado para respostas úteis e verdadeiras, com integração em plataformas X.",
+                        "developer": "xAI",
+                        "website": "https://grok.com",
+                        "tutorial": "https://x.ai/api",
+                        "difficulty": "facil",
+                        "features": [
+                            "Respostas baseadas em fatos",
+                            "Integração com plataforma X",
+                            "Suporte a voz e texto",
+                            "Planos gratuitos e SuperGrok"
+                        ]
+                    },
+                    {
+                        "id": 42,
+                        "name": "Cohere",
+                        "type": "llm",
+                        "description": "Plataforma de IA para embeddings e geração de texto, ideal para aplicações empresariais.",
+                        "developer": "Cohere",
+                        "website": "https://cohere.com",
+                        "tutorial": "https://docs.cohere.com",
+                        "difficulty": "avancado",
+                        "features": [
+                            "Geração de embeddings para busca",
+                            "Suporte a classificação de texto",
+                            "Integração via API",
+                            "Foco em aplicações corporativas"
+                        ]
+                    },
+                    {
+                        "id": 43,
+                        "name": "CrewAI",
+                        "type": "multiagent",
+                        "description": "Framework para orquestração de agentes colaborativos, ideal para automação de tarefas em equipe.",
+                        "developer": "CrewAI",
+                        "website": "https://crewai.com",
+                        "tutorial": "https://docs.crewai.com",
+                        "difficulty": "avancado",
+                        "features": [
+                            "Coordenação de múltiplos agentes",
+                            "Automação de fluxos colaborativos",
+                            "Integração com LLMs externos",
+                            "Personalização avançada"
+                        ]
+                    },
+                    {
+                        "id": 44,
+                        "name": "Agno",
+                        "type": "multiagent",
+                        "description": "Framework Python para transformar LLMs em agentes, com suporte a bancos de dados e ferramentas externas.",
+                        "developer": "Agno (ex-Phidata)",
+                        "website": "https://www.agnostic.ai",
+                        "tutorial": "https://docs.agnostic.ai",
+                        "difficulty": "avancado",
+                        "features": [
+                            "Conexão com Postgres, Pinecone, etc.",
+                            "Suporte a função de chamada",
+                            "Interface para projetos locais e na nuvem",
+                            "Integração com múltiplos LLMs"
+                        ]
+                    },
+                    {
+                      "id": 45,
+                      "name": "IBM Watson",
+                      "type": "multiagent",
+                      "description": "Plataforma de IA da IBM para empresas, com soluções em áreas como saúde, finanças e atendimento ao cliente.",
+                      "developer": "IBM",
+                      "website": "https://www.ibm.com/br-pt/cloud/watson",
+                      "tutorial": "https://cloud.ibm.com/docs/watson",
+                      "difficulty": "avancado",
+                      "features": [
+                        "Processamento de linguagem natural",
+                        "Análise de dados e previsão",
+                        "Criação de chatbots e assistentes virtuais"
+                      ]
+                    },
+                    {
+                      "id": 46,
+                      "name": "Salesforce Einstein",
+                      "type": "multiagent",
+                      "description": "Plataforma de IA da Salesforce para automatizar tarefas de vendas, marketing e atendimento ao cliente.",
+                      "developer": "Salesforce",
+                      "website": "https://www.salesforce.com/br/produtos/einstein/",
+                      "difficulty": "avancado",
+                      "features": [
+                        "Previsão de vendas e oportunidades",
+                        "Personalização de campanhas de marketing",
+                        "Chatbots para atendimento ao cliente"
+                      ]
+                    },
+                    {
+                      "id": 47,
+                      "name": "Notion AI",
+                      "type": "llm",
+                      "description": "Funcionalidade de IA integrada ao Notion para auxiliar em tarefas como escrita, resumo e organização de informações.",
+                      "developer": "Notion",
+                      "website": "https://www.notion.so/product/ai",
+                      "difficulty": "facil",
+                      "features": [
+                        "Geração de textos em documentos Notion",
+                        "Resumo de notas e reuniões",
+                        "Organização de informações em tabelas e listas"
+                      ]
+                    },
+                    {
+                      "id": 48,
+                      "name": "GrammarlyGO",
+                      "type": "llm",
+                      "description": "Assistente de escrita da Grammarly com funcionalidades de IA para gerar textos, reescrever frases e mais.",
+                      "developer": "Grammarly",
+                      "website": "https://www.grammarly.com/gogo",
+                      "difficulty": "facil",
+                      "features": [
+                        "Geração de rascunhos de texto",
+                        "Reescrita e aprimoramento de frases",
+                        "Correção gramatical e ortográfica"
+                      ]
+                    },
+                    {
+                      "id": 49,
+                      "name": "Jasper",
+                      "type": "llm",
+                      "description": "Plataforma de IA para criação de conteúdo de marketing, incluindo textos, imagens e vídeos.",
+                      "developer": "Jasper",
+                      "website": "https://www.jasper.ai/",
+                      "difficulty": "medio",
+                      "features": [
+                        "Geração de conteúdo para marketing",
+                        "Templates para diferentes formatos",
+                        "Otimização para SEO"
+                      ]
+                    },
+                    {
+                      "id": 50,
+                      "name": "Amazon Bedrock",
+                      "type": "llm",
+                      "description": "Serviço da Amazon para acessar diversos modelos de IA de diferentes fornecedores através de uma API unificada.",
+                      "developer": "Amazon",
+                      "website": "https://aws.amazon.com/bedrock/",
+                      "difficulty": "avancado",
+                      "features": [
+                        "Acesso a múltiplos modelos (AI21, Anthropic, etc.)",
+                        "API para integração em aplicações",
+                        "Escalável para empresas"
+                      ]
+                    },
+                    {
+                      "id": 51,
+                      "name": "HuggingChat",
+                      "type": "llm",
+                      "description": "Assistente de chat de código aberto da Hugging Face, com foco em pesquisa e desenvolvimento de IA.",
+                      "developer": "Hugging Face",
+                      "website": "https://huggingface.co/chat/",
+                      "difficulty": "medio",
+                      "features": [
+                        "Baseado em modelos de código aberto",
+                        "Acesso à comunidade de pesquisa",
+                        "Ferramenta para desenvolvedores"
+                      ]
+                    },
+                    {
+                      "id": 52,
+                      "name": "Firefly",
+                      "type": "llm",
+                      "description": "IA generativa de imagens da Adobe, integrada aos aplicativos Creative Cloud.",
+                      "developer": "Adobe",
+                      "website": "https://www.adobe.com/br/sensei/generative-ai/firefly.html",
+                      "difficulty": "medio",
+                      "features": [
+                        "Gera imagens a partir de texto",
+                        "Edita imagens existentes",
+                        "Integrado ao Photoshop e Illustrator"
+                      ]
+                    },
+                    {
+                        "id": 53,
+                        "name": "MGX",
+                        "type": "multiagent",
+                        "description": "Plataforma multiagente baseada em SOPs de software, permitindo interação com uma equipe de IA para criar websites, jogos e mais.",
+                        "developer": "MetaGPT",
+                        "website": "https://mgx.dev",
+                        "tutorial": "https://docs.mgx.dev",
+                        "difficulty": "medio",
+                        "features": [
+                            "Interação com equipe de IA (líder, engenheiro, analista, etc.)",
+                            "Criação de websites, blogs, jogos e analytics",
+                            "Baseado em processos reais de software",
+                            "Suporte 24/7 com interface conversacional"
+                        ]
+                    },
+                    {
+                        "id": 54,
+                        "name": "Taskonomy",
+                        "type": "multiagent",
+                        "description": "Framework para orquestração de agentes de IA que colaboram em tarefas complexas, com foco em modularidade e escalabilidade.",
+                        "developer": "Taskonomy Team",
+                        "website": "https://taskonomy.ai",
+                        "tutorial": "https://docs.taskonomy.ai",
+                        "difficulty": "avancado",
+                        "features": [
+                            "Orquestração de agentes modulares",
+                            "Suporte a fluxos de trabalho dinâmicos",
+                            "Integração com LLMs e ferramentas externas",
+                            "Foco em automação empresarial"
+                        ]
+                    },
+                    {
+                        "id": 55,
+                        "name": "MultiOn",
+                        "type": "multiagent",
+                        "description": "Sistema multiagente para automação de tarefas na web, permitindo que agentes colaborem em navegação e interação online.",
+                        "developer": "MultiOn",
+                        "website": "https://multion.ai",
+                        "tutorial": "https://docs.multion.ai",
+                        "difficulty": "medio",
+                        "features": [
+                            "Navegação autônoma na web",
+                            "Colaboração entre múltiplos agentes",
+                            "Integração com navegadores modernos",
+                            "Interface amigável para configuração"
+                        ]
+                    },
+                    {
+                        "id": 56,
+                        "name": "Lagent",
+                        "type": "multiagent",
+                        "description": "Framework leve para construção de agentes de IA que executam ações baseadas em LLMs, com suporte a ferramentas externas.",
+                        "developer": "Lagent Team",
+                        "website": "https://github.com/InternLM/lagent",
+                        "tutorial": "https://lagent.readthedocs.io",
+                        "difficulty": "avancado",
+                        "features": [
+                            "Execução de ações com ferramentas externas",
+                            "Suporte a LLMs como InternLM",
+                            "Estrutura leve e personalizável",
+                            "Ideal para pesquisa e desenvolvimento"
+                        ]
+                    },
+                    {
+                        "id": 57,
+                        "name": "XAI Swarm",
+                        "type": "multiagent",
+                        "description": "Framework da xAI para sistemas multiagentes colaborativos, projetado para tarefas complexas com integração à plataforma X.",
+                        "developer": "xAI",
+                        "website": "https://x.ai/swarm",
+                        "tutorial": "https://x.ai/docs/swarm",
+                        "difficulty": "avancado",
+                        "features": [
+                            "Colaboração entre agentes especializados",
+                            "Integração com Grok e plataforma X",
+                            "Suporte a fluxos de trabalho complexos",
+                            "Foco em escalabilidade e segurança"
+                        ]
+                    },
+                    {
+                        "id": 58,
+                        "name": "AutoGen",
+                        "type": "multiagent",
+                        "description": "Framework de código aberto da Microsoft para criar sistemas multiagentes colaborativos, com suporte a conversas e ferramentas.",
+                        "developer": "Microsoft",
+                        "website": "https://microsoft.github.io/autogen",
+                        "tutorial": "https://microsoft.github.io/autogen/docs",
+                        "difficulty": "avancado",
+                        "features": [
+                            "Conversa dinâmica entre agentes",
+                            "Suporte a LLMs e ferramentas externas",
+                            "Flexibilidade na definição de fluxos",
+                            "Comunidade ativa de desenvolvedores"
+                        ]
+                    },
+                    {
+                        "id": 59,
+                        "name": "CAMEL",
+                        "type": "multiagent",
+                        "description": "Framework de role-playing para colaboração entre agentes de IA, focado em tarefas específicas via interações conversacionais.",
+                        "developer": "CAMEL Team",
+                        "website": "https://camel-ai.org",
+                        "tutorial": "https://github.com/camel-ai/camel",
+                        "difficulty": "avancado",
+                        "features": [
+                            "Role-playing para colaboração de agentes",
+                            "Suporte a tarefas específicas",
+                            "Integração com LLMs conversacionais",
+                            "Estrutura open-source"
+                        ]
+                    },
+                    {
+                        "id": 60,
+                        "name": "JARVIS",
+                        "type": "multiagent",
+                        "description": "Sistema multiagente inspirado em assistentes fictícios, projetado para automação de tarefas e integração com LLMs.",
+                        "developer": "Hugging Face",
+                        "website": "https://huggingface.co/spaces/HuggingFaceH4/JARVIS",
+                        "tutorial": "https://github.com/huggingface/JARVIS",
+                        "difficulty": "avancado",
+                        "features": [
+                            "Automação de tarefas complexas",
+                            "Integração com modelos Hugging Face",
+                            "Suporte a interações multimodais",
+                            "Estrutura modular para personalização"
+                        ]
+                    },
+                    {
+                        "id": 61,
+                        "name": "Manus",
+                        "type": "multiagent",
+                        "description": "Agente de IA autônomo que executa tarefas complexas sem supervisão, como pesquisa, análise de dados, criação de sites e automação de fluxos de trabalho.",
+                        "developer": "Monica (Butterfly Effect)",
+                        "website": "https://manus.im",
+                        "tutorial": "https://manus.im/docs",
+                        "difficulty": "medio",
+                        "features": [
+                            "Execução autônoma de tarefas multi-etapas",
+                            "Arquitetura multiagente com subagentes especializados",
+                            "Integração com ferramentas externas e navegação web",
+                            "Operação assíncrona na nuvem com transparência"
+                        ]
+                    },
+                    {
+                        "id": 62,
+                        "name": "Qwen",
+                        "type": "multiagent",
+                        "description": "Família de modelos de IA multimodal da Alibaba Cloud, capaz de processar texto, imagens, áudio e vídeo, com suporte a tarefas como geração de conteúdo, codificação e automação de agentes.",
+                        "developer": "Alibaba Cloud",
+                        "website": "https://qwen.ai",
+                        "tutorial": "https://qwenlm.github.io",
+                        "difficulty": "medio",
+                        "features": [
+                            "Suporte multimodal (texto, imagem, áudio, vídeo)",
+                            "Processamento de contexto longo (até 128.000 tokens)",
+                            "Integração com ferramentas externas e busca na web",
+                            "Modelos open-source e proprietários disponíveis"
+                        ]
+                    },
+                    {
+                        "id": 63,
+                        "name": "NotebookLM",
+                        "type": "llm",
+                        "description": "Ferramenta do Google para organizar e sintetizar notas de pesquisa, criando resumos, tabelas e respostas baseadas em documentos carregados.",
+                        "developer": "Google",
+                        "website": "https://notebooklm.google.com",
+                        "tutorial": "https://support.google.com/notebooklm",
+                        "difficulty": "facil",
+                        "academic": true,
+                        "features": [
+                            "Resumo automático de artigos e notas",
+                            "Geração de tabelas e cronogramas a partir de documentos",
+                            "Respostas baseadas em PDFs e textos carregados",
+                            "Integração com Google Drive",
+                            "Interface colaborativa para equipes acadêmicas"
+                        ]
+                    },
+                    {
+                        "id": 64,
+                        "name": "AnswerThis",
+                        "type": "llm",
+                        "description": "Plataforma de IA que responde perguntas acadêmicas com base em artigos científicos, fornecendo citações precisas e resumos.",
+                        "developer": "AnswerThis Team",
+                        "website": "https://answerthis.io",
+                        "tutorial": "https://docs.answerthis.io",
+                        "difficulty": "facil",
+                        "academic": true,
+                        "features": [
+                            "Respostas baseadas em artigos revisados por pares",
+                            "Citações automáticas no formato APA, MLA, etc.",
+                            "Resumo de papers em linguagem acessível",
+                            "Busca semântica em bases acadêmicas",
+                            "Versão gratuita com limites"
+                        ]
+                    },
+                    {
+                        "id": 65,
+                        "name": "Elicit",
+                        "type": "llm",
+                        "description": "Assistente de pesquisa que automatiza revisão de literatura, extraindo informações de artigos científicos e organizando dados.",
+                        "developer": "Elicit",
+                        "website": "https://elicit.org",
+                        "tutorial": "https://elicit.org/help",
+                        "difficulty": "medio",
+                        "academic": true,
+                        "features": [
+                            "Extração de dados de artigos (métodos, resultados, etc.)",
+                            "Busca semântica em bases como PubMed",
+                            "Organização de resultados em tabelas",
+                            "Suporte a revisão sistemática de literatura",
+                            "Integração com fluxos de pesquisa acadêmica"
+                        ]
+                    },
+                    {
+                        "id": 66,
+                        "name": "SciSpace",
+                        "type": "llm",
+                        "description": "Plataforma para análise e descoberta de artigos científicos, com ferramentas para resumo, explicação de conceitos e escrita acadêmica.",
+                        "developer": "SciSpace",
+                        "website": "https://typeset.io",
+                        "tutorial": "https://typeset.io/help",
+                        "difficulty": "facil",
+                        "academic": true,
+                        "features": [
+                            "Resumo e explicação de artigos em linguagem simples",
+                            "Formatação automática de citações (APA, MLA, etc.)",
+                            "Busca em mais de 200 milhões de artigos",
+                            "Assistente de escrita para papers",
+                            "Ferramentas colaborativas para equipes"
+                        ]
+                    },
+                    {
+                        "id": 67,
+                        "name": "Consensus",
+                        "type": "llm",
+                        "description": "Motor de busca acadêmico alimentado por IA que responde perguntas com base em evidências científicas, incluindo citações.",
+                        "developer": "Consensus",
+                        "website": "https://consensus.app",
+                        "tutorial": "https://consensus.app/help",
+                        "difficulty": "facil",
+                        "academic": true,
+                        "features": [
+                            "Respostas baseadas em artigos revisados por pares",
+                            "Citações diretas de fontes acadêmicas",
+                            "Análise de consenso em tópicos científicos",
+                            "Interface intuitiva para estudantes",
+                            "Versão gratuita com funcionalidades básicas"
+                        ]
+                    },
+                    {
+                        "id": 68,
+                        "name": "ResearchRabbit",
+                        "type": "llm",
+                        "description": "Ferramenta para descoberta de literatura acadêmica, criando mapas visuais de artigos relacionados e sugerindo novas leituras.",
+                        "developer": "ResearchRabbit",
+                        "website": "https://researchrabbit.ai",
+                        "tutorial": "https://researchrabbit.ai/help",
+                        "difficulty": "medio",
+                        "academic": true,
+                        "features": [
+                            "Mapas visuais de artigos interconectados",
+                            "Sugestões personalizadas de leitura",
+                            "Integração com bases como PubMed e arXiv",
+                            "Organização de bibliotecas de pesquisa",
+                            "Gratuito para pesquisadores e estudantes"
+                        ]
+                    },
+                    {
+                        "id": 69,
+                        "name": "Connected Papers",
+                        "type": "llm",
+                        "description": "Ferramenta que gera gráficos visuais de artigos acadêmicos relacionados, ajudando a explorar literatura relevante.",
+                        "developer": "Connected Papers",
+                        "website": "https://www.connectedpapers.com",
+                        "tutorial": "https://www.connectedpapers.com/about",
+                        "difficulty": "facil",
+                        "academic": true,
+                        "features": [
+                            "Gráficos visuais de artigos relacionados",
+                            "Exploração de citações e referências",
+                            "Suporte a bases como Semantic Scholar",
+                            "Ideal para revisão de literatura",
+                            "Acesso gratuito com limites"
+                        ]
+                    },
+                    {
+                        "id": 70,
+                        "name": "Scite",
+                        "type": "llm",
+                        "description": "Plataforma que analisa citações em artigos acadêmicos, indicando se são de suporte ou contraditórias, ideal para avaliar a confiabilidade de papers.",
+                        "developer": "Scite",
+                        "website": "https://scite.ai",
+                        "tutorial": "https://help.scite.ai",
+                        "difficulty": "facil",
+                        "academic": true,
+                        "features": [
+                            "Análise de citações com contexto (suporte ou contradição)",
+                            "Busca semântica em mais de 1 bilhão de citações",
+                            "Relatórios de citação para papers específicos",
+                            "Integração com ferramentas de escrita acadêmica",
+                            "Versão gratuita com funcionalidades básicas"
+                        ]
+                    },
+                    {
+                        "id": 71,
+                        "name": "Semantic Scholar",
+                        "type": "llm",
+                        "description": "Ferramenta de busca acadêmica alimentada por IA que recomenda papers relevantes e fornece resumos baseados em inteligência artificial.",
+                        "developer": "Allen Institute for AI",
+                        "website": "https://semanticscholar.org",
+                        "tutorial": "https://semanticscholar.org/about",
+                        "difficulty": "facil",
+                        "academic": true,
+                        "features": [
+                            "Busca semântica em mais de 200 milhões de papers",
+                            "Resumos gerados por IA para artigos",
+                            "Recomendações personalizadas de leitura",
+                            "Integração com bases como PubMed e arXiv",
+                            "Totalmente gratuito e open-access"
+                        ]
+                    },
+                    {
+                        "id": 72,
+                        "name": "Scholarcy",
+                        "type": "llm",
+                        "description": "Ferramenta que resume artigos acadêmicos em flashcards e extrai informações-chave, facilitando a compreensão de papers complexos.",
+                        "developer": "Scholarcy",
+                        "website": "https://scholarcy.com",
+                        "tutorial": "https://scholarcy.com/help",
+                        "difficulty": "facil",
+                        "academic": true,
+                        "features": [
+                            "Resumos de artigos em formato de flashcards",
+                            "Extração de tabelas, figuras e referências",
+                            "Exportação de resumos para Word ou Excel",
+                            "Suporte a PDFs e artigos online",
+                            "Plano gratuito com limites"
+                        ]
+                    },
+                    {
+                        "id": 73,
+                        "name": "Litmaps",
+                        "type": "llm",
+                        "description": "Ferramenta de visualização que cria mapas de literatura baseados em citações, ajudando a descobrir papers relevantes e tendências de pesquisa.",
+                        "developer": "Litmaps",
+                        "website": "https://litmaps.com",
+                        "tutorial": "https://litmaps.com/help",
+                        "difficulty": "medio",
+                        "academic": true,
+                        "features": [
+                            "Mapas visuais baseados em redes de citação",
+                            "Busca por papers relacionados a partir de um seed paper",
+                            "Filtros por data de publicação e contagem de citações",
+                            "Integração com ORCID e bases acadêmicas",
+                            "Plano gratuito com funcionalidades limitadas"
+                        ]
+                    },
+                    {
+                        "id": 74,
+                        "name": "ChatPDF",
+                        "type": "llm",
+                        "description": "Assistente de IA para interação com PDFs, permitindo resumir, extrair informações e responder perguntas sobre artigos acadêmicos.",
+                        "developer": "ChatPDF",
+                        "website": "https://chatpdf.com",
+                        "tutorial": "https://chatpdf.com/help",
+                        "difficulty": "facil",
+                        "academic": true,
+                        "features": [
+                            "Resumo e análise de PDFs em linguagem natural",
+                            "Extração de fatos e conceitos específicos",
+                            "Suporte a múltiplos idiomas, incluindo português",
+                            "Limite de 2 PDFs por dia na versão gratuita",
+                            "Interface simples sem necessidade de programação"
+                        ]
+                    },
+                    {
+                        "id": 75,
+                        "name": "Inciteful",
+                        "type": "llm",
+                        "description": "Ferramenta que cria mapas de citação e recomenda papers com base em similaridade, focada em explorar tendências na literatura acadêmica.",
+                        "developer": "Inciteful",
+                        "website": "https://inciteful.xyz",
+                        "tutorial": "https://inciteful.xyz/about",
+                        "difficulty": "medio",
+                        "academic": true,
+                        "features": [
+                            "Mapas visuais de citações e similaridade",
+                            "Recomendações baseadas em seed papers",
+                            "Análise de tendências em áreas de pesquisa",
+                            "Integração com Semantic Scholar",
+                            "Gratuito com funcionalidades completas"
+                        ]
+                    },
+                    {
+                        "id": 76,
+                        "name": "Paperpal",
+                        "type": "llm",
+                        "description": "Assistente de escrita acadêmica que sugere melhorias em textos, verifica consistência e ajuda na formatação de manuscritos.",
+                        "developer": "Paperpal",
+                        "website": "https://paperpal.com",
+                        "tutorial": "https://paperpal.com/help",
+                        "difficulty": "facil",
+                        "academic": true,
+                        "features": [
+                            "Sugestões de reescrita para clareza e concisão",
+                            "Verificação de gramática e estilo acadêmico",
+                            "Formatação automática de citações (APA, MLA, etc.)",
+                            "Integração com Microsoft Word e navegadores",
+                            "Plano gratuito com limites de uso"
+                        ]
+                    },
+                    {
+                        "id": 77,
+                        "name": "Swarm",
+                        "type": "multiagent",
+                        "description": "Framework experimental da OpenAI para orquestração de sistemas multiagentes, permitindo a criação de fluxos de trabalho colaborativos com agentes especializados.",
+                        "developer": "OpenAI",
+                        "website": "https://github.com/openai/swarm",
+                        "tutorial": "https://github.com/openai/swarm/blob/main/docs",
+                        "difficulty": "avancado",
+                        "academic": true,
+                        "features": [
+                            "Orquestração de múltiplos agentes com papéis específicos",
+                            "Suporte a fluxos de trabalho sequenciais e concorrentes",
+                            "Integração com modelos de linguagem como GPT-4o",
+                            "Ideal para automação de tarefas complexas em pesquisa",
+                            "Open-source com exemplos para uso acadêmico"
+                        ]
+                    }
+                  ]
+                };
                 
                 // Initialize with expanded data
                 ais.value = aisData.ais;
                 
                 // Methods to get logo paths (would be replaced with actual logos in production)
-				const getLogoPath = (name) => {
+                const getLogoPath = (name) => {
                     const logos = {
-						"ChatGPT": "https://icons.duckduckgo.com/ip3/openai.com.ico",
-						"Claude": "https://icons.duckduckgo.com/ip3/anthropic.com.ico",
-						"Gemini": "https://icons.duckduckgo.com/ip3/google.com.ico",
-						"Copilot": "https://icons.duckduckgo.com/ip3/microsoft.com.ico",
-						"Midjourney": "https://icons.duckduckgo.com/ip3/midjourney.com.ico",
-						"Perplexity": "https://icons.duckduckgo.com/ip3/perplexity.ai.ico",
-						"DALL-E 3": "https://icons.duckduckgo.com/ip3/openai.com.ico",
-						"LangChain": "https://icons.duckduckgo.com/ip3/langchain.com.ico",
-						"AgentGPT": "https://icons.duckduckgo.com/ip3/reworkd.ai.ico",
-						"Pi": "https://icons.duckduckgo.com/ip3/pi.ai.ico",
-						"DeepSeek": "https://icons.duckduckgo.com/ip3/deepseek.com.ico",
-						"Cursor": "https://icons.duckduckgo.com/ip3/cursor.sh.ico",
-						"Codeium": "https://icons.duckduckgo.com/ip3/codeium.com.ico",
-						"Bing Chat (Copilot)": "https://icons.duckduckgo.com/ip3/bing.com.ico",
-						"Llama 3": "https://icons.duckduckgo.com/ip3/meta.com.ico",
-						"AutoGPT": "https://icons.duckduckgo.com/ip3/github.com.ico",
-						"Anthropic Claude API": "https://icons.duckduckgo.com/ip3/anthropic.com.ico",
-						"BabyAGI": "https://icons.duckduckgo.com/ip3/github.com.ico",
-						"Stable Diffusion": "https://icons.duckduckgo.com/ip3/stability.ai.ico",
-						"Falcon": "https://icons.duckduckgo.com/ip3/tii.ae.ico",
-						"Whisper": "https://icons.duckduckgo.com/ip3/openai.com.ico",
-						"Mistral": "https://icons.duckduckgo.com/ip3/mistral.ai.ico",
-						"Bard (antigo Gemini)": "https://icons.duckduckgo.com/ip3/bard.google.com.ico",
-						"GPT-4o": "https://icons.duckduckgo.com/ip3/openai.com.ico",
-						"LM Studio": "https://icons.duckduckgo.com/ip3/lmstudio.ai.ico",
-						"Ollama": "https://icons.duckduckgo.com/ip3/ollama.com.ico",
-						"Poe": "https://icons.duckduckgo.com/ip3/poe.com.ico",
-						"GPTs (Custom GPTs)": "https://icons.duckduckgo.com/ip3/chat.openai.com.ico",
-						"Sora": "https://icons.duckduckgo.com/ip3/openai.com.ico",
-						"Character.AI": "https://icons.duckduckgo.com/ip3/character.ai.ico",
-						"Synthesia": "https://icons.duckduckgo.com/ip3/synthesia.io.ico",
-						"ElevenLabs": "https://icons.duckduckgo.com/ip3/elevenlabs.io.ico",
-						"Runway": "https://icons.duckduckgo.com/ip3/runwayml.com.ico",
-						"Langchain.js": "https://icons.duckduckgo.com/ip3/js.langchain.com.ico",
-						"LocalAI": "https://icons.duckduckgo.com/ip3/localai.io.ico",
-						"OpenInterpreter": "https://icons.duckduckgo.com/ip3/openinterpreter.com.ico",
-						"Replicate": "https://icons.duckduckgo.com/ip3/replicate.com.ico",
-						"HuggingFace Transformers": "https://icons.duckduckgo.com/ip3/huggingface.co.ico",
-						"Tavily": "https://icons.duckduckgo.com/ip3/tavily.com.ico",
-						"GPT4All": "https://icons.duckduckgo.com/ip3/gpt4all.io.ico",
-						"Grok": "https://icons.duckduckgo.com/ip3/x.ai.ico",
-						"Cohere": "https://icons.duckduckgo.com/ip3/cohere.com.ico",
-						"CrewAI": "https://icons.duckduckgo.com/ip3/crewai.com.ico",
-						"Agno": "https://icons.duckduckgo.com/ip3/agnostic.ai.ico",
-						"IBM Watson": "https://icons.duckduckgo.com/ip3/ibm.com.ico",
-						"Salesforce Einstein": "https://icons.duckduckgo.com/ip3/salesforce.com.ico",
-						"Notion AI": "https://icons.duckduckgo.com/ip3/notion.so.ico",
-						"GrammarlyGO": "https://icons.duckduckgo.com/ip3/grammarly.com.ico",
-						"Jasper": "https://icons.duckduckgo.com/ip3/jasper.ai.ico",
-						"Amazon Bedrock": "https://icons.duckduckgo.com/ip3/aws.amazon.com.ico",
-						"HuggingChat": "https://icons.duckduckgo.com/ip3/huggingface.co.ico",
-						"Firefly": "https://icons.duckduckgo.com/ip3/adobe.com.ico",
-						"MGX": "https://icons.duckduckgo.com/ip3/mgx.dev.ico",
-						"Taskonomy": "https://icons.duckduckgo.com/ip3/taskonomy.ai.ico",
-						"MultiOn": "https://icons.duckduckgo.com/ip3/multion.ai.ico",
-						"Lagent": "https://icons.duckduckgo.com/ip3/github.com.ico",
-						"XAI Swarm": "https://icons.duckduckgo.com/ip3/x.ai.ico",
-						"AutoGen": "https://icons.duckduckgo.com/ip3/microsoft.github.io.ico",
-						"CAMEL": "https://icons.duckduckgo.com/ip3/camel-ai.org.ico",
-						"JARVIS": "https://icons.duckduckgo.com/ip3/huggingface.co.ico",
-						"Manus": "https://icons.duckduckgo.com/ip3/manus.im.ico",
-						"Qwen": "https://icons.duckduckgo.com/ip3/qwen.ai.ico",
-						"NotebookLM": "https://icons.duckduckgo.com/ip3/notebooklm.google.com.ico",
-						"AnswerThis": "https://icons.duckduckgo.com/ip3/answerthis.io.ico",
-						"Elicit": "https://icons.duckduckgo.com/ip3/elicit.org.ico",
-						"SciSpace": "https://icons.duckduckgo.com/ip3/typeset.io.ico",
-						"Consensus": "https://icons.duckduckgo.com/ip3/consensus.app.ico",
-						"ResearchRabbit": "https://icons.duckduckgo.com/ip3/researchrabbit.ai.ico",
-						"Connected Papers": "https://icons.duckduckgo.com/ip3/connectedpapers.com.ico",
-						"Scite": "https://icons.duckduckgo.com/ip3/scite.ai.ico",
-						"Semantic Scholar": "https://icons.duckduckgo.com/ip3/semanticscholar.org.ico",
-						"Scholarcy": "https://icons.duckduckgo.com/ip3/scholarcy.com.ico",
-						"Litmaps": "https://icons.duckduckgo.com/ip3/litmaps.com.ico",
-						"ChatPDF": "https://icons.duckduckgo.com/ip3/chatpdf.com.ico",
-						"Inciteful": "https://icons.duckduckgo.com/ip3/inciteful.xyz.ico",
-						"Paperpal": "https://icons.duckduckgo.com/ip3/paperpal.com.ico",
-						"Swarm": "https://icons.duckduckgo.com/ip3/openai.com.ico"
-					};
+                        "ChatGPT": "https://icons.duckduckgo.com/ip3/openai.com.ico",
+                        "Claude": "https://icons.duckduckgo.com/ip3/anthropic.com.ico",
+                        "Gemini": "https://icons.duckduckgo.com/ip3/google.com.ico",
+                        "Copilot": "https://icons.duckduckgo.com/ip3/microsoft.com.ico",
+                        "Midjourney": "https://icons.duckduckgo.com/ip3/midjourney.com.ico",
+                        "Perplexity": "https://icons.duckduckgo.com/ip3/perplexity.ai.ico",
+                        "DALL-E 3": "https://icons.duckduckgo.com/ip3/openai.com.ico",
+                        "LangChain": "https://icons.duckduckgo.com/ip3/langchain.com.ico",
+                        "AgentGPT": "https://icons.duckduckgo.com/ip3/reworkd.ai.ico",
+                        "Pi": "https://icons.duckduckgo.com/ip3/pi.ai.ico",
+                        "DeepSeek": "https://icons.duckduckgo.com/ip3/deepseek.com.ico",
+                        "Cursor": "https://icons.duckduckgo.com/ip3/cursor.sh.ico",
+                        "Codeium": "https://icons.duckduckgo.com/ip3/codeium.com.ico",
+                        "Bing Chat (Copilot)": "https://icons.duckduckgo.com/ip3/bing.com.ico",
+                        "Llama 3": "https://icons.duckduckgo.com/ip3/meta.com.ico",
+                        "AutoGPT": "https://icons.duckduckgo.com/ip3/github.com.ico",
+                        "Anthropic Claude API": "https://icons.duckduckgo.com/ip3/anthropic.com.ico",
+                        "BabyAGI": "https://icons.duckduckgo.com/ip3/github.com.ico",
+                        "Stable Diffusion": "https://icons.duckduckgo.com/ip3/stability.ai.ico",
+                        "Falcon": "https://icons.duckduckgo.com/ip3/tii.ae.ico",
+                        "Whisper": "https://icons.duckduckgo.com/ip3/openai.com.ico",
+                        "Mistral": "https://icons.duckduckgo.com/ip3/mistral.ai.ico",
+                        "Bard (antigo Gemini)": "https://icons.duckduckgo.com/ip3/bard.google.com.ico",
+                        "GPT-4o": "https://icons.duckduckgo.com/ip3/openai.com.ico",
+                        "LM Studio": "https://icons.duckduckgo.com/ip3/lmstudio.ai.ico",
+                        "Ollama": "https://icons.duckduckgo.com/ip3/ollama.com.ico",
+                        "Poe": "https://icons.duckduckgo.com/ip3/poe.com.ico",
+                        "GPTs (Custom GPTs)": "https://icons.duckduckgo.com/ip3/chat.openai.com.ico",
+                        "Sora": "https://icons.duckduckgo.com/ip3/openai.com.ico",
+                        "Character.AI": "https://icons.duckduckgo.com/ip3/character.ai.ico",
+                        "Synthesia": "https://icons.duckduckgo.com/ip3/synthesia.io.ico",
+                        "ElevenLabs": "https://icons.duckduckgo.com/ip3/elevenlabs.io.ico",
+                        "Runway": "https://icons.duckduckgo.com/ip3/runwayml.com.ico",
+                        "Langchain.js": "https://icons.duckduckgo.com/ip3/js.langchain.com.ico",
+                        "LocalAI": "https://icons.duckduckgo.com/ip3/localai.io.ico",
+                        "OpenInterpreter": "https://icons.duckduckgo.com/ip3/openinterpreter.com.ico",
+                        "Replicate": "https://icons.duckduckgo.com/ip3/replicate.com.ico",
+                        "HuggingFace Transformers": "https://icons.duckduckgo.com/ip3/huggingface.co.ico",
+                        "Tavily": "https://icons.duckduckgo.com/ip3/tavily.com.ico",
+                        "GPT4All": "https://icons.duckduckgo.com/ip3/gpt4all.io.ico",
+                        "Grok": "https://icons.duckduckgo.com/ip3/x.ai.ico",
+                        "Cohere": "https://icons.duckduckgo.com/ip3/cohere.com.ico",
+                        "CrewAI": "https://icons.duckduckgo.com/ip3/crewai.com.ico",
+                        "Agno": "https://icons.duckduckgo.com/ip3/agnostic.ai.ico",
+                        "IBM Watson": "https://icons.duckduckgo.com/ip3/ibm.com.ico",
+                        "Salesforce Einstein": "https://icons.duckduckgo.com/ip3/salesforce.com.ico",
+                        "Notion AI": "https://icons.duckduckgo.com/ip3/notion.so.ico",
+                        "GrammarlyGO": "https://icons.duckduckgo.com/ip3/grammarly.com.ico",
+                        "Jasper": "https://icons.duckduckgo.com/ip3/jasper.ai.ico",
+                        "Amazon Bedrock": "https://icons.duckduckgo.com/ip3/aws.amazon.com.ico",
+                        "HuggingChat": "https://icons.duckduckgo.com/ip3/huggingface.co.ico",
+                        "Firefly": "https://icons.duckduckgo.com/ip3/adobe.com.ico",
+                        "MGX": "https://icons.duckduckgo.com/ip3/mgx.dev.ico",
+                        "Taskonomy": "https://icons.duckduckgo.com/ip3/taskonomy.ai.ico",
+                        "MultiOn": "https://icons.duckduckgo.com/ip3/multion.ai.ico",
+                        "Lagent": "https://icons.duckduckgo.com/ip3/github.com.ico",
+                        "XAI Swarm": "https://icons.duckduckgo.com/ip3/x.ai.ico",
+                        "AutoGen": "https://icons.duckduckgo.com/ip3/microsoft.github.io.ico",
+                        "CAMEL": "https://icons.duckduckgo.com/ip3/camel-ai.org.ico",
+                        "JARVIS": "https://icons.duckduckgo.com/ip3/huggingface.co.ico",
+                        "Manus": "https://icons.duckduckgo.com/ip3/manus.im.ico",
+                        "Qwen": "https://icons.duckduckgo.com/ip3/qwen.ai.ico",
+                        "NotebookLM": "https://icons.duckduckgo.com/ip3/notebooklm.google.com.ico",
+                        "AnswerThis": "https://icons.duckduckgo.com/ip3/answerthis.io.ico",
+                        "Elicit": "https://icons.duckduckgo.com/ip3/elicit.org.ico",
+                        "SciSpace": "https://icons.duckduckgo.com/ip3/typeset.io.ico",
+                        "Consensus": "https://icons.duckduckgo.com/ip3/consensus.app.ico",
+                        "ResearchRabbit": "https://icons.duckduckgo.com/ip3/researchrabbit.ai.ico",
+                        "Connected Papers": "https://icons.duckduckgo.com/ip3/connectedpapers.com.ico",
+                        "Scite": "https://icons.duckduckgo.com/ip3/scite.ai.ico",
+                        "Semantic Scholar": "https://icons.duckduckgo.com/ip3/semanticscholar.org.ico",
+                        "Scholarcy": "https://icons.duckduckgo.com/ip3/scholarcy.com.ico",
+                        "Litmaps": "https://icons.duckduckgo.com/ip3/litmaps.com.ico",
+                        "ChatPDF": "https://icons.duckduckgo.com/ip3/chatpdf.com.ico",
+                        "Inciteful": "https://icons.duckduckgo.com/ip3/inciteful.xyz.ico",
+                        "Paperpal": "https://icons.duckduckgo.com/ip3/paperpal.com.ico",
+                        "Swarm": "https://icons.duckduckgo.com/ip3/openai.com.ico"
+                    };
                     return logos[name] || null;
                 };
                 const getLogoPath2 = (name) => {
                     const logos = {
-						'ChatGPT': 'https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg',
-						'Claude': 'https://upload.wikimedia.org/wikipedia/commons/3/3a/Claude_AI_logo.svg',
-						'Copilot': 'https://upload.wikimedia.org/wikipedia/commons/9/93/Microsoft_Copilot_icon.svg',
-						'Gemini': 'https://upload.wikimedia.org/wikipedia/commons/0/0b/Google_Gemini_logo.svg',
-						'DeepSeek': 'https://placehold.co/150x150/17a2b8/ffffff?text=DS',
-						'Pi': 'https://placehold.co/150x150/20c997/ffffff?text=PI',
-						'Perplexity': 'https://placehold.co/150x150/dc3545/ffffff?text=PP',
-						'Bing Chat (Copilot)': 'https://upload.wikimedia.org/wikipedia/commons/1/1b/Microsoft_Bing_logo.svg',
-						'Llama 3': 'https://upload.wikimedia.org/wikipedia/commons/7/7b/Meta_Platforms_Inc._logo.svg',
-						'AutoGPT': 'https://placehold.co/150x150/dc3545/ffffff?text=AG',
-						'LangChain': 'https://placehold.co/150x150/007bff/ffffff?text=LC',
-						'Cursor': 'https://placehold.co/150x150/9f5afd/ffffff?text=CUR',
-						'Codeium': 'https://placehold.co/150x150/ffc107/ffffff?text=CDM',
-						'Midjourney': 'https://placehold.co/150x150/16a085/ffffff?text=MJ',
-						'DALL-E 3': 'https://upload.wikimedia.org/wikipedia/commons/4/4d/OpenAI_Logo.svg',
-						'AgentGPT': 'https://placehold.co/150x150/e67e22/ffffff?text=AGPT',
-						'Anthropic Claude API': 'https://upload.wikimedia.org/wikipedia/commons/3/3a/Claude_AI_logo.svg',
-						'BabyAGI': 'https://placehold.co/150x150/17a2b8/ffffff?text=BABY',
-						'Stable Diffusion': 'https://placehold.co/150x150/20c997/ffffff?text=SD',
-						'Falcon': 'https://placehold.co/150x150/6c757d/ffffff?text=FALCON',
-						'Whisper': 'https://upload.wikimedia.org/wikipedia/commons/4/4d/OpenAI_Logo.svg',
-						'Mistral': 'https://placehold.co/150x150/007bff/ffffff?text=MISTRAL',
-						'Bard (antigo Gemini)': 'https://placehold.co/150x150/28a745/ffffff?text=BARD',
-						'GPT-4o': 'https://upload.wikimedia.org/wikipedia/commons/4/4d/OpenAI_Logo.svg',
-						'LM Studio': 'https://placehold.co/150x150/e83e8c/ffffff?text=LM',
-						'Ollama': 'https://placehold.co/150x150/17a2b8/ffffff?text=OLLAMA',
-						'Poe': 'https://placehold.co/150x150/ffc107/ffffff?text=POE',
-						'GPTs (Custom GPTs)': 'https://upload.wikimedia.org/wikipedia/commons/4/4d/OpenAI_Logo.svg',
-						'Sora': 'https://upload.wikimedia.org/wikipedia/commons/4/4d/OpenAI_Logo.svg',
-						'Character.AI': 'https://placehold.co/150x150/6f42c1/ffffff?text=CHAR',
-						'Synthesia': 'https://placehold.co/150x150/16a085/ffffff?text=SYNTH',
-						'ElevenLabs': 'https://placehold.co/150x150/dc3545/ffffff?text=ELVN',
-						'Runway': 'https://placehold.co/150x150/ff6f61/ffffff?text=RUNWAY',
-						'Langchain.js': 'https://placehold.co/150x150/007bff/ffffff?text=LCJS',
-						'LocalAI': 'https://placehold.co/150x150/20c997/ffffff?text=LAI',
-						'OpenInterpreter': 'https://placehold.co/150x150/e67e22/ffffff?text=OI',
-						'Replicate': 'https://placehold.co/150x150/6c757d/ffffff?text=REPL',
-						'HuggingFace Transformers': 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Hugging_Face_logo.svg',
-						'Tavily': 'https://placehold.co/150x150/17a2b8/ffffff?text=TAV',
-						'GPT4All': 'https://placehold.co/150x150/ffc107/ffffff?text=GPT4A',
-						'Grok': 'https://placehold.co/150x150/28a745/ffffff?text=GROK',
-						'Cohere': 'https://placehold.co/150x150/e83e8c/ffffff?text=COHERE',
-						'CrewAI': 'https://placehold.co/150x150/6f42c1/ffffff?text=CREW',
-						'Agno': 'https://placehold.co/150x150/007bff/ffffff?text=AGNO',
-						'IBM Watson': 'https://upload.wikimedia.org/wikipedia/commons/5/51/IBM_logo.svg',
-						'Salesforce Einstein': 'https://upload.wikimedia.org/wikipedia/commons/f/f9/Salesforce.com_logo.svg',
-						'Notion AI': 'https://placehold.co/150x150/17a2b8/ffffff?text=NOTION',
-						'GrammarlyGO': 'https://upload.wikimedia.org/wikipedia/commons/1/14/Grammarly_logo.svg',
-						'Jasper': 'https://placehold.co/150x150/dc3545/ffffff?text=JASPER',
-						'Amazon Bedrock': 'https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg',
-						'HuggingChat': 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Hugging_Face_logo.svg',
-						'Firefly': 'https://upload.wikimedia.org/wikipedia/commons/9/9d/Adobe_Corporate_logo.svg',
-						'MGX': 'https://placehold.co/150x150/16a085/ffffff?text=MGX',
-						'Taskonomy': 'https://placehold.co/150x150/007bff/ffffff?text=TASK',
-						'MultiOn': 'https://placehold.co/150x150/17a2b8/ffffff?text=MULTI',
-						'Lagent': 'https://placehold.co/150x150/ffc107/ffffff?text=LAGENT',
-						'XAI Swarm': 'https://placehold.co/150x150/28a745/ffffff?text=SWARM',
-						'AutoGen': 'https://placehold.co/150x150/6f42c1/ffffff?text=AUTOGEN',
-						'CAMEL': 'https://placehold.co/150x150/e83e8c/ffffff?text=CAMEL',
-						'JARVIS': 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Hugging_Face_logo.svg',
-						'Manus': 'https://placehold.co/150x150/ff6f61/ffffff?text=MANUS',
-						'Qwen': 'https://placehold.co/150x150/007bff/ffffff?text=QWEN',
-						"NotebookLM": "https://upload.wikimedia.org/wikipedia/commons/0/0b/Google_Gemini_logo.svg",
-						"AnswerThis": "https://placehold.co/150x150/007bff/ffffff?text=ANS",
-						"Elicit": "https://placehold.co/150x150/17a2b8/ffffff?text=ELI",
-						"SciSpace": "https://placehold.co/150x150/6f42c1/ffffff?text=SCI",
-						"Consensus": "https://placehold.co/150x150/ffc107/ffffff?text=CON",
-						"ResearchRabbit": "https://placehold.co/150x150/e83e8c/ffffff?text=RR",
-						"Connected Papers": "https://placehold.co/150x150/dc3545/ffffff?text=CP",
-						"Scite": "https://placehold.co/150x150/28a745/ffffff?text=SCITE",
-						"Semantic Scholar": "https://placehold.co/150x150/17a2b8/ffffff?text=SS",
-						"Scholarcy": "https://placehold.co/150x150/ffc107/ffffff?text=SCH",
-						"Litmaps": "https://placehold.co/150x150/6f42c1/ffffff?text=LIT",
-						"ChatPDF": "https://placehold.co/150x150/dc3545/ffffff?text=PDF",
-						"Inciteful": "https://placehold.co/150x150/e83e8c/ffffff?text=INC",
-						"Paperpal": "https://placehold.co/150x150/007bff/ffffff?text=PPAL",
-						"Swarm": "https://upload.wikimedia.org/wikipedia/commons/4/4d/OpenAI_Logo.svg"
-					};
+                        'ChatGPT': 'https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg',
+                        'Claude': 'https://upload.wikimedia.org/wikipedia/commons/3/3a/Claude_AI_logo.svg',
+                        'Copilot': 'https://upload.wikimedia.org/wikipedia/commons/9/93/Microsoft_Copilot_icon.svg',
+                        'Gemini': 'https://upload.wikimedia.org/wikipedia/commons/0/0b/Google_Gemini_logo.svg',
+                        'DeepSeek': 'https://placehold.co/150x150/17a2b8/ffffff?text=DS',
+                        'Pi': 'https://placehold.co/150x150/20c997/ffffff?text=PI',
+                        'Perplexity': 'https://placehold.co/150x150/dc3545/ffffff?text=PP',
+                        'Bing Chat (Copilot)': 'https://upload.wikimedia.org/wikipedia/commons/1/1b/Microsoft_Bing_logo.svg',
+                        'Llama 3': 'https://upload.wikimedia.org/wikipedia/commons/7/7b/Meta_Platforms_Inc._logo.svg',
+                        'AutoGPT': 'https://placehold.co/150x150/dc3545/ffffff?text=AG',
+                        'LangChain': 'https://placehold.co/150x150/007bff/ffffff?text=LC',
+                        'Cursor': 'https://placehold.co/150x150/9f5afd/ffffff?text=CUR',
+                        'Codeium': 'https://placehold.co/150x150/ffc107/ffffff?text=CDM',
+                        'Midjourney': 'https://placehold.co/150x150/16a085/ffffff?text=MJ',
+                        'DALL-E 3': 'https://upload.wikimedia.org/wikipedia/commons/4/4d/OpenAI_Logo.svg',
+                        'AgentGPT': 'https://placehold.co/150x150/e67e22/ffffff?text=AGPT',
+                        'Anthropic Claude API': 'https://upload.wikimedia.org/wikipedia/commons/3/3a/Claude_AI_logo.svg',
+                        'BabyAGI': 'https://placehold.co/150x150/17a2b8/ffffff?text=BABY',
+                        'Stable Diffusion': 'https://placehold.co/150x150/20c997/ffffff?text=SD',
+                        'Falcon': 'https://placehold.co/150x150/6c757d/ffffff?text=FALCON',
+                        'Whisper': 'https://upload.wikimedia.org/wikipedia/commons/4/4d/OpenAI_Logo.svg',
+                        'Mistral': 'https://placehold.co/150x150/007bff/ffffff?text=MISTRAL',
+                        'Bard (antigo Gemini)': 'https://placehold.co/150x150/28a745/ffffff?text=BARD',
+                        'GPT-4o': 'https://upload.wikimedia.org/wikipedia/commons/4/4d/OpenAI_Logo.svg',
+                        'LM Studio': 'https://placehold.co/150x150/e83e8c/ffffff?text=LM',
+                        'Ollama': 'https://placehold.co/150x150/17a2b8/ffffff?text=OLLAMA',
+                        'Poe': 'https://placehold.co/150x150/ffc107/ffffff?text=POE',
+                        'GPTs (Custom GPTs)': 'https://upload.wikimedia.org/wikipedia/commons/4/4d/OpenAI_Logo.svg',
+                        'Sora': 'https://upload.wikimedia.org/wikipedia/commons/4/4d/OpenAI_Logo.svg',
+                        'Character.AI': 'https://placehold.co/150x150/6f42c1/ffffff?text=CHAR',
+                        'Synthesia': 'https://placehold.co/150x150/16a085/ffffff?text=SYNTH',
+                        'ElevenLabs': 'https://placehold.co/150x150/dc3545/ffffff?text=ELVN',
+                        'Runway': 'https://placehold.co/150x150/ff6f61/ffffff?text=RUNWAY',
+                        'Langchain.js': 'https://placehold.co/150x150/007bff/ffffff?text=LCJS',
+                        'LocalAI': 'https://placehold.co/150x150/20c997/ffffff?text=LAI',
+                        'OpenInterpreter': 'https://placehold.co/150x150/e67e22/ffffff?text=OI',
+                        'Replicate': 'https://placehold.co/150x150/6c757d/ffffff?text=REPL',
+                        'HuggingFace Transformers': 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Hugging_Face_logo.svg',
+                        'Tavily': 'https://placehold.co/150x150/17a2b8/ffffff?text=TAV',
+                        'GPT4All': 'https://placehold.co/150x150/ffc107/ffffff?text=GPT4A',
+                        'Grok': 'https://placehold.co/150x150/28a745/ffffff?text=GROK',
+                        'Cohere': 'https://placehold.co/150x150/e83e8c/ffffff?text=COHERE',
+                        'CrewAI': 'https://placehold.co/150x150/6f42c1/ffffff?text=CREW',
+                        'Agno': 'https://placehold.co/150x150/007bff/ffffff?text=AGNO',
+                        'IBM Watson': 'https://upload.wikimedia.org/wikipedia/commons/5/51/IBM_logo.svg',
+                        'Salesforce Einstein': 'https://upload.wikimedia.org/wikipedia/commons/f/f9/Salesforce.com_logo.svg',
+                        'Notion AI': 'https://placehold.co/150x150/17a2b8/ffffff?text=NOTION',
+                        'GrammarlyGO': 'https://upload.wikimedia.org/wikipedia/commons/1/14/Grammarly_logo.svg',
+                        'Jasper': 'https://placehold.co/150x150/dc3545/ffffff?text=JASPER',
+                        'Amazon Bedrock': 'https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg',
+                        'HuggingChat': 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Hugging_Face_logo.svg',
+                        'Firefly': 'https://upload.wikimedia.org/wikipedia/commons/9/9d/Adobe_Corporate_logo.svg',
+                        'MGX': 'https://placehold.co/150x150/16a085/ffffff?text=MGX',
+                        'Taskonomy': 'https://placehold.co/150x150/007bff/ffffff?text=TASK',
+                        'MultiOn': 'https://placehold.co/150x150/17a2b8/ffffff?text=MULTI',
+                        'Lagent': 'https://placehold.co/150x150/ffc107/ffffff?text=LAGENT',
+                        'XAI Swarm': 'https://placehold.co/150x150/28a745/ffffff?text=SWARM',
+                        'AutoGen': 'https://placehold.co/150x150/6f42c1/ffffff?text=AUTOGEN',
+                        'CAMEL': 'https://placehold.co/150x150/e83e8c/ffffff?text=CAMEL',
+                        'JARVIS': 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Hugging_Face_logo.svg',
+                        'Manus': 'https://placehold.co/150x150/ff6f61/ffffff?text=MANUS',
+                        'Qwen': 'https://placehold.co/150x150/007bff/ffffff?text=QWEN',
+                        "NotebookLM": "https://upload.wikimedia.org/wikipedia/commons/0/0b/Google_Gemini_logo.svg",
+                        "AnswerThis": "https://placehold.co/150x150/007bff/ffffff?text=ANS",
+                        "Elicit": "https://placehold.co/150x150/17a2b8/ffffff?text=ELI",
+                        "SciSpace": "https://placehold.co/150x150/6f42c1/ffffff?text=SCI",
+                        "Consensus": "https://placehold.co/150x150/ffc107/ffffff?text=CON",
+                        "ResearchRabbit": "https://placehold.co/150x150/e83e8c/ffffff?text=RR",
+                        "Connected Papers": "https://placehold.co/150x150/dc3545/ffffff?text=CP",
+                        "Scite": "https://placehold.co/150x150/28a745/ffffff?text=SCITE",
+                        "Semantic Scholar": "https://placehold.co/150x150/17a2b8/ffffff?text=SS",
+                        "Scholarcy": "https://placehold.co/150x150/ffc107/ffffff?text=SCH",
+                        "Litmaps": "https://placehold.co/150x150/6f42c1/ffffff?text=LIT",
+                        "ChatPDF": "https://placehold.co/150x150/dc3545/ffffff?text=PDF",
+                        "Inciteful": "https://placehold.co/150x150/e83e8c/ffffff?text=INC",
+                        "Paperpal": "https://placehold.co/150x150/007bff/ffffff?text=PPAL",
+                        "Swarm": "https://upload.wikimedia.org/wikipedia/commons/4/4d/OpenAI_Logo.svg"
+                    };
                     return logos[name] || 'https://placehold.co/150x150/6c757d/ffffff?text=IA';
                 };
-				
-				const getLogoWithFallback = (name) => {
-					return getLogoPath(name) || getLogoPath2(name);
-				};
-				
-				const erroredLogos = ref({});
+                
+                const getLogoWithFallback = (name) => {
+                    return getLogoPath(name) || getLogoPath2(name);
+                };
+                
+                const erroredLogos = ref({});
 
-				const onLogoError = (event, name) => {
-					if (!erroredLogos.value[name]) {
-						erroredLogos.value[name] = true;
-						event.target.src = getLogoPath2(name);
-					} else {
-						event.target.src = 'https://placehold.co/150x150/6c757d/ffffff?text=IA';
-					}
-				};
+                const onLogoError = (event, name) => {
+                    if (!erroredLogos.value[name]) {
+                        erroredLogos.value[name] = true;
+                        event.target.src = getLogoPath2(name);
+                    } else {
+                        event.target.src = 'https://placehold.co/150x150/6c757d/ffffff?text=IA';
+                    }
+                };
                 
                 // Computed properties
                 const filteredAIs = computed(() => {
@@ -1854,24 +1863,24 @@
                     if (activeDifficultFilter.value !== 'all') {
                         result = result.filter(ai => ai.difficulty === activeDifficultFilter.value);
                     }
-					
-					// Apply favorites filter
-					if (showOnlyFavorites.value) {
-						result = result.filter(ai => favorites.value.includes(ai.id));
-					}
-					
-					// Apply academic filter
-					if (academicOnly.value) {
-						result = result.filter(ai => ai.academic === true);
-					}
+                    
+                    // Apply favorites filter
+                    if (showOnlyFavorites.value) {
+                        result = result.filter(ai => favorites.value.includes(ai.id));
+                    }
+                    
+                    // Apply academic filter
+                    if (academicOnly.value) {
+                        result = result.filter(ai => ai.academic === true);
+                    }
                     
                     // Apply search filter
                     if (searchQuery.value) {
-                        const query = searchQuery.value.toLowerCase();
+                        const query = normalizeString(searchQuery.value.trim());
                         result = result.filter(ai => 
-                            ai.name.toLowerCase().includes(query) || 
-                            ai.description.toLowerCase().includes(query) ||
-                            ai.developer.toLowerCase().includes(query) ||
+                            normalizeString(ai.name).includes(query) || 
+                            normalizeString(ai.description).includes(query) ||
+                            normalizeString(ai.developer).includes(query) ||
                             (ai.features && ai.features.some(feature => feature.toLowerCase().includes(query)))
                         );
                     }
@@ -1879,6 +1888,13 @@
                     // Sort alphabetically
                     return result.sort((a, b) => a.name.localeCompare(b.name));
                 });
+                
+                const normalizeString = (str) => {
+                    return str
+                        .toLowerCase()
+                        .normalize('NFD')
+                        .replace(/[\u0300-\u036f]/g, '');
+                };
                 
                 // Favorite methods
                 const toggleFavorite = (aiId) => {
@@ -1896,10 +1912,18 @@
                 const isFavorite = (aiId) => {
                     return favorites.value.includes(aiId);
                 };
-				
-				const toggleAcademicFilter = () => {
-					academicOnly.value = !academicOnly.value;
-				};
+                
+                const toggleAcademicFilter = () => {
+                    academicOnly.value = !academicOnly.value;
+                    // Forçar reatividade
+                    filterAIs();
+                };
+
+                const toggleFavoritesFilter = () => {
+                    showOnlyFavorites.value = !showOnlyFavorites.value;
+                    // Forçar reatividade
+                    filterAIs();
+                };
                 
                 // Filter methods
                 const setTypeFilter = (filter) => {
@@ -1938,13 +1962,14 @@
                     filterAIs,
                     toggleFavorite,
                     isFavorite,
-					toggleAcademicFilter,
+                    toggleAcademicFilter,
+                    toggleFavoritesFilter,
                     getLogoPath,
-					getLogoPath2,
-					getLogoWithFallback,
-					onLogoError,
-					showOnlyFavorites,
-					academicOnly
+                    getLogoPath2,
+                    getLogoWithFallback,
+                    onLogoError,
+                    showOnlyFavorites,
+                    academicOnly
                 };
             }
         }).mount('#app');
