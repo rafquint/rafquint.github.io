@@ -51,6 +51,12 @@ A partir daí, continuei iterando com as IAs para:
 - [Bootstrap Icons](https://icons.getbootstrap.com/)
 - HTML, CSS, JavaScript puros
 
+## 📸 Captura de Tela
+
+Abaixo, uma prévia da interface gerada com auxílio das IAs:
+
+![Captura da Página](./rafquint_github_io.jpg)
+
 ## 📫 Contato
 
 Desenvolvido por Rafael Quintino com ❤️ e a ajuda das IAs.  
