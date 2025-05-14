@@ -354,8 +354,7 @@
         </div>
 
         <footer class="mt-5 pt-4 text-center text-muted">
-            <!--p>Atualizado em {{ currentDate }}</p-->
-            <p>{{ $t('updatedOn') }}</p>
+            <p>{{ $t('updatedOn') }} {{ lastUpdateDate }}</p>
             <p class="small">{{ $t('footerMessageBegin') }} <i class="bi bi-heart-fill text-danger"></i> {{ $t('footerMessageEnd') }}</p>
             <div class="social-links mt-3">
                 <a href="https://www.linkedin.com/in/rafael-quintino-gomes-rosa/" target="_blank" class="text-muted mx-2" title="LinkedIn">
@@ -426,7 +425,7 @@
               clearFilters: "Limpar filtros"
             },
             showingResults: "Mostrando {current} de {total} IAs",
-            updatedOn: "Atualizado em 14/05/2025",
+            updatedOn: "Atualizado em",
             footerMessageBegin: "Desenvolvido com",
             footerMessageEnd: "para auxiliar na jornada de IA",
             viewOnGithub: "Ver código-fonte no GitHub",
@@ -461,7 +460,7 @@
               clearFilters: "Clear filters"
             },
             showingResults: "Showing {current} of {total} AIs",
-            updatedOn: "Updated on 05/14/2025",
+            updatedOn: "Updated on",
             footerMessageBegin: "Built with",
             footerMessageEnd: "to assist in the AI ​​journey",
             viewOnGithub: "View source code on GitHub",
@@ -485,7 +484,11 @@
                 const searchQuery = ref('');
                 const activeTypeFilter = ref('all');
                 const activeDifficultFilter = ref('all');
-                const currentDate = ref(new Date().toLocaleDateString('pt-BR'));
+                const lastUpdateDate = computed(() => {
+                  const [day, month, year] = '14/05/2025'.split('/');
+                  const data = new Date(year, month - 1, day);
+                  return data.toLocaleDateString(locale.value === 'pt' ? 'pt-BR' : 'en-US');
+                });
                 const isLoading = ref(false);
                 const favorites = ref(JSON.parse(localStorage.getItem('aiFavorites')) || []);
                 const showOnlyFavorites = ref(false);
@@ -2982,7 +2985,7 @@
                     searchQuery,
                     activeTypeFilter,
                     activeDifficultFilter,
-                    currentDate,
+                    lastUpdateDate,
                     filteredAIs,
                     isLoading,
                     setTypeFilter,
