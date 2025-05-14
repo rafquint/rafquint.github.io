@@ -380,13 +380,16 @@
             </p>
         </footer>
     </div>
-
+<script type="module">
+  import { pipeline } from "https://cdn.jsdelivr.net/npm/@xenova/transformers@2.4.1";
+  window.transformers = { pipeline };
+</script>
     <!-- Vue.js 3 -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <!-- Bootstrap 5 JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <!-- transformers.js -->
-    <script src="https://cdn.jsdelivr.net/npm/@xenova/transformers@2.4.1/dist/transformers.min.js"></script>
+    
 
     <script>
         const { createApp, ref, computed, onMounted } = Vue;
