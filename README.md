@@ -55,7 +55,7 @@ A partir daí, continuei iterando com as IAs para:
 
 Abaixo, uma prévia da interface gerada com auxílio das IAs:
 
-![Captura da Página](./rafquint_github_io.jpg)
+![Captura da Página](./preview.jpg)
 <div align="center">
   <sub>📷 Screenshot gerado por: <a href="https://www.online-convert.com/capture-website/screenshot-website-as-jpg">online-convert.com</a></sub>
 </div>
