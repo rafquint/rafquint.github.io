@@ -1,10 +1,16 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html :lang="locale">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Catálogo de IAs com Vue.js e Bootstrap 5">
-    <title>Catálogo de IAs - LLMs e Multiagentes</title>
+    <meta :name="'description'" :content="metaDescription">
+    
+    <meta property="og:title" :content="pageTitle">
+    <meta property="og:description" :content="metaDescription">
+    <meta property="og:image" content="https://rafquint.github.io/preview.jpg">
+    <meta property="og:url" content="https://rafquint.github.io">
+    <meta name="twitter:card" content="summary_large_image">
+    
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -146,22 +152,27 @@
 </head>
 <body>
     <div id="app" class="container py-5">
+<div class="d-flex flex-row-reverse">
+  <select v-model="$i18n.locale" class="form-select w-auto d-inline-block">
+    <option value="pt">🇧🇷 Português</option>
+    <option value="en">🇺🇸 English</option>
+  </select>
+</div>
         <!-- Loading Overlay -->
         <div class="loading-overlay" v-if="isLoading">
             <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Carregando...</span>
+                <span class="visually-hidden">{{ $t('loading') }}</span>
             </div>
         </div>
-
         <header class="text-center mb-5">
             <h1 class="display-4 fw-bold mb-3">
-                <i class="bi bi-robot"></i> Catálogo de IAs
+                <i class="bi bi-robot"></i> {{ $t('title') }}
             </h1>
             <p class="lead text-muted">
-                <strong>Explore os principais modelos LLM e sistemas multiagentes disponíveis</strong>
+                <strong>{{ $t('subtitle') }}</strong>
             </p>
             <p class="text-muted small mt-2">
-                Esta página foi inteiramente desenvolvida usando as LLMs: Claude, ChatGPT, Grok e Gemini.
+                {{ $t('llmsCredits') }}
             </p>
             
             <div class="search-box">
@@ -172,12 +183,12 @@
                     <input 
                         type="text" 
                         class="form-control form-control-lg" 
-                        placeholder="Pesquisar IAs..." 
+                        :placeholder="$t('searchPlaceholder')"  
                         v-model="searchQuery"
                         @input="filterAIs"
                     >
                     <button class="btn btn-outline-secondary" type="button" @click="resetFilter">
-                        Limpar
+                        {{ $t('clear') }}
                     </button>
                 </div>
             </div>
@@ -192,7 +203,7 @@
                                 :class="{active: activeTypeFilter === 'all'}"
                                 @click="setTypeFilter('all')"
                             >
-                                Todas
+                                {{ $t('filters.all') }}
                             </button>
                             <button 
                                 type="button" 
@@ -200,7 +211,7 @@
                                 :class="{active: activeTypeFilter === 'llm'}"
                                 @click="setTypeFilter('llm')"
                             >
-                                LLMs
+                                {{ $t('filters.llm') }}
                             </button>
                             <button 
                                 type="button" 
@@ -208,7 +219,7 @@
                                 :class="{active: activeTypeFilter === 'multiagent'}"
                                 @click="setTypeFilter('multiagent')"
                             >
-                                Multiagentes
+                                {{ $t('filters.multiagent') }}
                             </button>
                         </div>
                     </div>
@@ -220,7 +231,7 @@
                                 :class="{active: activeDifficultFilter === 'all'}"
                                 @click="setDifficultFilter('all')"
                             >
-                                Qualquer nível
+                                {{ $t('difficulty.all') }}
                             </button>
                             <button 
                                 type="button" 
@@ -228,7 +239,7 @@
                                 :class="{active: activeDifficultFilter === 'facil'}"
                                 @click="setDifficultFilter('facil')"
                             >
-                                Fácil
+                                {{ $t('difficulty.facil') }}
                             </button>
                             <button 
                                 type="button" 
@@ -236,7 +247,7 @@
                                 :class="{active: activeDifficultFilter === 'medio'}"
                                 @click="setDifficultFilter('medio')"
                             >
-                                Médio
+                                {{ $t('difficulty.medio') }}
                             </button>
                             <button 
                                 type="button" 
@@ -244,7 +255,7 @@
                                 :class="{active: activeDifficultFilter === 'avancado'}"
                                 @click="setDifficultFilter('avancado')"
                             >
-                                Avançado
+                                {{ $t('difficulty.avancado') }}
                             </button>
                         </div>
                     </div>
@@ -259,7 +270,7 @@
                             @click="toggleAcademicFilter"
                             @touchstart="toggleAcademicFilter"
                         >
-                            <i class="bi bi-mortarboard-fill me-1"></i> Acadêmicos
+                            <i class="bi bi-mortarboard-fill me-1"></i> {{ $t('academic') }}
                         </button>
                         <button 
                             type="button" 
@@ -268,7 +279,7 @@
                             @click="toggleFavoritesFilter"
                             @touchstart="toggleFavoritesFilter"
                         >
-                            <i class="bi bi-heart-fill me-1"></i> Favoritos
+                            <i class="bi bi-heart-fill me-1"></i> {{ $t('favorites') }}
                         </button>
                     </div>
                 </div>
@@ -276,16 +287,16 @@
 
             <div class="mt-3">
                 <span class="result-count">
-                    Mostrando {{ filteredAIs.length }} de {{ ais.length }} IAs
+                    {{ $t('showingResults', { current: filteredAIs.length, total: ais.length }) }}
                 </span>
             </div>
         </header>
 
         <div v-if="filteredAIs.length === 0" class="text-center py-5">
             <i class="bi bi-search" style="font-size: 3rem; color: #ccc;"></i>
-            <h3 class="mt-3">Nenhuma IA encontrada</h3>
-            <p class="text-muted">Tente ajustar seus filtros ou termos de pesquisa</p>
-            <button class="btn btn-primary mt-2" @click="resetFilter">Limpar filtros</button>
+            <h3 class="mt-3">{{ $t('noResults.title') }}</h3>
+            <p class="text-muted">{{ $t('noResults.suggestion') }}</p>
+            <button class="btn btn-primary mt-2" @click="resetFilter">{{ $t('noResults.clearFilters') }}</button>
         </div>
 
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
@@ -295,7 +306,7 @@
                         <i class="bi" :class="isFavorite(ai.id) ? 'bi-heart-fill text-danger' : 'bi-heart'"></i>
                     </div>
                     <span class="ai-type-badge badge" :class="ai.type === 'llm' ? 'bg-primary' : 'bg-secondary'">
-                        {{ ai.type === 'llm' ? 'LLM' : 'Multiagente' }}
+                        {{ ai.type === 'llm' ? $t('filters.llm') : $t('filters.multiagent') }}
                     </span>
                     <span class="difficult-badge badge" 
                           :class="{
@@ -303,16 +314,17 @@
                             'bg-warning': ai.difficulty === 'medio',
                             'bg-danger': ai.difficulty === 'avancado'
                           }">
-                        {{ ai.difficulty === 'facil' ? 'Fácil' : ai.difficulty === 'medio' ? 'Médio' : 'Avançado' }}
+                        {{ $t(`difficulty.${ai.difficulty}`) }}
                     </span>
                     <span v-if="ai.academic" class="academic-badge badge bg-success">
-                        <i class="bi bi-mortarboard-fill me-1"></i> Acadêmico
+                        <i class="bi bi-mortarboard-fill me-1"></i> {{ $t('academic') }}
                     </span>
                     <div class="card-body text-center">
                         <img 
                             :src="getLogoWithFallback(ai.name)" 
                             :alt="ai.name + ' logo'" 
                             class="ai-logo"
+                            loading="lazy"
                             @error="onLogoError($event, ai.name)"
                         >
                         <h3 class="h4">{{ ai.name }}</h3>
@@ -328,10 +340,10 @@
                             </small>
                             <div>
                                 <a v-if="ai.tutorial" :href="ai.tutorial" target="_blank" class="btn btn-sm btn-outline-info me-1">
-                                    <i class="bi bi-question-circle"></i> Tutorial
+                                    <i class="bi bi-question-circle"></i> {{ $t('tutorial') }}
                                 </a>
                                 <a v-if="ai.website" :href="ai.website" target="_blank" class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-box-arrow-up-right"></i> Site
+                                    <i class="bi bi-box-arrow-up-right"></i> {{ $t('site') }}
                                 </a>
                             </div>
                         </div>
@@ -342,8 +354,8 @@
 
         <footer class="mt-5 pt-4 text-center text-muted">
             <!--p>Atualizado em {{ currentDate }}</p-->
-            <p>Atualizado em 11/05/2025</p>
-            <p class="small">Desenvolvido com <i class="bi bi-heart-fill text-danger"></i> para auxiliar na jornada de IA</p>
+            <p>{{ $t('updatedOn') }}</p>
+            <p class="small">{{ $t('footerMessageBegin') }} <i class="bi bi-heart-fill text-danger"></i> {{ $t('footerMessageEnd') }}</p>
             <div class="social-links mt-3">
                 <a href="https://www.linkedin.com/in/rafael-quintino-gomes-rosa/" target="_blank" class="text-muted mx-2" title="LinkedIn">
                     <i class="bi bi-linkedin" style="font-size: 1.5rem;"></i>
@@ -366,22 +378,105 @@
             </div>
             <p class="mt-3">
                 <a href="https://github.com/rafquint/rafquint.github.io" target="_blank" class="text-muted text-decoration-none">
-                    <i class="bi bi-github" style="font-size: 1.2rem;"></i> Ver código-fonte no GitHub
+                    <i class="bi bi-github" style="font-size: 1.2rem;"></i> {{ $t('viewOnGithub') }}
                 </a>
             </p>
         </footer>
     </div>
 
     <!-- Vue.js 3 -->
-    <!--script src="https://unpkg.com/vue@3/dist/vue.global.js"></script-->
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://unpkg.com/vue-i18n@9.9.0/dist/vue-i18n.global.prod.js"></script>
 
     <!-- Bootstrap 5 JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
-        const { createApp, ref, computed, onMounted } = Vue;
+        const { createApp, ref, computed, onMounted, watch } = Vue;
         
+        const messages = {
+          pt: {
+            pageTitle: "Catálogo de IAs - LLMs e Multiagentes",
+            metaDescription: "Catálogo de IAs com Vue.js e Bootstrap 5",
+            loading: "Carregando...",
+            title: "Catálogo de IAs",
+            subtitle: "Explore os principais modelos LLM e sistemas multiagentes disponíveis",
+            llmsCredits: "Esta página foi inteiramente desenvolvida usando as LLMs: Claude, ChatGPT, Grok e Gemini.",
+            searchPlaceholder: "Pesquisar IAs...",
+            clear: "Limpar",
+            filters: {
+              all: "Todas",
+              llm: "LLMs",
+              multiagent: "Multiagentes"
+            },
+            difficulty: {
+              facil: "Fácil",
+              medio: "Médio",
+              avancado: "Avançado",
+              all: "Qualquer nível"
+            },
+            academic: "Acadêmicos",
+            favorites: "Favoritos",
+            tutorial: "Tutorial",
+            site: "Site",
+            noResults: {
+              title: "Nenhuma IA encontrada",
+              suggestion: "Tente ajustar seus filtros ou termos de pesquisa",
+              clearFilters: "Limpar filtros"
+            },
+            showingResults: "Mostrando {current} de {total} IAs",
+            updatedOn: "Atualizado em 14/05/2025",
+            footerMessageBegin: "Desenvolvido com",
+            footerMessageEnd: "para auxiliar na jornada de IA",
+            viewOnGithub: "Ver código-fonte no GitHub",
+          },
+          en: {
+            pageTitle: "AI Catalog - LLMs and Multi-agent Systems",
+            metaDescription: "AI catalog using Vue.js and Bootstrap 5",
+            loading: "Loading...",
+            title: "AI Catalog",
+            subtitle: "Explore the main LLM models and available multi-agent systems",
+            llmsCredits: "This page was entirely developed using LLMs: Claude, ChatGPT, Grok and Gemini.",
+            searchPlaceholder: "Search AIs...",
+            clear: "Clear",
+            tutorial: "Tutorial",
+            site: "Website",
+            filters: {
+              all: "All",
+              llm: "LLMs",
+              multiagent: "Multi-agents"
+            },
+            difficulty: {
+              facil: "Easy",
+              medio: "Medium",
+              avancado: "Advanced",
+              all: "Any level"
+            },
+            academic: "Academics",
+            favorites: "Favorites",
+            noResults: {
+              title: "No AI found",
+              suggestion: "Try adjusting your filters or search terms",
+              clearFilters: "Clear filters"
+            },
+            showingResults: "Showing {current} of {total} AIs",
+            updatedOn: "Updated on 05/14/2025",
+            footerMessageBegin: "Built with",
+            footerMessageEnd: "to assist in the AI ​​journey",
+            viewOnGithub: "View source code on GitHub",
+          }
+        };
+
+        const i18n = VueI18n.createI18n({
+          legacy: false,
+          locale: 'pt', // ou 'en', detectado via navegador
+          fallbackLocale: 'en',
+          messages
+        });
+
+        // Detectar idioma do navegador
+        i18n.global.locale.value = navigator.language.startsWith('pt') ? 'pt' : 'en';
+
         createApp({
             setup() {
                 // Data
@@ -394,7 +489,24 @@
                 const favorites = ref(JSON.parse(localStorage.getItem('aiFavorites')) || []);
                 const showOnlyFavorites = ref(false);
                 const academicOnly = ref(false);
+                const { t, locale } = VueI18n.useI18n();
+
+                const pageTitle = computed(() => t('pageTitle'));
+                const metaDescription = computed(() => t('metaDescription'));
                 
+                // Atualizar <title> dinamicamente
+                watch(pageTitle, (newTitle) => {
+                  document.title = newTitle;
+                }, { immediate: true }); // `immediate` já atualiza na primeira execução
+                
+                watch(locale, (newLocale) => {
+                  localStorage.setItem('preferredLocale', newLocale);
+                });
+                
+                const storedLocale = localStorage.getItem('preferredLocale');
+                i18n.global.locale.value = storedLocale || (navigator.language.startsWith('pt') ? 'pt' : 'en');
+
+
                 // Dataset com logos reais
                 const aisData = {
                   "ais": [
@@ -1728,7 +1840,7 @@
                         "Grok": "https://icons.duckduckgo.com/ip3/x.ai.ico",
                         "Cohere": "https://icons.duckduckgo.com/ip3/cohere.com.ico",
                         "CrewAI": "https://icons.duckduckgo.com/ip3/crewai.com.ico",
-                        "Agno": "https://icons.duckduckgo.com/ip3/agnostic.ai.ico",
+                        //"Agno": "https://icons.duckduckgo.com/ip3/agnostic.ai.ico",
                         "IBM Watson": "https://icons.duckduckgo.com/ip3/ibm.com.ico",
                         "Salesforce Einstein": "https://icons.duckduckgo.com/ip3/salesforce.com.ico",
                         "Notion AI": "https://icons.duckduckgo.com/ip3/notion.so.ico",
@@ -1736,9 +1848,9 @@
                         "Jasper": "https://icons.duckduckgo.com/ip3/jasper.ai.ico",
                         "Amazon Bedrock": "https://icons.duckduckgo.com/ip3/aws.amazon.com.ico",
                         "HuggingChat": "https://icons.duckduckgo.com/ip3/huggingface.co.ico",
-                        "Firefly": "https://icons.duckduckgo.com/ip3/adobe.com.ico",
+                        //"Firefly": "https://icons.duckduckgo.com/ip3/adobe.com.ico",
                         "MGX": "https://icons.duckduckgo.com/ip3/mgx.dev.ico",
-                        "Taskonomy": "https://icons.duckduckgo.com/ip3/taskonomy.ai.ico",
+                        //"Taskonomy": "https://icons.duckduckgo.com/ip3/taskonomy.ai.ico",
                         "MultiOn": "https://icons.duckduckgo.com/ip3/multion.ai.ico",
                         "Lagent": "https://icons.duckduckgo.com/ip3/github.com.ico",
                         "XAI Swarm": "https://icons.duckduckgo.com/ip3/x.ai.ico",
@@ -1984,10 +2096,14 @@
                     getLogoWithFallback,
                     onLogoError,
                     showOnlyFavorites,
-                    academicOnly
+                    academicOnly,
+                    locale,
+                    t,
+                    pageTitle,
+                    metaDescription,
                 };
             }
-        }).mount('#app');
+        }).use(i18n).mount('#app');
     </script>
 </body>
 </html>
