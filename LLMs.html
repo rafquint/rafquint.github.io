@@ -411,7 +411,7 @@
                 onMounted(async () => {
                     //pipeline = await window.transformers.pipeline('text2text-generation', './models/t5-small');
 					try {
-						pipeline = await window.transformers.pipeline('text2text-generation', './models/t5-small');
+						pipeline = await window.transformers.pipeline('text2text-generation', 'Xenova/t5-small');
 					} catch (e) {
 						console.error('Erro ao carregar o modelo:', e);
 						modelLoadError.value = '❌ Erro ao carregar o modelo T5. Verifique se os arquivos estão em /models/t5-small e se o servidor está rodando.';
