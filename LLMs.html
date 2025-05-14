@@ -409,7 +409,7 @@
 				const modelLoadError = ref('');
 
                 onMounted(async () => {
-                    //pipeline = await window.transformers.pipeline('text2text-generation', 'https://github.com/rafquint/rafquint.github.io/upload/main/models/t5-small');
+                    //pipeline = await window.transformers.pipeline('text2text-generation', './models/t5-small');
 					try {
 						pipeline = await window.transformers.pipeline('text2text-generation', './models/t5-small');
 					} catch (e) {
