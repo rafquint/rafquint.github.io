@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rafael Quintino Gomes Rosa - Arquiteto de Soluções</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.2.47/dist/vue.global.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.1/qrcode.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-bg: #f8f9fa;
+            --dark-text: #2c3e50;
+            --light-text: #7f8c8d;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--dark-text);
+            line-height: 1.6;
+        }
+        
+        .header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        
+        .name-title h1 {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .name-title h2 {
+            font-weight: 300;
+            font-size: 1.5rem;
+            opacity: 0.9;
+        }
+        
+        .contact-info {
+            margin-top: 1rem;
+        }
+        
+        .contact-info a {
+            color: white;
+            text-decoration: none;
+            margin-right: 1rem;
+        }
+        
+        .contact-info a:hover {
+            color: var(--secondary-color);
+        }
+        
+        .section-title {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            border-radius: 0 !important;
+        }
+        
+        .job-title {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .company {
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+        
+        .date {
+            color: var(--light-text);
+            font-style: italic;
+        }
+        
+        .skill-badge {
+            background-color: var(--secondary-color);
+            color: white;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 400;
+        }
+        
+        .qr-code-container {
+            background-color: white;
+            padding: 1rem;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-top: 2rem;
+        }
+        
+        .language-switcher {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .print-button {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+        
+        .profile-photo {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .certification-badge {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .certification-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .certification-text {
+            flex: 1;
+        }
+        
+        @media print {
+            .no-print, .language-switcher, .print-button {
+                display: none !important;
+            }
+            
+            .online-only {
+                display: none !important;
+            }
+            
+            .print-only {
+                display: block !important;
+            }
+            
+            body {
+                font-size: 12pt;
+                color: black;
+                padding: 0;
+                margin: 0;
+            }
+            
+            .header {
+                background-color: white !important;
+                color: black !important;
+                padding: 0;
+                margin-bottom: 1rem;
+            }
+            
+            .contact-info a {
+                color: black !important;
+            }
+            
+            .card {
+                box-shadow: none;
+                border: 1px solid #ddd;
+                page-break-inside: avoid;
+            }
+            
+            .section-title {
+                color: black;
+                border-bottom: 1px solid #ccc;
+            }
+            
+            .page-break {
+                page-break-after: always;
+            }
+            
+            footer {
+                display: none;
+            }
+            
+            .certification-badge {
+                width: 60px;
+                height: 60px;
+            }
+        }
+        
+        @media screen {
+            .print-only {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Language Switcher -->
+        <div class="language-switcher no-print">
+            <div class="btn-group">
+                <button @click="changeLanguage('pt')" :class="{'btn btn-sm': true, 'btn-primary': currentLanguage === 'pt', 'btn-outline-primary': currentLanguage !== 'pt'}">PT 🇧🇷</button>
+                <button @click="changeLanguage('en')" :class="{'btn btn-sm': true, 'btn-primary': currentLanguage === 'en', 'btn-outline-primary': currentLanguage !== 'en'}">EN 🇺🇸</button>
+            </div>
+        </div>
+        
+        <!-- Print Button -->
+        <div class="print-button no-print">
+            <button @click="printResume" class="btn btn-primary btn-sm">
+                <i class="bi bi-printer-fill"></i> {{ translations[currentLanguage].print }}
+            </button>
+        </div>
+        
+        <!-- Header -->
+        <header class="header">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="name-title">
+                            <h1>{{ resumeData.name }}</h1>
+                            <h2>{{ resumeData.title[currentLanguage] }}</h2>
+                        </div>
+                        <div class="contact-info">
+                            <a :href="'tel:' + resumeData.phone"><i class="bi bi-telephone-fill"></i> {{ resumeData.phone }}</a>
+                            <a :href="'mailto:' + resumeData.email"><i class="bi bi-envelope-fill"></i> {{ resumeData.email }}</a>
+                            <a :href="resumeData.linkedin" target="_blank" class="online-only"><i class="bi bi-linkedin"></i> LinkedIn</a>
+                            <a :href="resumeData.github" target="_blank" class="online-only"><i class="bi bi-github"></i> GitHub</a>
+                            <a v-if="currentLanguage === 'pt'" :href="resumeData.lattes" target="_blank" class="online-only">
+                                <i class="bi bi-journal-bookmark-fill"></i> Lattes
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-md-end">
+                        <img :src="resumeData.photo" class="profile-photo mb-2 online-only" alt="Profile Photo">
+                        <div class="qr-code-container print-only">
+                            <div class="qr-code mx-auto">
+                                <canvas id="qrcode" width="100" height="100"></canvas>
+                            </div>
+                            <small class="text-muted">{{ translations[currentLanguage].scan }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <div class="container">
+            <!-- Summary -->
+            <section class="mb-5">
+                <h3 class="section-title"><i class="bi bi-person-lines-fill"></i> {{ translations[currentLanguage].sections.summary }}</h3>
+                <div class="card">
+                    <div class="card-body">
+                        <p>{{ resumeData.summary[currentLanguage] }}</p>
+                    </div>
+                </div>
+            </section>
+            
+            <div class="row">
+                <div class="col-md-8">
+                    <!-- Education - Moved before Experience -->
+                    <section class="mb-5">
+                        <h3 class="section-title"><i class="bi bi-mortarboard-fill"></i> {{ translations[currentLanguage].sections.education }}</h3>
+                        <div class="card" v-for="(edu, index) in resumeData.education" :key="'edu'+index">
+                            <div class="card-header">
+                                {{ edu.degree[currentLanguage] }}
+                            </div>
+                            <div class="card-body">
+                                <h5 class="company">{{ edu.institution }}</h5>
+                                <p class="date">{{ edu.period[currentLanguage] }}</p>
+                                <p v-if="edu.status">{{ edu.status[currentLanguage] }}</p>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- Experience -->
+                    <section class="mb-5">
+                        <h3 class="section-title"><i class="bi bi-briefcase-fill"></i> {{ translations[currentLanguage].sections.experience }}</h3>
+                        <div class="card" v-for="(job, index) in resumeData.experience" :key="'exp'+index">
+                            <div class="card-header">
+                                {{ job.position[currentLanguage] }}
+                            </div>
+                            <div class="card-body">
+                                <h5 class="company">{{ job.company }}</h5>
+                                <p class="date">{{ job.period[currentLanguage] }}</p>
+                                <p>{{ job.description[currentLanguage] }}</p>
+                                <div v-if="job.technologies && job.technologies.length > 0">
+                                    <span class="badge skill-badge" v-for="(tech, techIndex) in job.technologies" :key="techIndex">{{ tech }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+                
+                <div class="col-md-4">
+                    <!-- Certifications -->
+                    <section class="mb-5">
+                        <h3 class="section-title"><i class="bi bi-award-fill"></i> {{ translations[currentLanguage].sections.certifications }}</h3>
+                        <div class="card">
+                            <div class="card-body">
+                                <div v-for="(cert, index) in resumeData.certifications" :key="'cert'+index" class="certification-item">
+                                    <img :src="cert.badge" class="certification-badge" :alt="cert.name">
+                                    <div class="certification-text">
+                                        <strong>{{ cert.name }}</strong><br>
+                                        <small class="text-muted">{{ cert.issuer }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- Languages -->
+                    <section class="mb-5">
+                        <h3 class="section-title"><i class="bi bi-translate"></i> {{ translations[currentLanguage].sections.languages }}</h3>
+                        <div class="card">
+                            <div class="card-body">
+                                <div v-for="(lang, index) in resumeData.languages" :key="'lang'+index">
+                                    <strong>{{ lang.language }}:</strong> {{ lang.level[currentLanguage] }}
+                                    <div class="progress mt-1 mb-2">
+                                        <div class="progress-bar bg-primary" role="progressbar" :style="{width: lang.progress + '%'}" :aria-valuenow="lang.progress" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- Skills -->
+                    <section class="mb-5">
+                        <h3 class="section-title"><i class="bi bi-tools"></i> {{ translations[currentLanguage].sections.skills }}</h3>
+                        <div class="card">
+                            <div class="card-body">
+                                <div v-for="(skillGroup, index) in resumeData.skills" :key="'skills'+index">
+                                    <h5>{{ skillGroup.category[currentLanguage] }}</h5>
+                                    <div>
+                                        <span class="badge skill-badge" v-for="(skill, skillIndex) in skillGroup.items" :key="skillIndex">{{ skill }}</span>
+                                    </div>
+                                    <hr v-if="index < resumeData.skills.length - 1">
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- QR Code for online version -->
+                    <div class="qr-code-container online-only mt-4">
+                        <div id="qrCodeOnline"></div>
+                        <small class="text-muted">{{ translations[currentLanguage].scan }}</small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Career Goals -->
+            <section class="mb-5">
+                <h3 class="section-title"><i class="bi bi-bullseye"></i> {{ translations[currentLanguage].sections.goals }}</h3>
+                <div class="card">
+                    <div class="card-body">
+                        <ul>
+                            <li v-for="(goal, index) in resumeData.goals[currentLanguage]" :key="'goal'+index">{{ goal }}</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </div>
+        
+        <footer class="bg-light py-3 mt-5 no-print">
+            <div class="container text-center">
+                <p class="mb-0">{{ translations[currentLanguage].footer }}</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const { createApp, ref, onMounted, watch } = Vue;
+        
+        createApp({
+            setup() {
+                // Detecta o idioma inicial baseado na hash da URL
+                const hash = window.location.hash;
+                const initialLanguage = hash === '#en-us' ? 'en' : 'pt';
+                const currentLanguage = ref(initialLanguage);
+                const pageUrl = window.location.href.split('#')[0] || "https://rafquint.github.com/CV.html";
+                
+                const resumeData = {
+                    name: "Rafael Quintino Gomes Rosa",
+                    title: {
+                        pt: "Arquiteto de Soluções | Engenheiro de Software | DevOps + Java + Spring Boot | Certificado Azure e AWS",
+                        en: "Solutions Architect | Software Engineer | DevOps + Java + Spring Boot | Azure and AWS Certified"
+                    },
+                    phone: "+55 (61) 99654-7792",
+                    email: "rafquint@gmail.com",
+                    linkedin: "https://www.linkedin.com/in/rafael-quintino-gomes-rosa/",
+                    github: "https://github.com/rafquint",
+                    lattes: "https://lattes.cnpq.br/5025041667706915",
+                    photo: "https://gravatar.com/userimage/14834158/e417429847dea6a617e0d44da7abc0e1.jpeg?size=256&cache=1749950016266",
+                    summary: {
+                        pt: "Arquiteto de Soluções com quase duas décadas de experiência na área de tecnologia da informação. Minha jornada começou em 2006 como Desenvolvedor, especializando-me em sistemas de missão crítica escritos em C++ ou Java. Ao longo dos anos, aprimorei minhas habilidades e adquiri um profundo entendimento de desafios tecnológicos complexos e inovadores. Minha carreira tem sido definida por um compromisso em entregar soluções escaláveis, de alta performance e altamente sustentáveis que são essenciais para o sucesso de grandes organizações. Nos últimos três anos, tenho trabalhado como Arquiteto de Soluções no setor financeiro. Nesta função, fui responsável por criar e executar soluções inovadoras que fazem a ponte entre requisitos de negócio e tecnologia. Também trabalhei em estreita colaboração com equipes multifuncionais para garantir que projetos tecnológicos estivessem alinhados com os objetivos da empresa. Atualmente, estamos envolvidos em estudos de migração para a nuvem, o que me inspirou a buscar certificações relevantes. Minha paixão por estar na vanguarda dos desenvolvimentos tecnológicos me leva a buscar constantemente oportunidades para me adaptar e inovar. Como Arquiteto de Soluções, meu objetivo é traduzir metas corporativas em estratégias acionáveis, aproveitando meu profundo entendimento de finanças e software de missão crítica para fornecer soluções que entregam valor e impulsionem o avanço dos negócios.",
+                        en: "I am a Solutions Architect with almost two decades of experience in the information technology field. My journey began in 2006 when I started as a Developer, specializing in mission-critical systems written in C++ or Java. Over the years, I have honed my skills and gained a deep understanding of complex and innovative technological challenges. My career has been defined by a commitment to delivering scalable, high-performance, and highly maintainable solutions that are essential to the success of large organizations. For the last three years, I have been working as a Solutions Architect in the financial sector. In this role, I was responsible for creating and executing cutting-edge solutions that bridge the gap between business requirements and technology. I also worked closely with cross-functional teams to ensure technology projects aligned with company objectives. Currently, we are involved in cloud migration studies, which have inspired me to pursue relevant certifications. My passion for staying at the cutting edge of technology developments drives me to constantly seek opportunities to adapt and innovate. As a Solutions Architect, my goal is to translate corporate goals into actionable strategies, leveraging my in-depth understanding of finance and mission-critical software to provide solutions that deliver value and drive business advancement."
+                    },
+                    experience: [
+                        {
+                            position: {
+                                pt: "Analista de TI",
+                                en: "IT Analyst"
+                            },
+                            company: "BRB - Banco de Brasília S.A.",
+                            period: {
+                                pt: "Dezembro 2014 - Presente (10 anos 7 meses)",
+                                en: "December 2014 - Present (10 years 7 months)"
+                            },
+                            description: {
+                                pt: "Responsável pelo desenvolvimento e supervisão de planos para criação de sistemas de automação bancária que abrangem diversas plataformas, incluindo aplicativos móveis e sistemas core banking. Ao longo dos anos de experiência, estive ativamente envolvido na criação, desenvolvimento e implementação de soluções inovadoras que atendem às necessidades específicas do setor financeiro, garantindo eficiência operacional e satisfação do cliente. Além de construir arquiteturas robustas e escaláveis, tenho experiência em coordenar equipes multidisciplinares e garantir conformidade com os mais altos padrões de qualidade e segurança.",
+                                en: "Responsible for the development and supervision of plans for the creation of banking automation systems that encompass a variety of platforms, including mobile applications and core banking systems. Throughout my years of experience, I have been actively involved in the creation, development, and implementation of innovative solutions that meet the specific needs of the financial sector, ensuring operational efficiency and customer satisfaction. In addition to building robust and scalable architectures, I have experience in coordinating multidisciplinary teams and ensuring compliance with the highest standards of quality and security."
+                            },
+                            technologies: ["Java", "Spring Boot", "Microservices", "AWS", "Azure", "DevOps", "CI/CD"]
+                        },
+                        {
+                            position: {
+                                pt: "Arquiteto Java Sênior",
+                                en: "Senior Java Architect"
+                            },
+                            company: "Instituto Nacional de Estudos e Pesquisas Educacionais Anísio Teixeira - INEP",
+                            period: {
+                                pt: "Outubro 2013 - Dezembro 2014 (1 ano 3 meses)",
+                                en: "October 2013 - December 2014 (1 year 3 months)"
+                            },
+                            description: {
+                                pt: "Coordenação de proposta para o ambiente de desenvolvimento; processos de configuração; tecnologias e ferramentas que devem apoiar este ambiente; padrões tecnológicos a serem utilizados; desenvolvimento de uma proposta de arquitetura de referência; modelagem e implementação de soluções integrativas; desenvolvimento de mecanismos de verificação automática de conformidade no uso do ambiente pelos projetos mais críticos e acompanhamento da execução de treinamentos para equipes de desenvolvimento.",
+                                en: "Coordinate proposal for the development environment; configuration processes; technologies and tools that should support this environment; technological standards to be used; development of a reference architecture proposal; modeling and implementation of integrative solutions; development of mechanisms for automatic verification of compliance in the use of the environment by the most critical projects, and monitoring the execution of training for development teams."
+                            },
+                            technologies: ["Java", "Spring", "Hibernate", "Architecture", "Design Patterns"]
+                        },
+                        {
+                            position: {
+                                pt: "Analista de Sistemas Sênior",
+                                en: "Senior System Analyst"
+                            },
+                            company: "Indra",
+                            period: {
+                                pt: "Abril 2013 - Outubro 2013 (7 meses)",
+                                en: "April 2013 - October 2013 (7 months)"
+                            },
+                            description: {
+                                pt: "Implementação e testes do Sistema de Gestão Orçamentária na linguagem Java, com Wicket, Hibernate, Spring, Bootstrap, entre outros frameworks.",
+                                en: "Implementation and testing of the Budget Management System in the Java language, with Wicket, Hibernate, Spring, Bootstrap, among other frameworks."
+                            },
+                            technologies: ["Java", "Wicket", "Hibernate", "Spring", "Bootstrap"]
+                        },
+                        {
+                            position: {
+                                pt: "Engenheiro de Software Sênior",
+                                en: "Senior Software Engineering"
+                            },
+                            company: "CTIS",
+                            period: {
+                                pt: "Janeiro 2012 - Março 2013 (1 ano 3 meses)",
+                                en: "January 2012 - March 2013 (1 year 3 months)"
+                            },
+                            description: {
+                                pt: "Projeto e desenvolvimento de sistemas eleitorais para suporte às urnas eletrônicas, em C/C++ no TSE.",
+                                en: "Design and development of electoral systems to support Electronic Voting Machines, in C/C++ at TSE."
+                            },
+                            technologies: ["C++", "C", "Embedded Systems"]
+                        },
+                        {
+                            position: {
+                                pt: "Desenvolvedor de Sistemas Sênior",
+                                en: "Senior System Developer"
+                            },
+                            company: "Exército Brasileiro (FAPEB)",
+                            period: {
+                                pt: "Agosto 2010 - Dezembro 2011 (1 ano 5 meses)",
+                                en: "August 2010 - December 2011 (1 year 5 months)"
+                            },
+                            description: {
+                                pt: "Desenvolvimento de sistemas C/C++ com QT5, para rastrear veículos do exército brasileiro durante as operações.",
+                                en: "Develop C/C++ systems with QT5, to track brasilian army vehicles during operations."
+                            },
+                            technologies: ["C++", "QT5", "Embedded Systems"]
+                        },
+                        {
+                            position: {
+                                pt: "Analista de Sistemas Sênior",
+                                en: "Senior System Analyst"
+                            },
+                            company: "Autotrac Comércio e Telecomunicações S.A.",
+                            period: {
+                                pt: "Dezembro 2008 - Agosto 2010 (1 ano 9 meses)",
+                                en: "December 2008 - August 2010 (1 year 9 months)"
+                            },
+                            description: {
+                                pt: "Desenvolvimento do protocolo de integração da interface web C# com o sistema de rastreamento de satélites feito em C++, e criação de novas funcionalidades para o sistema C++.",
+                                en: "Development of the integration protocol of the C# web interface with the satellite tracking system made in C++, and creation of new functionalities for the C++ system."
+                            },
+                            technologies: ["C++", "C#", "Web Services"]
+                        }
+                    ],
+                    education: [
+                        {
+                            degree: {
+                                pt: "Bacharelado em Ciência da Computação",
+                                en: "Bachelor's degree in Computer Science"
+                            },
+                            institution: "Universidade Católica de Brasília",
+                            period: {
+                                pt: "Julho 2003 - Dezembro 2007",
+                                en: "July 2003 - December 2007"
+                            },
+                            status: {
+                                pt: "Status: Formado",
+                                en: "Status: Graduated"
+                            }
+                        },
+                        {
+                            degree: {
+                                pt: "MBA em Cibersegurança e Gestão de Riscos",
+                                en: "MBA in Cybersecurity and Risk Management"
+                            },
+                            institution: "UNOPAR - Universidade Norte do Paraná",
+                            period: {
+                                pt: "Janeiro 2025 - Maio 2025",
+                                en: "January 2025 - May 2025"
+                            },
+                            status: {
+                                pt: "Status: Concluído",
+                                en: "Status: Completed"
+                            }
+                        },
+                        {
+                            degree: {
+                                pt: "Pós-Graduação em Arquitetura de Software",
+                                en: "Postgraduate Degree in Software Architecture"
+                            },
+                            institution: "UNOPAR - Universidade Norte do Paraná",
+                            period: {
+                                pt: "Agosto 2024 - Dezembro 2024",
+                                en: "August 2024 - December 2024"
+                            },
+                            status: {
+                                pt: "Status: Concluído",
+                                en: "Status: Completed"
+                            }
+                        },
+                        {
+                            degree: {
+                                pt: "Pós-Graduação em Cloud Computing",
+                                en: "Postgraduate Degree in Cloud Computing"
+                            },
+                            institution: "Anhanguera Educacional",
+                            period: {
+                                pt: "Abril 2024 - Outubro 2024",
+                                en: "April 2024 - October 2024"
+                            },
+                            status: {
+                                pt: "Status: Formado",
+                                en: "Status: Graduated"
+                            }
+                        },
+                        {
+                            degree: {
+                                pt: "MBA em Gestão de Projetos",
+                                en: "MBA in Project Management"
+                            },
+                            institution: "Anhanguera Educacional",
+                            period: {
+                                pt: "Abril 2024 - Agosto 2024",
+                                en: "April 2024 - August 2024"
+                            },
+                            status: {
+                                pt: "Status: Concluído",
+                                en: "Status: Completed"
+                            }
+                        }
+                    ],
+                    skills: [
+                        {
+                            category: {
+                                pt: "Arquitetura de Software",
+                                en: "Software Architecture"
+                            },
+                            items: ["Microservices", "Event-Driven Architecture", "SOA", "RESTful APIs", "Design Patterns", "DDD", "TDD"]
+                        },
+                        {
+                            category: {
+                                pt: "Linguagens de Programação",
+                                en: "Programming Languages"
+                            },
+                            items: ["Java", "C++", "C", "JavaScript", "SQL"]
+                        },
+                        {
+                            category: {
+                                pt: "Frameworks & Tecnologias",
+                                en: "Frameworks & Technologies"
+                            },
+                            items: ["Spring Boot", "Hibernate", "QT5", "Bootstrap", "Wicket", "Linux"]
+                        },
+                        {
+                            category: {
+                                pt: "Cloud & DevOps",
+                                en: "Cloud & DevOps"
+                            },
+                            items: ["AWS", "Azure", "CI/CD", "Docker", "Kubernetes"]
+                        },
+                        {
+                            category: {
+                                pt: "Bancos de Dados",
+                                en: "Databases"
+                            },
+                            items: ["PostgreSQL", "Oracle", "MySQL"]
+                        },
+                        {
+                            category: {
+                                pt: "Habilidades Profissionais",
+                                en: "Professional Skills"
+                            },
+                            items: ["Scrum", "Otimização", "Liderança", "Aprendizado Contínuo", "Ensino", "Inovação"]
+                        }
+                    ],
+                    certifications: [
+                        {
+                            name: "Certified in Cybersecurity (CC) ISC2",
+                            issuer: "ISC2",
+                            badge: "https://images.credly.com/size/340x340/images/2030e43f-8003-4d4b-9630-847add403c87/image.png"
+                        },
+                        {
+                            name: "Certified SAFe® 6 Agilist",
+                            issuer: "Scaled Agile",
+                            badge: "https://images.credly.com/size/340x340/images/3e987079-3013-4359-9ad3-578c0b864e3d/image.png"
+                        },
+                        {
+                            name: "Microsoft Certified: Azure Fundamentals",
+                            issuer: "Microsoft",
+                            badge: "https://images.credly.com/size/340x340/images/be8fcaeb-c769-4858-b567-ffaaa73ce8cf/image.png"
+                        },
+                        {
+                            name: "AWS Certified Solutions Architect – Associate",
+                            issuer: "Amazon Web Services",
+                            badge: "https://images.credly.com/size/340x340/images/0e284c3f-5164-4b21-8660-0d84737941bc/image.png"
+                        },
+                        {
+                            name: "AWS Certified Cloud Practitioner",
+                            issuer: "Amazon Web Services",
+                            badge: "https://images.credly.com/size/340x340/images/00634f82-b07f-4bbd-a6bb-53de397fc3a6/image.png"
+                        },
+                        {
+                            name: "ANBIMA CPA-10",
+                            issuer: "ANBIMA",
+                            badge: "https://www.anbima.com.br/data/files/53/42/58/74/6306C71008D143C7882BA2A8/Selo-ANBIMA-CPA-10-colorido.jpg"
+                        },
+                        {
+                            name: "ANBIMA CPA-20",
+                            issuer: "ANBIMA",
+                            badge: "https://www.anbima.com.br/data/files/85/42/0A/74/6306C71008D143C7882BA2A8/Selo-ANBIMA-CPA-20-colorido.jpg"
+                        }
+                    ],
+                    languages: [
+                        {
+                            language: "Português",
+                            level: {
+                                pt: "Nativo",
+                                en: "Native"
+                            },
+                            progress: 100
+                        },
+                        {
+                            language: "Inglês",
+                            level: {
+                                pt: "Intermediário (B2)",
+                                en: "Professional Working (B2)"
+                            },
+                            progress: 70
+                        },
+                        {
+                            language: "Francês",
+                            level: {
+                                pt: "Básico",
+                                en: "Elementary"
+                            },
+                            progress: 30
+                        },
+                        {
+                            language: "Espanhol",
+                            level: {
+                                pt: "Básico",
+                                en: "Elementary"
+                            },
+                            progress: 30
+                        }
+                    ],
+                    goals: {
+                        pt: [
+                            "Busco crescimento profissional na área de TI, seja avançando na carreira de gestão ou assumindo posições como Arquiteto de Soluções em empresas que ofereçam melhores remunerações.",
+                            "Complementar minha renda atuando como professor de nível superior, compartilhando meu conhecimento e experiência com a próxima geração de profissionais de TI.",
+                            "Continuar me especializando em tecnologias emergentes, particularmente em computação em nuvem e segurança cibernética, para me manter na vanguarda do setor."
+                        ],
+                        en: [
+                            "I seek professional growth in the IT field, either by advancing in management careers or taking on positions as a Solutions Architect in companies that offer better compensation.",
+                            "Supplement my income by working as a higher education professor, sharing my knowledge and experience with the next generation of IT professionals.",
+                            "Continue to specialize in emerging technologies, particularly in cloud computing and cybersecurity, to remain at the forefront of the industry."
+                        ]
+                    }
+                };
+                
+                const translations = {
+                    pt: {
+                        sections: {
+                            summary: "Resumo Profissional",
+                            experience: "Experiência Profissional",
+                            skills: "Habilidades e Competências",
+                            education: "Formação Acadêmica",
+                            certifications: "Certificações",
+                            languages: "Idiomas",
+                            goals: "Objetivos Profissionais"
+                        },
+                        print: "Imprimir",
+                        scan: "Escaneie para acessar meu currículo online",
+                        footer: "© 2024 Rafael Quintino Gomes Rosa - Todos os direitos reservados"
+                    },
+                    en: {
+                        sections: {
+                            summary: "Professional Summary",
+                            experience: "Work Experience",
+                            skills: "Skills & Competencies",
+                            education: "Education",
+                            certifications: "Certifications",
+                            languages: "Languages",
+                            goals: "Career Goals"
+                        },
+                        print: "Print",
+                        scan: "Scan to access my online resume",
+                        footer: "© 2024 Rafael Quintino Gomes Rosa - All rights reserved"
+                    }
+                };
+                
+                const changeLanguage = (lang) => {
+                    currentLanguage.value = lang;
+                    // Atualiza a hash da URL sem recarregar a página
+                    window.history.replaceState(null, null, lang === 'en' ? '#en-us' : '#pt-br');
+                };
+
+                // Observa mudanças na hash da URL
+                const handleHashChange = () => {
+                    const newLang = window.location.hash === '#en-us' ? 'en' : 'pt';
+                    if (newLang !== currentLanguage.value) {
+                        currentLanguage.value = newLang;
+                    }
+                };
+                
+                const printResume = () => {
+                    window.print();
+                };
+                
+                const generateQRCode = () => {
+                    const canvas = document.getElementById('qrcode');
+                    const ctx = canvas.getContext('2d');
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    
+                    QRCode.toCanvas(canvas, pageUrl, {
+                        width: 100,
+                        margin: 1,
+                        color: {
+                            dark: '#2c3e50',
+                            light: '#ffffff'
+                        }
+                    });
+                };
+                
+                onMounted(() => {
+                    generateQRCode();
+                    // Adiciona o listener para mudanças na hash
+                    window.addEventListener('hashchange', handleHashChange);
+                    
+                    // Garante que a hash está correta no carregamento inicial
+                    if (!window.location.hash || (window.location.hash !== '#pt-br' && window.location.hash !== '#en-us')) {
+                        window.history.replaceState(null, null, currentLanguage.value === 'en' ? '#en-us' : '#pt-br');
+                    }
+                });
+
+                return {
+                    currentLanguage,
+                    resumeData,
+                    translations,
+                    changeLanguage,
+                    printResume,
+                    generateQRCode,
+                    pageUrl
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

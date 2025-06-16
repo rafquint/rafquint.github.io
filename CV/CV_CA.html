@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rafael Rosa - Solutions Architect</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --text-color: #2c3e50;
+            --bg-color: #f8f9fa;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .header-section {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 3rem 0;
+            position: relative;
+        }
+
+        .header-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .profile-img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 5px solid white;
+            object-fit: cover;
+            margin: 0 auto 1rem;
+        }
+
+        .lang-switch {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+        }
+
+        .lang-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            margin: 0 0.25rem;
+            transition: all 0.3s ease;
+        }
+
+        .lang-btn:hover,
+        .lang-btn.active {
+            background: white;
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .section-title {
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--secondary-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: var(--accent-color);
+        }
+
+        .experience-item {
+            border-left: 3px solid var(--secondary-color);
+            padding-left: 1.5rem;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .experience-item::before {
+            content: '';
+            position: absolute;
+            left: -7px;
+            top: 0;
+            width: 12px;
+            height: 12px;
+            background: var(--secondary-color);
+            border-radius: 50%;
+        }
+
+        .skill-badge {
+            background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            margin: 0.25rem;
+            display: inline-block;
+            font-size: 0.9rem;
+            transition: transform 0.3s ease;
+        }
+
+        .skill-badge:hover {
+            transform: translateY(-2px);
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .contact-item i {
+            width: 30px;
+            color: var(--secondary-color);
+        }
+
+        .qr-code {
+            width: 120px;
+            height: 120px;
+            border: 2px solid var(--secondary-color);
+            border-radius: 10px;
+            padding: 10px;
+            background: white;
+            margin: 0 auto;
+        }
+
+        .certification-item {
+            display: flex;
+            align-items: center;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--secondary-color);
+            transition: all 0.3s ease;
+        }
+
+        .certification-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .certification-badge {
+            height: 60px;
+            width: auto;
+            margin-right: 15px;
+            border-radius: 4px;
+        }
+
+        .print-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 50%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .print-btn:hover {
+            transform: scale(1.1);
+            background: #c0392b;
+        }
+
+        /* Classes para controle de exibição */
+        .online-only {
+            display: block;
+        }
+        
+        .print-only {
+            display: none;
+        }
+
+        @media print {
+            .lang-switch, .print-btn {
+                display: none;
+            }
+            
+            .main-container {
+                box-shadow: none;
+                border-radius: 0;
+            }
+            
+            .header-section {
+                background: var(--primary-color) !important;
+                -webkit-print-color-adjust: exact;
+            }
+            
+            .online-only {
+                display: none !important;
+            }
+            
+            .print-only {
+                display: block !important;
+            }
+            
+            .qr-code.print-only {
+                margin: 20px auto;
+                border: 1px solid #ccc;
+                padding: 10px;
+            }
+
+            .certification-badge {
+                height: 40px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-section {
+                padding: 2rem 0;
+            }
+            
+            .profile-img {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .lang-switch {
+                position: relative;
+                top: auto;
+                right: auto;
+                text-align: center;
+                margin-bottom: 1rem;
+            }
+
+            .certification-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .certification-badge {
+                margin-bottom: 10px;
+                margin-right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="main-container">
+            <!-- Language Switch -->
+            <div class="lang-switch">
+                <button class="btn lang-btn" :class="{ active: currentLang === 'pt' }" @click="switchLanguage('pt')">
+                    PT 🇧🇷
+                </button>
+                <button class="btn lang-btn" :class="{ active: currentLang === 'en' }" @click="switchLanguage('en')">
+                    EN 🇺🇸
+                </button>
+            </div>
+
+            <!-- Header Section -->
+            <div class="header-section">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-lg-3 text-center">
+                            <img class="profile-img" src="https://gravatar.com/userimage/14834158/e417429847dea6a617e0d44da7abc0e1.jpeg?size=256&cache=1749950016266" alt="Rafael Rosa" />
+                        </div>
+                        <div class="col-lg-6">
+                            <h1 class="mb-2">{{ currentData.personalInfo.name }}</h1>
+                            <h3 class="mb-3 opacity-75">{{ currentData.personalInfo.title }}</h3>
+                            <p class="lead">{{ currentData.personalInfo.summary }}</p>
+                        </div>
+                        <div class="col-lg-3">
+                            <!-- QR Code versão online -->
+                            <div class="qr-code mx-auto online-only">
+                                <canvas id="qrcode" width="100" height="100"></canvas>
+                                <p class="text-center mt-2 small">{{ currentData.qrCode.text }}</p>
+                            </div>
+                            
+                            <!-- QR Code versão impressa -->
+                            <div class="qr-code print-only" style="display: none;">
+                                <canvas id="qrcode-print" width="120" height="120"></canvas>
+                                <p class="text-center mt-2 small">{{ currentData.qrCode.text }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container py-5">
+                <div class="row">
+                    <!-- Main Content -->
+                    <div class="col-lg-8">
+                        <!-- Education Section -->
+                        <section class="mb-5">
+                            <h2 class="section-title">
+                                <i class="fas fa-graduation-cap me-2"></i>
+                                {{ currentData.sections.education }}
+                            </h2>
+                            <div v-for="edu in currentData.education" :key="edu.id" class="experience-item">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h4 class="mb-1">{{ edu.degree }}</h4>
+                                    <span class="badge bg-secondary">{{ edu.period }}</span>
+                                </div>
+                                <h5 class="text-primary mb-2">{{ edu.institution }}</h5>
+                                <p class="mb-0">{{ edu.description }}</p>
+                            </div>
+                        </section>
+                        
+                        <!-- Experience Section -->
+                        <section class="mb-5">
+                            <h2 class="section-title">
+                                <i class="fas fa-briefcase me-2"></i>
+                                {{ currentData.sections.experience }}
+                            </h2>
+                            <div v-for="exp in currentData.experience" :key="exp.id" class="experience-item">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h4 class="mb-1">{{ exp.position }}</h4>
+                                    <span class="badge bg-secondary">{{ exp.period }}</span>
+                                </div>
+                                <h5 class="text-primary mb-2">{{ exp.company }}</h5>
+                                <p class="mb-0">{{ exp.description }}</p>
+                            </div>
+                        </section>
+                    </div>
+
+                    <!-- Sidebar -->
+                    <div class="col-lg-4">
+                        <!-- Contact Section -->
+                        <section class="mb-5">
+                            <h3 class="section-title">
+                                <i class="fas fa-address-card me-2"></i>
+                                {{ currentData.sections.contact }}
+                            </h3>
+                            <div class="contact-item">
+                                <i class="fas fa-envelope"></i>
+                                <span>{{ currentData.contact.email }}</span>
+                            </div>
+                            <div class="contact-item">
+                                <i class="fas fa-phone"></i>
+                                <span>{{ currentData.contact.phone }}</span>
+                            </div>
+                            <div class="contact-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>{{ currentData.contact.location }}</span>
+                            </div>
+                            <div class="contact-item online-only">
+                                <i class="fab fa-linkedin"></i>
+                                <a :href="currentData.contact.linkedin" target="_blank" class="text-decoration-none">LinkedIn</a>
+                            </div>
+                            <div class="contact-item online-only">
+                                <i class="fab fa-github"></i>
+                                <a :href="currentData.contact.github" target="_blank" class="text-decoration-none">GitHub</a>
+                            </div>
+                            <div v-if="currentLang === 'pt'" class="contact-item">
+                                <i class="fas fa-scroll"></i>
+                                <a :href="currentData.contact.lattes" target="_blank" class="text-decoration-none">Currículo Lattes</a>
+                            </div>
+                            
+                            <!-- Contatos para impressão -->
+                            <div class="print-only">
+                                <div class="contact-item">
+                                    <i class="fas fa-envelope"></i>
+                                    <span>{{ currentData.contact.email }}</span>
+                                </div>
+                                <div class="contact-item">
+                                    <i class="fas fa-phone"></i>
+                                    <span>{{ currentData.contact.phone }}</span>
+                                </div>
+                                <div v-if="currentLang === 'pt'" class="contact-item">
+                                    <i class="fas fa-scroll"></i>
+                                    <span>Lattes: {{ currentData.contact.lattes }}</span>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Certifications Section -->
+                        <section class="mb-5">
+                            <h3 class="section-title">
+                                <i class="fas fa-certificate me-2"></i>
+                                {{ currentData.sections.certifications }}
+                            </h3>
+                            <div v-for="cert in currentData.certifications" :key="cert.id" class="certification-item">
+                                <img :src="cert.badgeUrl" :alt="cert.name" class="certification-badge">
+                                <div>
+                                    <h5 class="mb-1">{{ cert.name }}</h5>
+                                    <small class="text-muted">{{ cert.issuer }}</small>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Languages Section -->
+                        <section class="mb-5">
+                            <h3 class="section-title">
+                                <i class="fas fa-language me-2"></i>
+                                {{ currentData.sections.languages }}
+                            </h3>
+                            <div v-for="lang in currentData.languages" :key="lang.name" class="mb-2">
+                                <div class="d-flex justify-content-between">
+                                    <span>{{ lang.name }}</span>
+                                    <span class="badge bg-primary">{{ lang.level }}</span>
+                                </div>
+                            </div>
+                        </section>
+                        
+                        <!-- Skills Section -->
+                        <section class="mb-5">
+                            <h3 class="section-title">
+                                <i class="fas fa-code me-2"></i>
+                                {{ currentData.sections.skills }}
+                            </h3>
+                            <div>
+                                <span v-for="skill in currentData.skills" :key="skill" class="skill-badge">
+                                    {{ skill }}
+                                </span>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Print Button -->
+        <button class="print-btn" @click="printResume" :title="currentData.printButton">
+            <i class="fas fa-print"></i>
+        </button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.1/qrcode.js"></script>
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    currentLang: 'pt',
+                    resumeData: {
+                        pt: {
+                            personalInfo: {
+                                name: "Rafael Quintino Gomes Rosa",
+                                title: "Arquiteto de Soluções | Engenheiro de Software | DevOps",
+                                summary: "Arquiteto de Soluções com quase duas décadas de experiência em TI, especializado em sistemas de missão crítica e soluções escaláveis para o setor financeiro."
+                            },
+                            contact: {
+                                email: "rafquint@gmail.com",
+                                phone: "+55 (61) 99654-7792",
+                                location: "Brasília, DF - Brasil",
+                                linkedin: "https://www.linkedin.com/in/rafael-quintino-gomes-rosa/",
+                                github: "https://github.com/rafquint",
+                                lattes: "https://lattes.cnpq.br/5025041667706915"
+                            },
+                            sections: {
+                                experience: "Experiência Profissional",
+                                education: "Formação Acadêmica",
+                                contact: "Contato",
+                                skills: "Competências Técnicas",
+                                certifications: "Certificações",
+                                languages: "Idiomas"
+                            },
+                            printButton: "Imprimir currículo",
+                            experience: [
+                                {
+                                    id: 1,
+                                    position: "Analista de TI / Arquiteto de Soluções",
+                                    company: "BRB - Banco de Brasília S.A.",
+                                    period: "Dez/2014 - Atual",
+                                    description: "Responsável pelo desenvolvimento e supervisão de sistemas de automação bancária, incluindo aplicações móveis e core banking. Coordenação de equipes multidisciplinares e implementação de soluções inovadoras para o setor financeiro."
+                                },
+                                {
+                                    id: 2,
+                                    position: "Arquiteto Java Sênior",
+                                    company: "INEP - Instituto Nacional de Estudos e Pesquisas Educacionais",
+                                    period: "Out/2013 - Dez/2014",
+                                    description: "Coordenação de proposta para ambiente de desenvolvimento, definição de padrões tecnológicos, desenvolvimento de arquitetura de referência e implementação de soluções integrativas."
+                                },
+                                {
+                                    id: 3,
+                                    position: "Analista de Sistemas Sênior",
+                                    company: "Indra / BACEN",
+                                    period: "Abr/2013 - Out/2013",
+                                    description: "Implementação e testes do Sistema de Gestão Orçamentária em Java, utilizando frameworks como Wicket, Hibernate, Spring e Bootstrap."
+                                },
+                                {
+                                    id: 4,
+                                    position: "Engenheiro de Software Sênior",
+                                    company: "CTIS / TSE",
+                                    period: "Jan/2012 - Mar/2013",
+                                    description: "Projeto e desenvolvimento de sistemas eleitorais para suporte às urnas eletrônicas, utilizando C/C++ no Tribunal Superior Eleitoral."
+                                }
+                            ],
+                            education: [
+                                {
+                                    id: 1,
+                                    degree: "MBA em Cibersegurança e Gestão de Riscos",
+                                    institution: "UNOPAR - Universidade Norte do Pará",
+                                    period: "Jan/2025 - Mai/2025",
+                                    description: "Especialização em segurança cibernética e gestão de riscos corporativos."
+                                },
+                                {
+                                    id: 2,
+                                    degree: "Pós-Graduação em Arquitetura de Software",
+                                    institution: "UNOPAR - Universidade Norte do Pará",
+                                    period: "Ago/2024 - Dez/2024",
+                                    description: "Especialização em padrões arquiteturais e design de sistemas complexos."
+                                },
+                                {
+                                    id: 3,
+                                    degree: "Pós-Graduação em Cloud Computing",
+                                    institution: "Universidade Anhanguera",
+                                    period: "Abr/2024 - Out/2024",
+                                    description: "Especialização em tecnologias de computação em nuvem."
+                                },
+                                {
+                                    id: 4,
+                                    degree: "MBA em Gestão de Projetos",
+                                    institution: "Universidade Anhanguera",
+                                    period: "Abr/2024 - Ago/2024",
+                                    description: "Especialização em metodologias ágeis e gestão de projetos."
+                                },
+                                {
+                                    id: 5,
+                                    degree: "Bacharelado em Ciências da Computação",
+                                    institution: "UCB - Universidade Católica de Brasília",
+                                    period: "2003 - 2007",
+                                    description: "Formação em ciências da computação com foco em desenvolvimento de software."
+                                }
+                            ],
+                            skills: [
+                                "Java", "Spring Boot", "Microservices", "AWS", "Azure", "Kubernetes", "Docker",
+                                "JavaScript", "React", "Vue.js", "Node.js", "PostgreSQL", "Oracle", "MySQL",
+                                "C/C++", "Python", "Linux", "DevOps", "CI/CD", "Scrum", "Agile", "DDD", "TDD",
+                                "RESTful APIs", "GraphQL", "Event-Driven Architecture", "Cloud Computing",
+                                "Cybersecurity", "Risk Management", "Solution Architecture"
+                            ],
+                            certifications: [
+							    {
+                                    id: 1,
+                                    name: "AWS Certified Cloud Practitioner",
+                                    badgeUrl: "https://images.credly.com/size/340x340/images/00634f82-b07f-4bbd-a6bb-53de397fc3a6/image.png",
+                                    issuer: "Amazon Web Services"
+                                },
+                                {
+                                    id: 2,
+                                    name: "AWS Certified Solutions Architect – Associate",
+                                    badgeUrl: "https://images.credly.com/size/110x110/images/0e284c3f-5164-4b21-8660-0d84737941bc/image.png",
+                                    issuer: "Amazon Web Services"
+                                },
+                                {
+                                    id: 3,
+                                    name: "Microsoft Certified: Azure Fundamentals",
+                                    badgeUrl: "https://images.credly.com/size/110x110/images/be8fcaeb-c769-4858-b567-ffaaa73ce8cf/image.png",
+                                    issuer: "Microsoft"
+                                },
+                                {
+                                    id: 4,
+                                    name: "Certified SAFe® 6 Agilist",
+                                    badgeUrl: "https://images.credly.com/size/340x340/images/3e987079-3013-4359-9ad3-578c0b864e3d/image.png",
+                                    issuer: "Scaled Agile"
+                                },
+                                {
+                                    id: 5,
+                                    name: "Certified in Cybersecurity (CC)",
+                                    badgeUrl: "https://images.credly.com/size/340x340/images/2030e43f-8003-4d4b-9630-847add403c87/image.png",
+                                    issuer: "ISC2"
+                                },
+                                {
+                                    id: 6,
+                                    name: "ANBIMA CPA-10",
+                                    badgeUrl: "https://www.anbima.com.br/data/files/53/42/58/74/6306C71008D143C7882BA2A8/Selo-ANBIMA-CPA-10-colorido.jpg",
+                                    issuer: "ANBIMA"
+                                },
+                                {
+                                    id: 7,
+                                    name: "ANBIMA CPA-20",
+                                    badgeUrl: "https://www.anbima.com.br/data/files/85/42/0A/74/6306C71008D143C7882BA2A8/Selo-ANBIMA-CPA-20-colorido.jpg",
+                                    issuer: "ANBIMA"
+                                }
+                            ],
+                            languages: [
+                                { name: "Português", level: "Nativo" },
+                                { name: "Inglês", level: "Avançado" },
+                                { name: "Francês", level: "Básico" },
+                                { name: "Espanhol", level: "Básico" }
+                            ],
+                            qrCode: {
+                                text: "Escaneie para ver online",
+                                url: "https://rafquint.github.io/resume#pt-br"
+                            }
+                        },
+                        en: {
+                            personalInfo: {
+                                name: "Rafael Quintino Gomes Rosa",
+                                title: "Solutions Architect | Software Engineer | DevOps",
+                                summary: "Solutions Architect with nearly two decades of experience in IT, specialized in mission-critical systems and scalable solutions for the financial sector."
+                            },
+                            contact: {
+                                email: "rafquint@gmail.com",
+                                phone: "+55 (61) 99654-7792",
+                                location: "Brasília, DF - Brazil",
+                                linkedin: "https://www.linkedin.com/in/rafael-quintino-gomes-rosa/",
+                                github: "https://github.com/rafquint"
+                            },
+                            sections: {
+                                experience: "Professional Experience",
+                                education: "Education",
+                                contact: "Contact",
+                                skills: "Technical Skills",
+                                certifications: "Certifications",
+                                languages: "Languages"
+                            },
+                            printButton: "Print resume",
+                            experience: [
+                                {
+                                    id: 1,
+                                    position: "IT Analyst / Solutions Architect",
+                                    company: "BRB - Banco de Brasília S.A.",
+                                    period: "Dec/2014 - Present",
+                                    description: "Responsible for developing and supervising banking automation systems, including mobile applications and core banking systems. Leading multidisciplinary teams and implementing innovative solutions for the financial sector."
+                                },
+                                {
+                                    id: 2,
+                                    position: "Senior Java Architect",
+                                    company: "INEP - National Institute for Educational Studies and Research",
+                                    period: "Oct/2013 - Dec/2014",
+                                    description: "Coordinated development environment proposals, defined technological standards, developed reference architecture, and implemented integrative solutions."
+                                },
+                                {
+                                    id: 3,
+                                    position: "Senior System Analyst",
+                                    company: "Indra / BACEN",
+                                    period: "Apr/2013 - Oct/2013",
+                                    description: "Implementation and testing of Budget Management System in Java, using frameworks like Wicket, Hibernate, Spring, and Bootstrap."
+                                },
+                                {
+                                    id: 4,
+                                    position: "Senior Software Engineer",
+                                    company: "CTIS / TSE",
+                                    period: "Jan/2012 - Mar/2013",
+                                    description: "Design and development of electoral systems to support Electronic Voting Machines, using C/C++ at the Superior Electoral Court."
+                                }
+                            ],
+                            education: [
+                                {
+                                    id: 1,
+                                    degree: "MBA in Cybersecurity and Risk Management",
+                                    institution: "UNOPAR - North Paraná University",
+                                    period: "Jan/2025 - May/2025",
+                                    description: "Specialization in cybersecurity and corporate risk management."
+                                },
+                                {
+                                    id: 2,
+                                    degree: "Postgraduate in Software Architecture",
+                                    institution: "UNOPAR - North Paraná University",
+                                    period: "Aug/2024 - Dec/2024",
+                                    description: "Specialization in architectural patterns and complex systems design."
+                                },
+                                {
+                                    id: 3,
+                                    degree: "Postgraduate in Cloud Computing",
+                                    institution: "Anhanguera University",
+                                    period: "Apr/2024 - Oct/2024",
+                                    description: "Specialization in cloud computing technologies."
+                                },
+                                {
+                                    id: 4,
+                                    degree: "MBA in Project Management",
+                                    institution: "Anhanguera University",
+                                    period: "Apr/2024 - Aug/2024",
+                                    description: "Specialization in agile methodologies and project management."
+                                },
+                                {
+                                    id: 5,
+                                    degree: "Bachelor's in Computer Science",
+                                    institution: "UCB - Catholic University of Brasília",
+                                    period: "2003 - 2007",
+                                    description: "Computer science degree with focus on software development."
+                                }
+                            ],
+                            skills: [
+                                "Java", "Spring Boot", "Microservices", "AWS", "Azure", "Kubernetes", "Docker",
+                                "JavaScript", "React", "Vue.js", "Node.js", "PostgreSQL", "Oracle", "MySQL",
+                                "C/C++", "Python", "Linux", "DevOps", "CI/CD", "Scrum", "Agile", "DDD", "TDD",
+                                "RESTful APIs", "GraphQL", "Event-Driven Architecture", "Cloud Computing",
+                                "Cybersecurity", "Risk Management", "Solution Architecture"
+                            ],
+                            certifications: [
+							    {
+                                    id: 1,
+                                    name: "AWS Certified Cloud Practitioner",
+                                    badgeUrl: "https://images.credly.com/size/340x340/images/00634f82-b07f-4bbd-a6bb-53de397fc3a6/image.png",
+                                    issuer: "Amazon Web Services"
+                                },
+                                {
+                                    id: 2,
+                                    name: "AWS Certified Solutions Architect – Associate",
+                                    badgeUrl: "https://images.credly.com/size/110x110/images/0e284c3f-5164-4b21-8660-0d84737941bc/image.png",
+                                    issuer: "Amazon Web Services"
+                                },
+                                {
+                                    id: 3,
+                                    name: "Microsoft Certified: Azure Fundamentals",
+                                    badgeUrl: "https://images.credly.com/size/110x110/images/be8fcaeb-c769-4858-b567-ffaaa73ce8cf/image.png",
+                                    issuer: "Microsoft"
+                                },
+                                {
+                                    id: 4,
+                                    name: "Certified SAFe® 6 Agilist",
+                                    badgeUrl: "https://images.credly.com/size/340x340/images/3e987079-3013-4359-9ad3-578c0b864e3d/image.png",
+                                    issuer: "Scaled Agile"
+                                },
+                                {
+                                    id: 5,
+                                    name: "Certified in Cybersecurity (CC)",
+                                    badgeUrl: "https://images.credly.com/size/340x340/images/2030e43f-8003-4d4b-9630-847add403c87/image.png",
+                                    issuer: "ISC2"
+                                },
+                                {
+                                    id: 6,
+                                    name: "ANBIMA CPA-10",
+                                    badgeUrl: "https://www.anbima.com.br/data/files/53/42/58/74/6306C71008D143C7882BA2A8/Selo-ANBIMA-CPA-10-colorido.jpg",
+                                    issuer: "ANBIMA"
+                                },
+                                {
+                                    id: 7,
+                                    name: "ANBIMA CPA-20",
+                                    badgeUrl: "https://www.anbima.com.br/data/files/85/42/0A/74/6306C71008D143C7882BA2A8/Selo-ANBIMA-CPA-20-colorido.jpg",
+                                    issuer: "ANBIMA"
+                                }
+                            ],
+                            languages: [
+                                { name: "Portuguese", level: "Native" },
+                                { name: "English", level: "Advanced" },
+                                { name: "French", level: "Elementary" },
+                                { name: "Spanish", level: "Elementary" }
+                            ],
+                            qrCode: {
+                                text: "Scan to view online",
+                                url: "https://rafquint.github.io/resume#en-us"
+                            }
+                        }
+                    }
+                }
+            },
+            computed: {
+                currentData() {
+                    return this.resumeData[this.currentLang];
+                }
+            },
+            methods: {
+                switchLanguage(lang) {
+                    this.currentLang = lang;
+                    document.documentElement.lang = lang;
+                    
+                    // Atualiza a URL com a hash correspondente
+                    const hashMap = {
+                        'pt': '#pt-br',
+                        'en': '#en-us'
+                    };
+                    window.location.hash = hashMap[lang];
+                    
+                    // Atualiza a URL do QR Code
+                    this.currentData.qrCode.url = `https://rafquint.github.io/resume${hashMap[lang]}`;
+                    
+                    this.$nextTick(() => {
+                        this.generateQRCode();
+                    });
+                },
+                
+                // Detecta o idioma baseado na hash da URL
+                detectLanguageFromURL() {
+                    const hash = window.location.hash;
+                    const langMap = {
+                        '#pt-br': 'pt',
+                        '#en-us': 'en'
+                    };
+                    
+                    if (langMap[hash]) {
+                        this.currentLang = langMap[hash];
+                        document.documentElement.lang = this.currentLang;
+                    }
+                },
+                
+                // Monitora mudanças na hash da URL
+                handleHashChange() {
+                    this.detectLanguageFromURL();
+                    this.$nextTick(() => {
+                        this.generateQRCode();
+                    });
+                },
+                
+                generateQRCode() {
+                    // QR Code normal
+                    const canvas = document.getElementById('qrcode');
+                    if (canvas) {
+                        const ctx = canvas.getContext('2d');
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        
+                        QRCode.toCanvas(canvas, this.currentData.qrCode.url, {
+                            width: 100,
+                            margin: 1,
+                            color: {
+                                dark: '#2c3e50',
+                                light: '#ffffff'
+                            }
+                        });
+                    }
+                    
+                    // QR Code para impressão
+                    const canvasPrint = document.getElementById('qrcode-print');
+                    if (canvasPrint) {
+                        const ctxPrint = canvasPrint.getContext('2d');
+                        ctxPrint.clearRect(0, 0, canvasPrint.width, canvasPrint.height);
+                        
+                        QRCode.toCanvas(canvasPrint, this.currentData.qrCode.url, {
+                            width: 120,
+                            margin: 1,
+                            color: {
+                                dark: '#000000',
+                                light: '#ffffff'
+                            }
+                        });
+                    }
+                },
+                
+                printResume() {
+                    window.print();
+                }
+            },
+            mounted() {
+                // Detecta idioma da URL primeiro
+                this.detectLanguageFromURL();
+                
+                // Adiciona listener para mudanças na hash
+                window.addEventListener('hashchange', this.handleHashChange);
+                
+                // Gera o QR Code
+                this.generateQRCode();
+                
+                // Define hash inicial se não existir
+                if (!window.location.hash) {
+                    window.location.hash = '#pt-br';
+                }
+            },
+            
+            // Limpa o listener quando o componente é destruído
+            beforeUnmount() {
+                window.removeEventListener('hashchange', this.handleHashChange);
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
