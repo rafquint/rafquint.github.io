@@ -375,26 +375,18 @@
                                 <i class="fab fa-github"></i>
                                 <a :href="currentData.contact.github" target="_blank" class="text-decoration-none">GitHub</a>
                             </div>
-                            <div v-if="currentLang === 'pt'" class="contact-item">
-                                <i class="fas fa-scroll"></i>
-                                <a :href="currentData.contact.lattes" target="_blank" class="text-decoration-none">Currículo Lattes</a>
-                            </div>
-                            
-                            <!-- Contatos para impressão -->
-                            <div class="print-only">
-                                <div class="contact-item">
-                                    <i class="fas fa-envelope"></i>
-                                    <span>{{ currentData.contact.email }}</span>
-                                </div>
-                                <div class="contact-item">
-                                    <i class="fas fa-phone"></i>
-                                    <span>{{ currentData.contact.phone }}</span>
-                                </div>
-                                <div v-if="currentLang === 'pt'" class="contact-item">
-                                    <i class="fas fa-scroll"></i>
-                                    <span>Lattes: {{ currentData.contact.lattes }}</span>
-                                </div>
-                            </div>
+							<div class="contact-item"  v-if="currentLang === 'pt'">
+								<!-- Lattes Online -->
+								<div class="online-only">
+									<i class="fas fa-scroll"></i>
+									<a :href="currentData.contact.lattes" target="_blank" class="text-decoration-none">Currículo Lattes</a>
+								</div>
+								<!-- Lattes para impressão -->
+								<div class="print-only">
+									<i class="fas fa-scroll"></i>
+									<span>Lattes: {{ currentData.contact.lattes }}</span>
+								</div>
+							</div>
                         </section>
 
                         <!-- Certifications Section -->
