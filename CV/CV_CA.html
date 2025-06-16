@@ -608,7 +608,7 @@
                             ],
                             qrCode: {
                                 text: "Escaneie para ver online",
-                                url: "https://rafquint.github.io/resume#pt-br"
+                                url: "https://rafquint.github.io/CV/CV_CA.html#pt-br"
                             }
                         },
                         en: {
@@ -759,7 +759,7 @@
                             ],
                             qrCode: {
                                 text: "Scan to view online",
-                                url: "https://rafquint.github.io/resume#en-us"
+                                url: "https://rafquint.github.io/CV/CV_CA.html#en-us"
                             }
                         }
                     }
@@ -783,7 +783,7 @@
                     window.location.hash = hashMap[lang];
                     
                     // Atualiza a URL do QR Code
-                    this.currentData.qrCode.url = `https://rafquint.github.io/resume${hashMap[lang]}`;
+                    this.currentData.qrCode.url = `https://rafquint.github.io/CV/CV_CA.html${hashMap[lang]}`;
                     
                     this.$nextTick(() => {
                         this.generateQRCode();
