@@ -257,10 +257,10 @@
                     <div class="col-md-4 text-md-end">
                         <img :src="resumeData.photo" class="profile-photo mb-2 online-only" alt="Profile Photo">
                         <div class="qr-code-container print-only">
-                            <div class="qr-code mx-auto">
+                            <div class="qr-code d-flex justify-content-center">
                                 <canvas id="qrcode" width="100" height="100"></canvas>
                             </div>
-                            <small class="text-muted">{{ translations[currentLanguage].scan }}</small>
+                            <small class="text-muted d-flex justify-content-center">{{ translations[currentLanguage].scan }}</small>
                         </div>
                     </div>
                 </div>
@@ -364,8 +364,10 @@
                     
                     <!-- QR Code for online version -->
                     <div class="qr-code-container online-only mt-4">
-                        <div id="qrCodeOnline"></div>
-                        <small class="text-muted">{{ translations[currentLanguage].scan }}</small>
+                        <div class="qr-code d-flex justify-content-center">
+							<canvas id="qrcodeCopy" width="100" height="100"></canvas>
+						</div>
+                        <small class="text-muted d-flex justify-content-center">{{ translations[currentLanguage].scan }}</small>
                     </div>
                 </div>
             </div>
@@ -399,7 +401,7 @@
                 const hash = window.location.hash;
                 const initialLanguage = hash === '#en-us' ? 'en' : 'pt';
                 const currentLanguage = ref(initialLanguage);
-                const pageUrl = window.location.href.split('#')[0] || "https://rafquint.github.com/CV/CV_DS.html";
+                var pageUrl = "https://rafquint.github.com/CV/CV_DS.html" + (currentLanguage.value === 'en' ? '#en-us' : '#pt-br');
                 
                 const resumeData = {
                     name: "Rafael Quintino Gomes Rosa",
@@ -761,8 +763,10 @@
                 
                 const changeLanguage = (lang) => {
                     currentLanguage.value = lang;
-                    // Atualiza a hash da URL sem recarregar a página
-                    window.history.replaceState(null, null, lang === 'en' ? '#en-us' : '#pt-br');
+                    const hash = lang === 'en' ? '#en-us' : '#pt-br';
+                    window.history.replaceState(null, null, hash);
+                    pageUrl = "https://rafquint.github.com/CV/CV_DS.html" + hash;
+                    generateQRCode(); // Adicione esta linha para regenerar o QR Code
                 };
 
                 // Observa mudanças na hash da URL
@@ -770,6 +774,8 @@
                     const newLang = window.location.hash === '#en-us' ? 'en' : 'pt';
                     if (newLang !== currentLanguage.value) {
                         currentLanguage.value = newLang;
+                        pageUrl = "https://rafquint.github.com/CV/CV_DS.html" + window.location.hash;
+                        generateQRCode(); // Atualiza o QR Code quando o hash muda
                     }
                 };
                 
@@ -778,6 +784,7 @@
                 };
                 
                 const generateQRCode = () => {
+					console.log('Generating QR Code for:', pageUrl); // Adicione esta linha
                     const canvas = document.getElementById('qrcode');
                     const ctx = canvas.getContext('2d');
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -790,17 +797,21 @@
                             light: '#ffffff'
                         }
                     });
+					
+					const copy = document.getElementById("qrcodeCopy");
+					const ctxCopy = copy.getContext("2d");
+					ctxCopy.drawImage(canvas, 0, 0);
                 };
                 
                 onMounted(() => {
-                    generateQRCode();
-                    // Adiciona o listener para mudanças na hash
-                    window.addEventListener('hashchange', handleHashChange);
-                    
                     // Garante que a hash está correta no carregamento inicial
                     if (!window.location.hash || (window.location.hash !== '#pt-br' && window.location.hash !== '#en-us')) {
-                        window.history.replaceState(null, null, currentLanguage.value === 'en' ? '#en-us' : '#pt-br');
+                        const hash = currentLanguage.value === 'en' ? '#en-us' : '#pt-br';
+                        window.history.replaceState(null, null, hash);
+                        pageUrl = "https://rafquint.github.com/CV/CV_DS.html" + hash;
                     }
+                    generateQRCode();
+                    window.addEventListener('hashchange', handleHashChange);
                 });
 
                 return {
