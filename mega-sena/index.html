@@ -464,7 +464,7 @@
                     
                     try {
                         // Verificar se o arquivo existe
-                        const csvContent = await window.fs.readFile('./Mega-Sena.csv', { encoding: 'utf8' });
+                        const csvContent = await window.fs.readFile('Mega-Sena.csv', { encoding: 'utf8' });
                         
                         if (!csvContent || csvContent.trim() === '') {
                             throw new Error('Arquivo CSV está vazio');
