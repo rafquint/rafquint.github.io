@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador Mega-Sena</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .mega-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            margin: 20px auto;
+            max-width: 900px;
+            padding: 40px;
+        }
+        
+        .mega-title {
+            color: #1e6091;
+            font-weight: bold;
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .mega-subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+        
+        .number-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 10px;
+            margin: 30px 0;
+            max-width: 100%;
+        }
+        
+        .number-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid #ccc;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #666;
+        }
+        
+        .number-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .number-btn.selected {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            border-color: #28a745;
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 30px 0;
+        }
+        
+        .btn-custom {
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        
+        .btn-primary-custom {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+        }
+        
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 123, 255, 0.3);
+        }
+        
+        .btn-secondary-custom {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            color: white;
+        }
+        
+        .btn-secondary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(108, 117, 125, 0.3);
+        }
+        
+        .selected-numbers {
+            background: linear-gradient(135deg, #e9ecef, #f8f9fa);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .selected-number {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            line-height: 40px;
+            margin: 5px;
+            font-weight: bold;
+            box-shadow: 0 3px 10px rgba(40, 167, 69, 0.3);
+        }
+        
+        .results-section {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+        
+        .winner-badge {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #333;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            display: inline-block;
+            margin: 10px 5px;
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .stats-card {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .number-grid {
+                grid-template-columns: repeat(6, 1fr);
+                gap: 8px;
+            }
+            
+            .number-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1rem;
+            }
+            
+            .mega-title {
+                font-size: 2rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="container-fluid">
+        <div class="mega-container">
+            <h1 class="mega-title">Preencha sua aposta</h1>
+            <p class="mega-subtitle">
+                Escolha de 6 a 20 números dos 60 disponíveis. Ganhe com 6, 5 ou 4 acertos.<br>
+                São realizados três sorteios semanais para você apostar e torcer para ficar milionário.
+            </p>
+            
+            <!-- Indicador de carregamento dos dados -->
+            <div v-if="loadingData" class="text-center mb-4">
+                <div class="loading-spinner me-2"></div>
+                <span>Carregando dados históricos...</span>
+            </div>
+
+            <!-- Mensagem de erro -->
+            <div v-if="errorMessage" class="error-message">
+                {{ errorMessage }}
+            </div>
+            
+            <!-- Grade de Números -->
+            <div class="number-grid">
+                <div 
+                    v-for="number in 60" 
+                    :key="number"
+                    class="number-btn"
+                    :class="{ selected: selectedNumbers.includes(number) }"
+                    @click="toggleNumber(number)"
+                >
+                    {{ String(number).padStart(2, '0') }}
+                </div>
+            </div>
+            
+            <!-- Números Selecionados -->
+            <div v-if="selectedNumbers.length > 0" class="selected-numbers">
+                <h5>Números Selecionados ({{ selectedNumbers.length }}/20):</h5>
+                <div class="mt-3">
+                    <span 
+                        v-for="number in selectedNumbers.sort((a, b) => a - b)" 
+                        :key="number" 
+                        class="selected-number"
+                    >
+                        {{ String(number).padStart(2, '0') }}
+                    </span>
+                </div>
+            </div>
+            
+            <!-- Botões de Ação -->
+            <div class="action-buttons">
+                <button 
+                    class="btn btn-custom btn-secondary-custom"
+                    @click="clearNumbers"
+                    :disabled="loading || loadingData"
+                >
+                    Limpar Volante
+                </button>
+                <button 
+                    class="btn btn-custom btn-primary-custom"
+                    @click="completeGame"
+                    :disabled="selectedNumbers.length === 0 || loading || loadingData || historicalData.length === 0"
+                >
+                    <span v-if="loading" class="loading-spinner me-2"></span>
+                    Verificar o Jogo
+                </button>
+            </div>
+
+            <!-- Debug info -->
+            <div v-if="historicalData.length > 0" class="small text-muted text-center mb-3">
+                {{ historicalData.length }} concursos carregados
+            </div>
+            
+            <!-- Resultados -->
+            <div v-if="gameResults.length > 0" class="results-section">
+                <h4 class="text-center mb-4">
+                    <i class="fas fa-trophy text-warning me-2"></i>
+                    Análise do seu jogo
+                </h4>
+                
+                <div v-if="exactMatches.length > 0" class="alert alert-success text-center">
+                    <h5 class="mb-3">🎉 PARABÉNS! Seu jogo já foi sorteado!</h5>
+                    <div v-for="match in exactMatches" :key="match.concurso" class="winner-badge">
+                        Concurso {{ match.concurso }} - {{ match.data }}
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="stats-card">
+                            <h6>📊 Estatísticas dos seus números:</h6>
+                            <ul class="list-unstyled mt-3">
+                                <li><strong>Total de jogos analisados:</strong> {{ gameResults.length }}</li>
+                                <li><strong>Melhor resultado:</strong> {{ bestMatch.acertos }} acertos</li>
+                                <li><strong>Jogos com 4+ acertos:</strong> {{ matches4Plus.length }}</li>
+                                <li><strong>Jogos com 5+ acertos:</strong> {{ matches5Plus.length }}</li>
+                                <li><strong>Jogos com 6 acertos:</strong> {{ exactMatches.length }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="stats-card">
+                            <h6>🔥 Melhores resultados históricos:</h6>
+                            <div class="mt-3">
+                                <div v-for="result in topMatches" :key="result.concurso" class="mb-2">
+                                    <span class="badge bg-primary me-2">{{ result.acertos }} acertos</span>
+                                    Concurso {{ result.concurso }} ({{ result.data }})
+                                </div>
+                                <div v-if="topMatches.length === 0" class="text-muted">
+                                    Nenhum resultado com 4+ acertos encontrado
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div v-if="frequencyAnalysis.length > 0" class="stats-card mt-3">
+                    <h6>📈 Frequência dos seus números nos sorteios:</h6>
+                    <div class="row mt-3">
+                        <div v-for="freq in frequencyAnalysis" :key="freq.number" class="col-6 col-md-4 col-lg-3 mb-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-secondary">{{ String(freq.number).padStart(2, '0') }}</span>
+                                <small>{{ freq.count }} vezes ({{ freq.percentage }}%)</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        
+        createApp({
+            data() {
+                return {
+                    selectedNumbers: [],
+                    historicalData: [],
+                    gameResults: [],
+                    loading: false,
+                    loadingData: true,
+                    errorMessage: ''
+                }
+            },
+            
+            computed: {
+                exactMatches() {
+                    return this.gameResults.filter(result => result.acertos === 6);
+                },
+                
+                matches5Plus() {
+                    return this.gameResults.filter(result => result.acertos >= 5);
+                },
+                
+                matches4Plus() {
+                    return this.gameResults.filter(result => result.acertos >= 4);
+                },
+                
+                bestMatch() {
+                    if (this.gameResults.length === 0) return { acertos: 0 };
+                    return this.gameResults.reduce((best, current) => 
+                        current.acertos > best.acertos ? current : best
+                    );
+                },
+                
+                topMatches() {
+                    return this.gameResults
+                        .filter(result => result.acertos >= 4)
+                        .sort((a, b) => b.acertos - a.acertos)
+                        .slice(0, 5);
+                },
+                
+                frequencyAnalysis() {
+                    if (this.selectedNumbers.length === 0 || this.historicalData.length === 0) return [];
+                    
+                    const frequency = {};
+                    this.selectedNumbers.forEach(num => {
+                        frequency[num] = 0;
+                    });
+                    
+                    this.historicalData.forEach(game => {
+                        const gameNumbers = [game.Bola1, game.Bola2, game.Bola3, game.Bola4, game.Bola5, game.Bola6];
+                        this.selectedNumbers.forEach(num => {
+                            if (gameNumbers.includes(num)) {
+                                frequency[num]++;
+                            }
+                        });
+                    });
+                    
+                    return this.selectedNumbers.map(num => ({
+                        number: num,
+                        count: frequency[num],
+                        percentage: ((frequency[num] / this.historicalData.length) * 100).toFixed(1)
+                    })).sort((a, b) => b.count - a.count);
+                }
+            },
+            
+            async mounted() {
+                await this.loadHistoricalData();
+            },
+            
+            methods: {
+                toggleNumber(number) {
+                    if (this.loading || this.loadingData) return;
+                    
+                    const index = this.selectedNumbers.indexOf(number);
+                    if (index > -1) {
+                        this.selectedNumbers.splice(index, 1);
+                    } else {
+                        if (this.selectedNumbers.length < 20) {
+                            this.selectedNumbers.push(number);
+                        } else {
+                            alert('Você pode selecionar no máximo 20 números!');
+                        }
+                    }
+                },
+                
+                clearNumbers() {
+                    if (this.loading || this.loadingData) return;
+                    this.selectedNumbers = [];
+                    this.gameResults = [];
+                },
+                
+                async completeGame() {
+                    if (this.selectedNumbers.length < 6) {
+                        alert('Você precisa selecionar pelo menos 6 números!');
+                        return;
+                    }
+
+                    if (this.historicalData.length === 0) {
+                        alert('Dados históricos não foram carregados. Tente novamente.');
+                        return;
+                    }
+                    
+                    this.loading = true;
+                    this.gameResults = [];
+                    
+                    // Simular um pequeno delay para melhor UX
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    
+                    this.analyzeGame();
+                    this.loading = false;
+                },
+                
+                async loadHistoricalData() {
+                    this.loadingData = true;
+                    this.errorMessage = '';
+                    
+                    try {
+                        // Verificar se o arquivo existe
+                        const csvContent = await window.fs.readFile('./Mega-Sena.csv', { encoding: 'utf8' });
+                        
+                        if (!csvContent || csvContent.trim() === '') {
+                            throw new Error('Arquivo CSV está vazio');
+                        }
+                        
+                        console.log('CSV carregado, tamanho:', csvContent.length);
+                        
+                        this.historicalData = this.parseCSV(csvContent);
+                        
+                        if (this.historicalData.length === 0) {
+                            throw new Error('Nenhum dado válido encontrado no arquivo CSV');
+                        }
+                        
+                        console.log('Dados processados:', this.historicalData.length, 'concursos');
+                        
+                    } catch (error) {
+                        console.error('Erro ao carregar dados históricos:', error);
+                        this.errorMessage = `Erro ao carregar dados: ${error.message}. Usando dados de exemplo.`;
+                        
+                        // Dados de exemplo baseados no CSV fornecido
+                        this.historicalData = this.getExampleData();
+                    }
+                    
+                    this.loadingData = false;
+                },
+                
+                parseCSV(csvText) {
+                    try {
+                        const lines = csvText.split('\n').filter(line => line.trim());
+                        
+                        if (lines.length < 2) {
+                            throw new Error('CSV deve ter pelo menos 2 linhas (cabeçalho + dados)');
+                        }
+                        
+                        const headers = lines[0].split(';').map(h => h.trim());
+                        const data = [];
+                        
+                        console.log('Headers encontrados:', headers);
+                        
+                        for (let i = 1; i < lines.length; i++) {
+                            const values = lines[i].split(';');
+                            
+                            if (values.length < headers.length) {
+                                console.warn(`Linha ${i+1} tem menos colunas que o cabeçalho, pulando`);
+                                continue;
+                            }
+                            
+                            const row = {};
+                            
+                            headers.forEach((header, index) => {
+                                let value = values[index] ? values[index].trim() : '';
+                                
+                                // Converter números das bolas para inteiros
+                                if (header.startsWith('Bola')) {
+                                    value = parseInt(value);
+                                    if (isNaN(value) || value < 1 || value > 60) {
+                                        console.warn(`Valor inválido para ${header} na linha ${i+1}:`, values[index]);
+                                        return; // Pula esta linha se alguma bola for inválida
+                                    }
+                                } else if (header === 'Concurso') {
+                                    value = parseInt(value);
+                                    if (isNaN(value) || value <= 0) {
+                                        console.warn(`Concurso inválido na linha ${i+1}:`, values[index]);
+                                        return; // Pula esta linha se o concurso for inválido
+                                    }
+                                }
+                                
+                                row[header] = value;
+                            });
+                            
+                            // Só adiciona se todas as bolas foram processadas corretamente
+                            if (row.Concurso > 0 && row.Bola1 && row.Bola2 && row.Bola3 && row.Bola4 && row.Bola5 && row.Bola6) {
+                                data.push(row);
+                            }
+                        }
+                        
+                        console.log('Dados válidos processados:', data.length);
+                        return data;
+                        
+                    } catch (error) {
+                        console.error('Erro no parseCSV:', error);
+                        throw error;
+                    }
+                },
+                
+                getExampleData() {
+                    // Dados de exemplo baseados no CSV fornecido
+                    return [
+                        { Concurso: 1, "Data do Sorteio": "11/03/1996", Bola1: 4, Bola2: 5, Bola3: 30, Bola4: 33, Bola5: 41, Bola6: 52 },
+                        { Concurso: 2, "Data do Sorteio": "18/03/1996", Bola1: 9, Bola2: 37, Bola3: 39, Bola4: 41, Bola5: 43, Bola6: 49 },
+                        { Concurso: 3, "Data do Sorteio": "25/03/1996", Bola1: 10, Bola2: 11, Bola3: 29, Bola4: 30, Bola5: 36, Bola6: 47 },
+                        { Concurso: 4, "Data do Sorteio": "01/04/1996", Bola1: 1, Bola2: 5, Bola3: 6, Bola4: 27, Bola5: 42, Bola6: 59 },
+                        { Concurso: 5, "Data do Sorteio": "08/04/1996", Bola1: 1, Bola2: 2, Bola3: 6, Bola4: 16, Bola5: 19, Bola6: 46 },
+                        { Concurso: 6, "Data do Sorteio": "15/04/1996", Bola1: 7, Bola2: 13, Bola3: 19, Bola4: 22, Bola5: 40, Bola6: 47 },
+                        { Concurso: 7, "Data do Sorteio": "22/04/1996", Bola1: 3, Bola2: 5, Bola3: 20, Bola4: 21, Bola5: 38, Bola6: 56 },
+                        { Concurso: 8, "Data do Sorteio": "29/04/1996", Bola1: 4, Bola2: 17, Bola3: 37, Bola4: 38, Bola5: 47, Bola6: 53 },
+                        { Concurso: 9, "Data do Sorteio": "06/05/1996", Bola1: 8, Bola2: 43, Bola3: 54, Bola4: 55, Bola5: 56, Bola6: 60 },
+                        { Concurso: 10, "Data do Sorteio": "13/05/1996", Bola1: 4, Bola2: 18, Bola3: 21, Bola4: 25, Bola5: 38, Bola6: 57 },
+                        { Concurso: 11, "Data do Sorteio": "20/05/1996", Bola1: 15, Bola2: 25, Bola3: 37, Bola4: 38, Bola5: 58, Bola6: 59 },
+                        { Concurso: 12, "Data do Sorteio": "27/05/1996", Bola1: 4, Bola2: 16, Bola3: 19, Bola4: 20, Bola5: 27, Bola6: 43 },
+                        { Concurso: 13, "Data do Sorteio": "03/06/1996", Bola1: 18, Bola2: 32, Bola3: 47, Bola4: 50, Bola5: 54, Bola6: 56 },
+                        { Concurso: 14, "Data do Sorteio": "10/06/1996", Bola1: 2, Bola2: 16, Bola3: 23, Bola4: 27, Bola5: 47, Bola6: 53 },
+                        { Concurso: 15, "Data do Sorteio": "17/06/1996", Bola1: 12, Bola2: 33, Bola3: 35, Bola4: 51, Bola5: 52, Bola6: 60 },
+                        { Concurso: 16, "Data do Sorteio": "24/06/1996", Bola1: 20, Bola2: 32, Bola3: 34, Bola4: 49, Bola5: 58, Bola6: 60 },
+                        { Concurso: 17, "Data do Sorteio": "01/07/1996", Bola1: 6, Bola2: 10, Bola3: 13, Bola4: 19, Bola5: 20, Bola6: 51 },
+                        { Concurso: 18, "Data do Sorteio": "08/07/1996", Bola1: 23, Bola2: 27, Bola3: 36, Bola4: 37, Bola5: 42, Bola6: 56 },
+                        { Concurso: 19, "Data do Sorteio": "15/07/1996", Bola1: 5, Bola2: 10, Bola3: 12, Bola4: 24, Bola5: 25, Bola6: 60 },
+                        { Concurso: 20, "Data do Sorteio": "22/07/1996", Bola1: 11, Bola2: 25, Bola3: 28, Bola4: 30, Bola5: 33, Bola6: 51 }
+                    ];
+                },
+                
+                analyzeGame() {
+                    this.gameResults = [];
+                    
+                    console.log('Analisando jogo com números:', this.selectedNumbers);
+                    console.log('Total de concursos:', this.historicalData.length);
+                    
+                    this.historicalData.forEach(game => {
+                        const gameNumbers = [game.Bola1, game.Bola2, game.Bola3, game.Bola4, game.Bola5, game.Bola6];
+                        const matches = this.selectedNumbers.filter(num => gameNumbers.includes(num));
+                        
+                        if (matches.length >= 3) {
+                            this.gameResults.push({
+                                concurso: game.Concurso,
+                                data: game['Data do Sorteio'],
+                                numeros: gameNumbers,
+                                acertos: matches.length,
+                                numerosAcertados: matches.sort((a, b) => a - b)
+                            });
+                        }
+                    });
+                    
+                    // Ordenar por número de acertos (decrescente)
+                    this.gameResults.sort((a, b) => b.acertos - a.acertos);
+                    
+                    console.log('Resultados encontrados:', this.gameResults.length);
+                    console.log('Melhores resultados:', this.gameResults.slice(0, 5));
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
