@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumen's Journey</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.prod.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        
+        * {
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            font-family: 'Orbitron', monospace;
+            overflow: hidden;
+        }
+        
+        #gameContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #gameCanvas {
+            background: linear-gradient(180deg, #87CEEB, #98FB98);
+            border: 4px solid #333;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+        }
+        
+        .ui-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #fff;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            z-index: 1000;
+        }
+        
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            text-align: center;
+            font-size: 14px;
+            background: rgba(0,0,0,0.7);
+            padding: 10px 20px;
+            border-radius: 10px;
+        }
+        
+        .power-indicator {
+            position: absolute;
+            top: 80px;
+            left: 20px;
+            color: #fff;
+            font-size: 14px;
+        }
+        
+        .game-title {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            color: #00ffff;
+            font-size: 24px;
+            font-weight: 900;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+        }
+        
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 10px rgba(0, 255, 255, 0.8); }
+            50% { text-shadow: 0 0 20px rgba(0, 255, 255, 1), 0 0 30px rgba(0, 255, 255, 0.5); }
+        }
+        
+        .game-title {
+            animation: glow 2s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div id="gameContainer">
+            <div class="game-title">LUMEN'S JOURNEY</div>
+            
+            <div class="ui-overlay">
+                <div>Fragmentos: {{ gameState.fragments }}</div>
+                <div>Vida: {{ gameState.health }}/3</div>
+                <div>Nível: {{ gameState.currentLevel + 1 }}</div>
+            </div>
+            
+            <div class="power-indicator" v-if="gameState.currentPower">
+                <div style="color: #ffff00;">⚡ {{ gameState.currentPower }}</div>
+            </div>
+            
+            <canvas 
+                id="gameCanvas" 
+                :width="GAME_WIDTH" 
+                :height="GAME_HEIGHT"
+                @keydown="handleKeyDown"
+                @keyup="handleKeyUp"
+                tabindex="0"
+                ref="canvas"
+            ></canvas>
+            
+            <div class="controls">
+                <div><strong>Controles:</strong></div>
+                <div>← → Mover | ↑ Pular | ESPAÇO Poder Especial | R Reiniciar</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        
+        createApp({
+            data() {
+                return {
+                    GAME_WIDTH: 1024,
+                    GAME_HEIGHT: 576,
+                    canvas: null,
+                    ctx: null,
+                    gameState: {
+                        fragments: 0,
+                        health: 3,
+                        currentLevel: 0,
+                        currentPower: null,
+                        powerCooldown: 0
+                    },
+                    keys: {},
+                    player: {
+                        x: 100,
+                        y: 400,
+                        width: 32,
+                        height: 32,
+                        velocityX: 0,
+                        velocityY: 0,
+                        speed: 5,
+                        jumpPower: -15,
+                        onGround: false,
+                        facing: 1,
+                        glowing: true,
+                        animFrame: 0
+                    },
+                    camera: {
+                        x: 0,
+                        y: 0
+                    },
+                    level: {
+                        width: 2048,
+                        height: 576,
+                        platforms: [],
+                        enemies: [],
+                        items: [],
+                        background: []
+                    },
+                    enemies: [],
+                    items: [],
+                    particles: [],
+                    gameLoop: null
+                }
+            },
+            
+            mounted() {
+                this.canvas = this.$refs.canvas;
+                this.ctx = this.canvas.getContext('2d');
+                this.canvas.focus();
+                
+                this.initLevel();
+                this.startGameLoop();
+                
+                // Event listeners
+                document.addEventListener('keydown', this.handleKeyDown);
+                document.addEventListener('keyup', this.handleKeyUp);
+            },
+            
+            beforeUnmount() {
+                if (this.gameLoop) {
+                    cancelAnimationFrame(this.gameLoop);
+                }
+                document.removeEventListener('keydown', this.handleKeyDown);
+                document.removeEventListener('keyup', this.handleKeyUp);
+            },
+            
+            methods: {
+                initLevel() {
+                    // Plataformas do nível
+                    this.level.platforms = [
+                        // Chão principal
+                        { x: 0, y: 500, width: 400, height: 76, type: 'grass' },
+                        { x: 500, y: 450, width: 200, height: 126, type: 'grass' },
+                        { x: 800, y: 400, width: 300, height: 176, type: 'grass' },
+                        { x: 1200, y: 350, width: 200, height: 226, type: 'grass' },
+                        { x: 1500, y: 300, width: 300, height: 276, type: 'grass' },
+                        { x: 1900, y: 500, width: 148, height: 76, type: 'grass' },
+                        
+                        // Plataformas flutuantes
+                        { x: 300, y: 350, width: 100, height: 20, type: 'floating' },
+                        { x: 600, y: 300, width: 100, height: 20, type: 'floating' },
+                        { x: 900, y: 250, width: 100, height: 20, type: 'floating' },
+                        { x: 1300, y: 200, width: 100, height: 20, type: 'floating' },
+                    ];
+                    
+                    // Inimigos (Opacus)
+                    this.enemies = [
+                        { x: 350, y: 468, width: 24, height: 24, velocityX: -1, type: 'opacus', health: 1 },
+                        { x: 650, y: 418, width: 24, height: 24, velocityX: 1, type: 'opacus', health: 1 },
+                        { x: 950, y: 368, width: 24, height: 24, velocityX: -1, type: 'opacus', health: 1 },
+                        { x: 1350, y: 318, width: 24, height: 24, velocityX: 1, type: 'opacus', health: 1 },
+                    ];
+                    
+                    // Itens coletáveis
+                    this.items = [
+                        { x: 350, y: 320, width: 16, height: 16, type: 'fragment' },
+                        { x: 650, y: 270, width: 16, height: 16, type: 'fragment' },
+                        { x: 950, y: 220, width: 16, height: 16, type: 'fragment' },
+                        { x: 1350, y: 170, width: 16, height: 16, type: 'fragment' },
+                        { x: 500, y: 400, width: 20, height: 20, type: 'prism_power' },
+                        { x: 1200, y: 300, width: 20, height: 20, type: 'solar_power' },
+                    ];
+                },
+                
+                handleKeyDown(e) {
+                    this.keys[e.code] = true;
+                    
+                    if (e.code === 'KeyR') {
+                        this.resetGame();
+                    }
+                },
+                
+                handleKeyUp(e) {
+                    this.keys[e.code] = false;
+                },
+                
+                updatePlayer() {
+                    // Movimento horizontal
+                    if (this.keys['ArrowLeft'] || this.keys['KeyA']) {
+                        this.player.velocityX = -this.player.speed;
+                        this.player.facing = -1;
+                    } else if (this.keys['ArrowRight'] || this.keys['KeyD']) {
+                        this.player.velocityX = this.player.speed;
+                        this.player.facing = 1;
+                    } else {
+                        this.player.velocityX *= 0.8; // Friction
+                    }
+                    
+                    // Pulo
+                    if ((this.keys['ArrowUp'] || this.keys['KeyW'] || this.keys['Space']) && this.player.onGround) {
+                        this.player.velocityY = this.player.jumpPower;
+                        this.player.onGround = false;
+                    }
+                    
+                    // Poder especial
+                    if (this.keys['Space'] && this.gameState.currentPower && this.gameState.powerCooldown <= 0) {
+                        this.usePower();
+                    }
+                    
+                    // Gravidade
+                    this.player.velocityY += 0.8;
+                    
+                    // Atualizar posição
+                    this.player.x += this.player.velocityX;
+                    this.player.y += this.player.velocityY;
+                    
+                    // Verificar colisões com plataformas
+                    this.checkPlatformCollisions();
+                    
+                    // Limites do mundo
+                    if (this.player.x < 0) this.player.x = 0;
+                    if (this.player.x > this.level.width - this.player.width) {
+                        this.player.x = this.level.width - this.player.width;
+                    }
+                    if (this.player.y > this.GAME_HEIGHT) {
+                        this.takeDamage();
+                    }
+                    
+                    // Atualizar câmera
+                    this.updateCamera();
+                    
+                    // Animação
+                    this.player.animFrame += 0.2;
+                },
+                
+                checkPlatformCollisions() {
+                    this.player.onGround = false;
+                    
+                    for (let platform of this.level.platforms) {
+                        if (this.checkCollision(this.player, platform)) {
+                            // Colisão por cima (player pousando na plataforma)
+                            if (this.player.velocityY > 0 && 
+                                this.player.y < platform.y) {
+                                this.player.y = platform.y - this.player.height;
+                                this.player.velocityY = 0;
+                                this.player.onGround = true;
+                            }
+                            // Colisão por baixo
+                            else if (this.player.velocityY < 0 && 
+                                     this.player.y > platform.y) {
+                                this.player.y = platform.y + platform.height;
+                                this.player.velocityY = 0;
+                            }
+                            // Colisão lateral
+                            else if (this.player.velocityX > 0) {
+                                this.player.x = platform.x - this.player.width;
+                                this.player.velocityX = 0;
+                            } else if (this.player.velocityX < 0) {
+                                this.player.x = platform.x + platform.width;
+                                this.player.velocityX = 0;
+                            }
+                        }
+                    }
+                },
+                
+                updateEnemies() {
+                    for (let enemy of this.enemies) {
+                        enemy.x += enemy.velocityX;
+                        
+                        // Verificar colisão com plataformas para virar direção
+                        let onPlatform = false;
+                        for (let platform of this.level.platforms) {
+                            if (enemy.x + enemy.width > platform.x && 
+                                enemy.x < platform.x + platform.width &&
+                                enemy.y + enemy.height >= platform.y && 
+                                enemy.y < platform.y + platform.height) {
+                                onPlatform = true;
+                                break;
+                            }
+                        }
+                        
+                        // Virar na borda das plataformas
+                        if (!onPlatform) {
+                            enemy.velocityX *= -1;
+                        }
+                        
+                        // Verificar colisão com player
+                        if (this.checkCollision(this.player, enemy)) {
+                            // Player pulando em cima do inimigo
+                            if (this.player.velocityY > 0 && 
+                                this.player.y < enemy.y) {
+                                this.destroyEnemy(enemy);
+                                this.player.velocityY = -8; // Pulo após derrotar inimigo
+                            } else {
+                                this.takeDamage();
+                            }
+                        }
+                    }
+                },
+                
+                updateItems() {
+                    for (let i = this.items.length - 1; i >= 0; i--) {
+                        let item = this.items[i];
+                        
+                        if (this.checkCollision(this.player, item)) {
+                            if (item.type === 'fragment') {
+                                this.gameState.fragments++;
+                                this.createParticles(item.x, item.y, '#ffff00');
+                            } else if (item.type === 'prism_power') {
+                                this.gameState.currentPower = 'Raio de Prisma';
+                                this.createParticles(item.x, item.y, '#ff00ff');
+                            } else if (item.type === 'solar_power') {
+                                this.gameState.currentPower = 'Explosão Solar';
+                                this.createParticles(item.x, item.y, '#ffaa00');
+                            }
+                            
+                            this.items.splice(i, 1);
+                        }
+                    }
+                },
+                
+                updateCamera() {
+                    // Câmera segue o player
+                    let targetX = this.player.x - this.GAME_WIDTH / 2;
+                    let targetY = this.player.y - this.GAME_HEIGHT / 2;
+                    
+                    // Limites da câmera
+                    targetX = Math.max(0, Math.min(targetX, this.level.width - this.GAME_WIDTH));
+                    targetY = Math.max(0, Math.min(targetY, this.level.height - this.GAME_HEIGHT));
+                    
+                    // Movimento suave da câmera
+                    this.camera.x += (targetX - this.camera.x) * 0.1;
+                    this.camera.y += (targetY - this.camera.y) * 0.1;
+                },
+                
+                usePower() {
+                    if (this.gameState.currentPower === 'Raio de Prisma') {
+                        this.createLightBeam();
+                        this.gameState.powerCooldown = 60;
+                    } else if (this.gameState.currentPower === 'Explosão Solar') {
+                        this.player.velocityY = -20;
+                        this.createExplosion();
+                        this.gameState.powerCooldown = 90;
+                    }
+                },
+                
+                createLightBeam() {
+                    // Criar partículas de raio de luz
+                    for (let i = 0; i < 10; i++) {
+                        this.particles.push({
+                            x: this.player.x + 16,
+                            y: this.player.y + 16,
+                            velocityX: this.player.facing * (5 + Math.random() * 5),
+                            velocityY: (Math.random() - 0.5) * 2,
+                            life: 30,
+                            color: '#00ffff',
+                            size: 3
+                        });
+                    }
+                    
+                    // Dano aos inimigos próximos
+                    for (let enemy of this.enemies) {
+                        let distance = Math.abs(enemy.x - this.player.x);
+                        if (distance < 150) {
+                            this.destroyEnemy(enemy);
+                        }
+                    }
+                },
+                
+                createExplosion() {
+                    // Criar partículas de explosão
+                    for (let i = 0; i < 20; i++) {
+                        this.particles.push({
+                            x: this.player.x + 16,
+                            y: this.player.y + 16,
+                            velocityX: (Math.random() - 0.5) * 10,
+                            velocityY: (Math.random() - 0.5) * 10,
+                            life: 40,
+                            color: '#ffaa00',
+                            size: 4
+                        });
+                    }
+                    
+                    // Dano aos inimigos próximos
+                    for (let enemy of this.enemies) {
+                        let distance = Math.sqrt(
+                            Math.pow(enemy.x - this.player.x, 2) + 
+                            Math.pow(enemy.y - this.player.y, 2)
+                        );
+                        if (distance < 100) {
+                            this.destroyEnemy(enemy);
+                        }
+                    }
+                },
+                
+                createParticles(x, y, color) {
+                    for (let i = 0; i < 8; i++) {
+                        this.particles.push({
+                            x: x,
+                            y: y,
+                            velocityX: (Math.random() - 0.5) * 4,
+                            velocityY: (Math.random() - 0.5) * 4,
+                            life: 30,
+                            color: color,
+                            size: 2
+                        });
+                    }
+                },
+                
+                updateParticles() {
+                    for (let i = this.particles.length - 1; i >= 0; i--) {
+                        let particle = this.particles[i];
+                        particle.x += particle.velocityX;
+                        particle.y += particle.velocityY;
+                        particle.life--;
+                        
+                        if (particle.life <= 0) {
+                            this.particles.splice(i, 1);
+                        }
+                    }
+                },
+                
+                destroyEnemy(enemy) {
+                    let index = this.enemies.indexOf(enemy);
+                    if (index > -1) {
+                        this.createParticles(enemy.x, enemy.y, '#666666');
+                        this.enemies.splice(index, 1);
+                    }
+                },
+                
+                takeDamage() {
+                    this.gameState.health--;
+                    if (this.gameState.health <= 0) {
+                        this.resetGame();
+                    } else {
+                        // Respawn no início do nível
+                        this.player.x = 100;
+                        this.player.y = 400;
+                        this.player.velocityX = 0;
+                        this.player.velocityY = 0;
+                    }
+                },
+                
+                resetGame() {
+                    this.gameState.fragments = 0;
+                    this.gameState.health = 3;
+                    this.gameState.currentPower = null;
+                    this.gameState.powerCooldown = 0;
+                    this.player.x = 100;
+                    this.player.y = 400;
+                    this.player.velocityX = 0;
+                    this.player.velocityY = 0;
+                    this.particles = [];
+                    this.initLevel();
+                },
+                
+                checkCollision(rect1, rect2) {
+                    return rect1.x < rect2.x + rect2.width &&
+                           rect1.x + rect1.width > rect2.x &&
+                           rect1.y < rect2.y + rect2.height &&
+                           rect1.y + rect1.height > rect2.y;
+                },
+                
+                render() {
+                    // Limpar canvas
+                    this.ctx.clearRect(0, 0, this.GAME_WIDTH, this.GAME_HEIGHT);
+                    
+                    // Fundo
+                    const gradient = this.ctx.createLinearGradient(0, 0, 0, this.GAME_HEIGHT);
+                    gradient.addColorStop(0, '#87CEEB');
+                    gradient.addColorStop(1, '#98FB98');
+                    this.ctx.fillStyle = gradient;
+                    this.ctx.fillRect(0, 0, this.GAME_WIDTH, this.GAME_HEIGHT);
+                    
+                    // Desenhar nuvens
+                    this.drawClouds();
+                    
+                    // Salvar contexto para aplicar câmera
+                    this.ctx.save();
+                    this.ctx.translate(-this.camera.x, -this.camera.y);
+                    
+                    // Desenhar plataformas
+                    this.drawPlatforms();
+                    
+                    // Desenhar itens
+                    this.drawItems();
+                    
+                    // Desenhar inimigos
+                    this.drawEnemies();
+                    
+                    // Desenhar player
+                    this.drawPlayer();
+                    
+                    // Desenhar partículas
+                    this.drawParticles();
+                    
+                    // Restaurar contexto
+                    this.ctx.restore();
+                },
+                
+                drawClouds() {
+                    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                    this.drawPixelCloud(100, 80, 60, 30);
+                    this.drawPixelCloud(300, 60, 80, 40);
+                    this.drawPixelCloud(600, 90, 70, 35);
+                    this.drawPixelCloud(800, 70, 90, 45);
+                },
+                
+                drawPixelCloud(x, y, w, h) {
+                    const pixelSize = 8;
+                    for (let i = 0; i < w; i += pixelSize) {
+                        for (let j = 0; j < h; j += pixelSize) {
+                            if (Math.random() > 0.3) {
+                                this.ctx.fillRect(x + i, y + j, pixelSize, pixelSize);
+                            }
+                        }
+                    }
+                },
+                
+                drawPlatforms() {
+                    for (let platform of this.level.platforms) {
+                        if (platform.type === 'grass') {
+                            // Grama por cima
+                            this.ctx.fillStyle = '#228B22';
+                            this.ctx.fillRect(platform.x, platform.y, platform.width, 20);
+                            
+                            // Terra por baixo
+                            this.ctx.fillStyle = '#8B4513';
+                            this.ctx.fillRect(platform.x, platform.y + 20, platform.width, platform.height - 20);
+                            
+                            // Detalhes pixelados
+                            this.drawPixelGrass(platform.x, platform.y, platform.width);
+                        } else if (platform.type === 'floating') {
+                            // Plataforma flutuante
+                            this.ctx.fillStyle = '#CD853F';
+                            this.ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+                            
+                            // Borda
+                            this.ctx.strokeStyle = '#8B4513';
+                            this.ctx.lineWidth = 2;
+                            this.ctx.strokeRect(platform.x, platform.y, platform.width, platform.height);
+                        }
+                    }
+                },
+                
+                drawPixelGrass(x, y, width) {
+                    this.ctx.fillStyle = '#32CD32';
+                    const grassHeight = 4;
+                    const pixelSize = 4;
+                    
+                    for (let i = 0; i < width; i += pixelSize * 2) {
+                        if (Math.random() > 0.3) {
+                            this.ctx.fillRect(x + i, y - grassHeight, pixelSize, grassHeight);
+                        }
+                    }
+                },
+                
+                drawPlayer() {
+                    // Corpo cristalino de Lumen
+                    const glowIntensity = 0.5 + Math.sin(Date.now() * 0.01) * 0.3;
+                    
+                    // Brilho ao redor
+                    this.ctx.shadowColor = '#00ffff';
+                    this.ctx.shadowBlur = 15 * glowIntensity;
+                    
+                    // Corpo principal (cristal)
+                    this.ctx.fillStyle = `rgba(0, 255, 255, ${0.7 + glowIntensity * 0.3})`;
+                    this.drawPixelCharacter(this.player.x, this.player.y);
+                    
+                    // Resetar sombra
+                    this.ctx.shadowBlur = 0;
+                    
+                    // Detalhes do rosto
+                    this.ctx.fillStyle = '#ffffff';
+                    const eyeOffset = Math.floor(this.player.animFrame) % 2;
+                    this.ctx.fillRect(this.player.x + 8 + eyeOffset, this.player.y + 8, 4, 4);
+                    this.ctx.fillRect(this.player.x + 20 + eyeOffset, this.player.y + 8, 4, 4);
+                },
+                
+                drawPixelCharacter(x, y) {
+                    const pixelSize = 4;
+                    const pattern = [
+                        [0,0,1,1,1,1,0,0],
+                        [0,1,1,1,1,1,1,0],
+                        [1,1,1,1,1,1,1,1],
+                        [1,1,1,1,1,1,1,1],
+                        [1,1,1,1,1,1,1,1],
+                        [0,1,1,1,1,1,1,0],
+                        [0,0,1,1,1,1,0,0],
+                        [0,0,1,0,0,1,0,0]
+                    ];
+                    
+                    for (let row = 0; row < pattern.length; row++) {
+                        for (let col = 0; col < pattern[row].length; col++) {
+                            if (pattern[row][col]) {
+                                this.ctx.fillRect(
+                                    x + col * pixelSize, 
+                                    y + row * pixelSize, 
+                                    pixelSize, 
+                                    pixelSize
+                                );
+                            }
+                        }
+                    }
+                },
+                
+                drawEnemies() {
+                    for (let enemy of this.enemies) {
+                        // Opacus (inimigo sombrio)
+                        this.ctx.fillStyle = '#333333';
+                        this.drawPixelEnemy(enemy.x, enemy.y);
+                        
+                        // Olhos vermelhos
+                        this.ctx.fillStyle = '#ff0000';
+                        this.ctx.fillRect(enemy.x + 4, enemy.y + 4, 3, 3);
+                        this.ctx.fillRect(enemy.x + 17, enemy.y + 4, 3, 3);
+                    }
+                },
+                
+                drawPixelEnemy(x, y) {
+                    const pixelSize = 3;
+                    const pattern = [
+                        [0,1,1,1,1,1,1,0],
+                        [1,1,1,1,1,1,1,1],
+                        [1,1,1,1,1,1,1,1],
+                        [1,1,1,1,1,1,1,1],
+                        [1,1,1,1,1,1,1,1],
+                        [1,1,1,1,1,1,1,1],
+                        [0,1,1,0,0,1,1,0],
+                        [0,0,1,0,0,1,0,0]
+                    ];
+                    
+                    for (let row = 0; row < pattern.length; row++) {
+                        for (let col = 0; col < pattern[row].length; col++) {
+                            if (pattern[row][col]) {
+                                this.ctx.fillRect(
+                                    x + col * pixelSize, 
+                                    y + row * pixelSize, 
+                                    pixelSize, 
+                                    pixelSize
+                                );
+                            }
+                        }
+                    }
+                },
+                
+                drawItems() {
+                    for (let item of this.items) {
+                        if (item.type === 'fragment') {
+                            // Fragmento de Aurora (brilhante e dourado)
+                            const pulse = 0.8 + Math.sin(Date.now() * 0.008) * 0.2;
+                            this.ctx.shadowColor = '#ffff00';
+                            this.ctx.shadowBlur = 10 * pulse;
+                            this.ctx.fillStyle = `rgba(255, 255, 0, ${pulse})`;
+                            this.drawPixelStar(item.x, item.y);
+                            this.ctx.shadowBlur = 0;
+                        } else if (item.type === 'prism_power') {
+                            // Poder do Prisma (rosa/magenta)
+                            const pulse = 0.7 + Math.sin(Date.now() * 0.01) * 0.3;
+                            this.ctx.shadowColor = '#ff00ff';
+                            this.ctx.shadowBlur = 12 * pulse;
+                            this.ctx.fillStyle = `rgba(255, 0, 255, ${pulse})`;
+                            this.drawPixelDiamond(item.x, item.y);
+                            this.ctx.shadowBlur = 0;
+                        } else if (item.type === 'solar_power') {
+                            // Poder Solar (laranja/amarelo)
+                            const pulse = 0.8 + Math.sin(Date.now() * 0.012) * 0.2;
+                            this.ctx.shadowColor = '#ffaa00';
+                            this.ctx.shadowBlur = 15 * pulse;
+                            this.ctx.fillStyle = `rgba(255, 170, 0, ${pulse})`;
+                            this.drawPixelSun(item.x, item.y);
+                            this.ctx.shadowBlur = 0;
+                        }
+                    }
+                },
+                
+                drawPixelStar(x, y) {
+                    const size = 2;
+                    // Estrela simples pixelada
+                    this.ctx.fillRect(x + 6, y + 2, size * 2, size * 2);
+                    this.ctx.fillRect(x + 2, y + 6, size * 2, size * 2);
+                    this.ctx.fillRect(x + 10, y + 6, size * 2, size * 2);
+                    this.ctx.fillRect(x + 4, y + 4, size * 4, size * 4);
+                    this.ctx.fillRect(x + 6, y + 10, size * 2, size * 2);
+                },
+                
+                drawPixelDiamond(x, y) {
+                    const size = 2;
+                    // Diamante pixelado
+                    this.ctx.fillRect(x + 8, y + 2, size * 2, size * 2);
+                    this.ctx.fillRect(x + 6, y + 4, size * 3, size * 2);
+                    this.ctx.fillRect(x + 4, y + 6, size * 4, size * 2);
+                    this.ctx.fillRect(x + 6, y + 8, size * 3, size * 2);
+                    this.ctx.fillRect(x + 8, y + 10, size * 2, size * 2);
+                },
+                
+                drawPixelSun(x, y) {
+                    const size = 2;
+                    // Sol pixelado
+                    this.ctx.fillRect(x + 6, y + 6, size * 4, size * 4);
+                    // Raios
+                    this.ctx.fillRect(x + 8, y + 2, size, size);
+                    this.ctx.fillRect(x + 8, y + 14, size, size);
+                    this.ctx.fillRect(x + 2, y + 8, size, size);
+                    this.ctx.fillRect(x + 14, y + 8, size, size);
+                    this.ctx.fillRect(x + 4, y + 4, size, size);
+                    this.ctx.fillRect(x + 12, y + 12, size, size);
+                    this.ctx.fillRect(x + 12, y + 4, size, size);
+                    this.ctx.fillRect(x + 4, y + 12, size, size);
+                },
+                
+                drawParticles() {
+                    for (let particle of this.particles) {
+                        const alpha = particle.life / 30;
+                        this.ctx.fillStyle = particle.color.replace(')', `, ${alpha})`).replace('rgb', 'rgba');
+                        this.ctx.fillRect(
+                            particle.x - particle.size/2, 
+                            particle.y - particle.size/2, 
+                            particle.size, 
+                            particle.size
+                        );
+                    }
+                },
+                
+                update() {
+                    this.updatePlayer();
+                    this.updateEnemies();
+                    this.updateItems();
+                    this.updateParticles();
+                    
+                    // Cooldown dos poderes
+                    if (this.gameState.powerCooldown > 0) {
+                        this.gameState.powerCooldown--;
+                    }
+                    
+                    // Verificar vitória (todos os fragmentos coletados)
+                    if (this.gameState.fragments >= 4) {
+                        this.nextLevel();
+                    }
+                },
+                
+                nextLevel() {
+                    this.gameState.currentLevel++;
+                    this.gameState.fragments = 0;
+                    this.player.x = 100;
+                    this.player.y = 400;
+                    this.initLevel();
+                    
+                    // Adicionar mais inimigos e itens no próximo nível
+                    if (this.gameState.currentLevel > 0) {
+                        this.addExtraEnemies();
+                        this.addExtraItems();
+                    }
+                },
+                
+                addExtraEnemies() {
+                    const extraEnemies = [
+                        { x: 200, y: 468, width: 24, height: 24, velocityX: 1, type: 'opacus', health: 1 },
+                        { x: 1000, y: 368, width: 24, height: 24, velocityX: -1, type: 'opacus', health: 1 },
+                        { x: 1600, y: 268, width: 24, height: 24, velocityX: 1, type: 'opacus', health: 1 },
+                    ];
+                    this.enemies.push(...extraEnemies);
+                },
+                
+                addExtraItems() {
+                    const extraItems = [
+                        { x: 750, y: 370, width: 16, height: 16, type: 'fragment' },
+                        { x: 1450, y: 270, width: 16, height: 16, type: 'fragment' },
+                    ];
+                    this.items.push(...extraItems);
+                },
+                
+                startGameLoop() {
+                    const gameLoop = () => {
+                        this.update();
+                        this.render();
+                        this.gameLoop = requestAnimationFrame(gameLoop);
+                    };
+                    gameLoop();
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

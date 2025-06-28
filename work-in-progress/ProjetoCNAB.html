@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador CNAB + Visualizador de Layouts Bancários</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css" rel="stylesheet">
+    
+    <!-- Vue.js 3 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.min.js"></script>
+    
+    <style>
+        .cnab-field {
+            border: 1px solid #dee2e6;
+            padding: 2px 4px;
+            margin: 1px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            display: inline-block;
+            position: relative;
+        }
+        
+        .field-header { background-color: #e3f2fd; border-color: #1976d2; }
+        .field-lote { background-color: #f3e5f5; border-color: #7b1fa2; }
+        .field-segmento { background-color: #e8f5e8; border-color: #388e3c; }
+        .field-trailer { background-color: #fff3e0; border-color: #f57c00; }
+        .field-numeric { background-color: #fffde7; }
+        .field-alpha { background-color: #f9fbe7; }
+        .field-date { background-color: #e1f5fe; }
+        
+        .cnab-line {
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            line-height: 1.2;
+            margin: 2px 0;
+            padding: 4px;
+            border-left: 3px solid #ddd;
+            background-color: #fafafa;
+        }
+        
+        .record-header { border-left-color: #1976d2; }
+        .record-lote { border-left-color: #7b1fa2; }
+        .record-segmento { border-left-color: #388e3c; }
+        .record-trailer { border-left-color: #f57c00; }
+        
+        .layout-container {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .field-tooltip {
+            position: absolute;
+            top: -30px;
+            left: 0;
+            background: #333;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            white-space: nowrap;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .cnab-field:hover .field-tooltip {
+            display: block;
+        }
+        
+        .json-viewer {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .upload-area {
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            background-color: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-area:hover, .upload-area.drag-over {
+            border-color: #0d6efd;
+            background-color: #e7f1ff;
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">
+                    <i class="bi bi-bank2"></i> Simulador CNAB
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <button class="btn btn-outline-light btn-sm" @click="activeTab = 'upload'">
+                                <i class="bi bi-upload"></i> Upload
+                            </button>
+                        </li>
+                        <li class="nav-item ms-2">
+                            <button class="btn btn-outline-light btn-sm" @click="activeTab = 'generator'">
+                                <i class="bi bi-gear"></i> Gerador
+                            </button>
+                        </li>
+                        <li class="nav-item ms-2">
+                            <button class="btn btn-outline-light btn-sm" @click="activeTab = 'converter'">
+                                <i class="bi bi-arrow-repeat"></i> Conversor
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container-fluid mt-4">
+            <!-- Statistics Cards -->
+            <div class="row mb-4" v-if="cnabData.records.length > 0">
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <h6><i class="bi bi-file-text"></i> Total de Registros</h6>
+                        <h3>{{ cnabData.records.length }}</h3>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <h6><i class="bi bi-layers"></i> Lotes</h6>
+                        <h3>{{ getLoteCount() }}</h3>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <h6><i class="bi bi-currency-dollar"></i> Valor Total</h6>
+                        <h3>R$ {{ getTotalAmount() }}</h3>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <h6><i class="bi bi-bank"></i> Banco</h6>
+                        <h3>{{ getBankCode() }}</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload Tab -->
+            <div v-if="activeTab === 'upload'">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="bi bi-upload"></i> Upload de Arquivo CNAB</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="upload-area" 
+                                     @dragover.prevent 
+                                     @drop.prevent="handleFileDrop"
+                                     :class="{ 'drag-over': isDragOver }"
+                                     @dragenter="isDragOver = true"
+                                     @dragleave="isDragOver = false">
+                                    <i class="bi bi-cloud-upload fs-1 text-muted"></i>
+                                    <p class="mt-3">Arraste um arquivo CNAB aqui ou clique para selecionar</p>
+                                    <input type="file" 
+                                           class="form-control" 
+                                           @change="handleFileUpload" 
+                                           accept=".txt,.cnab,.ret,.rem"
+                                           ref="fileInput">
+                                </div>
+                                
+                                <div class="mt-3">
+                                    <label class="form-label">Tipo de Layout:</label>
+                                    <select class="form-select" v-model="selectedLayout">
+                                        <option value="CNAB240">CNAB 240</option>
+                                        <option value="CNAB400">CNAB 400</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="bi bi-info-circle"></i> Informações do Arquivo</h5>
+                            </div>
+                            <div class="card-body">
+                                <div v-if="fileInfo.name">
+                                    <p><strong>Nome:</strong> {{ fileInfo.name }}</p>
+                                    <p><strong>Tamanho:</strong> {{ formatFileSize(fileInfo.size) }}</p>
+                                    <p><strong>Linhas:</strong> {{ fileInfo.lines }}</p>
+                                    <p><strong>Layout:</strong> {{ selectedLayout }}</p>
+                                    <p><strong>Status:</strong> 
+                                        <span class="badge bg-success" v-if="isValidCnab">Válido</span>
+                                        <span class="badge bg-danger" v-else>Inválido</span>
+                                    </p>
+                                </div>
+                                <div v-else class="text-muted">
+                                    <i class="bi bi-file-earmark"></i>
+                                    <p>Nenhum arquivo carregado</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CNAB Visualizer -->
+                <div class="card mt-4" v-if="cnabData.records.length > 0">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5><i class="bi bi-eye"></i> Visualizador de Layout</h5>
+                        <div>
+                            <button class="btn btn-sm btn-outline-primary me-2" @click="toggleFieldView">
+                                <i class="bi bi-grid"></i> {{ showFields ? 'Ocultar Campos' : 'Mostrar Campos' }}
+                            </button>
+                            <button class="btn btn-sm btn-outline-success" @click="exportToJson">
+                                <i class="bi bi-download"></i> Exportar JSON
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body layout-container">
+                        <div v-for="(record, index) in cnabData.records" :key="index" class="cnab-line"
+                             :class="{
+                                 'record-header': record.type === 'HEADER',
+                                 'record-lote': record.type === 'LOTE',
+                                 'record-segmento': record.type === 'SEGMENTO',
+                                 'record-trailer': record.type === 'TRAILER'
+                             }">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge" :class="{
+                                    'bg-primary': record.type === 'HEADER',
+                                    'bg-secondary': record.type === 'LOTE',
+                                    'bg-success': record.type === 'SEGMENTO',
+                                    'bg-warning': record.type === 'TRAILER'
+                                }">
+                                    {{ record.type }} {{ record.lote ? '- Lote ' + record.lote : '' }}
+                                </span>
+                                <small class="text-muted">Linha {{ index + 1 }}</small>
+                            </div>
+                            
+                            <div v-if="showFields && record.fields">
+                                <span v-for="field in record.fields" :key="field.name"
+                                      class="cnab-field"
+                                      :class="{
+                                          'field-header': record.type === 'HEADER',
+                                          'field-lote': record.type === 'LOTE',
+                                          'field-segmento': record.type === 'SEGMENTO',
+                                          'field-trailer': record.type === 'TRAILER',
+                                          'field-numeric': field.type === 'N',
+                                          'field-alpha': field.type === 'A',
+                                          'field-date': field.type === 'D'
+                                      }">
+                                    {{ field.value }}
+                                    <div class="field-tooltip">
+                                        {{ field.name }} ({{ field.start }}-{{ field.end }})
+                                    </div>
+                                </span>
+                            </div>
+                            <div v-else>
+                                <code>{{ record.rawLine }}</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Generator Tab -->
+            <div v-if="activeTab === 'generator'">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-gear"></i> Gerador de Arquivo CNAB</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Configurações do Header</h6>
+                                <div class="mb-3">
+                                    <label class="form-label">Código do Banco:</label>
+                                    <input type="text" class="form-control" v-model="generatorData.bankCode" maxlength="3">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Nome da Empresa:</label>
+                                    <input type="text" class="form-control" v-model="generatorData.companyName" maxlength="30">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">CNPJ:</label>
+                                    <input type="text" class="form-control" v-model="generatorData.cnpj" maxlength="14">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Data de Geração:</label>
+                                    <input type="date" class="form-control" v-model="generatorData.date">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Pagamentos</h6>
+                                <div class="mb-3">
+                                    <button class="btn btn-success btn-sm" @click="addPayment">
+                                        <i class="bi bi-plus"></i> Adicionar Pagamento
+                                    </button>
+                                </div>
+                                <div v-for="(payment, index) in generatorData.payments" :key="index" class="border p-3 mb-2 rounded">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <input type="text" class="form-control form-control-sm mb-2" 
+                                                   v-model="payment.favoredName" placeholder="Nome do Favorecido">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input type="number" class="form-control form-control-sm mb-2" 
+                                                   v-model="payment.amount" placeholder="Valor" step="0.01">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <input type="text" class="form-control form-control-sm" 
+                                                   v-model="payment.bank" placeholder="Banco">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <input type="text" class="form-control form-control-sm" 
+                                                   v-model="payment.agency" placeholder="Agência">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <input type="text" class="form-control form-control-sm" 
+                                                   v-model="payment.account" placeholder="Conta">
+                                        </div>
+                                        <div class="col-md-1">
+                                            <button class="btn btn-danger btn-sm" @click="removePayment(index)">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <button class="btn btn-primary" @click="generateCnab">
+                                <i class="bi bi-file-plus"></i> Gerar Arquivo CNAB
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mt-4" v-if="generatedCnab">
+                    <div class="card-header">
+                        <h5><i class="bi bi-file-text"></i> Arquivo CNAB Gerado</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="json-viewer">{{ generatedCnab }}</div>
+                        <button class="btn btn-success mt-2" @click="downloadCnab">
+                            <i class="bi bi-download"></i> Download Arquivo
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Converter Tab -->
+            <div v-if="activeTab === 'converter'">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-arrow-repeat"></i> Conversor CNAB</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Conversão para JSON</h6>
+                                <div v-if="cnabData.records.length > 0" class="json-viewer">
+                                    {{ JSON.stringify(cnabData, null, 2) }}
+                                </div>
+                                <div v-else class="text-muted">
+                                    Carregue um arquivo CNAB primeiro
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Conversão para Java POJO</h6>
+                                <div class="json-viewer">{{ javaCode }}</div>
+                                <button class="btn btn-primary btn-sm mt-2" @click="generateJavaCode" v-if="cnabData.records.length > 0">
+                                    <i class="bi bi-code"></i> Gerar Código Java
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    activeTab: 'upload',
+                    selectedLayout: 'CNAB240',
+                    isDragOver: false,
+                    showFields: true,
+                    isValidCnab: false,
+                    fileInfo: {
+                        name: '',
+                        size: 0,
+                        lines: 0
+                    },
+                    cnabData: {
+                        header: {},
+                        records: [],
+                        trailer: {}
+                    },
+                    generatorData: {
+                        bankCode: '001',
+                        companyName: '',
+                        cnpj: '',
+                        date: new Date().toISOString().split('T')[0],
+                        payments: []
+                    },
+                    generatedCnab: '',
+                    javaCode: '',
+                    cnab240Layout: {
+                        header: [
+                            { name: 'BANCO', start: 1, end: 3, type: 'N' },
+                            { name: 'LOTE', start: 4, end: 7, type: 'N' },
+                            { name: 'TIPO_REGISTRO', start: 8, end: 8, type: 'N' },
+                            { name: 'FILLER', start: 9, end: 17, type: 'A' },
+                            { name: 'TIPO_INSCRICAO', start: 18, end: 18, type: 'N' },
+                            { name: 'NUMERO_INSCRICAO', start: 19, end: 32, type: 'N' },
+                            { name: 'CODIGO_CONVENIO', start: 33, end: 52, type: 'A' },
+                            { name: 'AGENCIA_CONTA', start: 53, end: 57, type: 'N' },
+                            { name: 'DV_AGENCIA', start: 58, end: 58, type: 'A' },
+                            { name: 'NUMERO_CONTA', start: 59, end: 70, type: 'N' },
+                            { name: 'DV_CONTA', start: 71, end: 71, type: 'A' },
+                            { name: 'DV_AGENCIA_CONTA', start: 72, end: 72, type: 'A' },
+                            { name: 'NOME_EMPRESA', start: 73, end: 102, type: 'A' },
+                            { name: 'NOME_BANCO', start: 103, end: 132, type: 'A' },
+                            { name: 'FILLER2', start: 133, end: 142, type: 'A' },
+                            { name: 'CODIGO_ARQUIVO', start: 143, end: 143, type: 'N' },
+                            { name: 'DATA_GERACAO', start: 144, end: 151, type: 'N' },
+                            { name: 'HORA_GERACAO', start: 152, end: 157, type: 'N' },
+                            { name: 'NSA', start: 158, end: 163, type: 'N' },
+                            { name: 'VERSAO_LAYOUT', start: 164, end: 166, type: 'N' },
+                            { name: 'DENSIDADE', start: 167, end: 171, type: 'N' },
+                            { name: 'RESERVADO_BANCO', start: 172, end: 191, type: 'A' },
+                            { name: 'RESERVADO_EMPRESA', start: 192, end: 211, type: 'A' },
+                            { name: 'FILLER3', start: 212, end: 240, type: 'A' }
+                        ]
+                    }
+                }
+            },
+            methods: {
+                handleFileDrop(event) {
+                    this.isDragOver = false;
+                    const files = event.dataTransfer.files;
+                    if (files.length > 0) {
+                        this.processFile(files[0]);
+                    }
+                },
+                
+                handleFileUpload(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        this.processFile(file);
+                    }
+                },
+                
+                processFile(file) {
+                    this.fileInfo = {
+                        name: file.name,
+                        size: file.size,
+                        lines: 0
+                    };
+                    
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const content = e.target.result;
+                        this.parseCnabFile(content);
+                    };
+                    reader.readAsText(file);
+                },
+                
+                parseCnabFile(content) {
+                    const lines = content.split('\n').filter(line => line.trim());
+                    this.fileInfo.lines = lines.length;
+                    
+                    this.cnabData.records = [];
+                    
+                    lines.forEach((line, index) => {
+                        if (line.length >= 240 || line.length >= 400) {
+                            const record = this.parseRecord(line, index);
+                            this.cnabData.records.push(record);
+                        }
+                    });
+                    
+                    this.isValidCnab = this.validateCnabStructure();
+                },
+                
+                parseRecord(line, index) {
+                    const record = {
+                        rawLine: line,
+                        fields: [],
+                        type: this.getRecordType(line),
+                        lote: null
+                    };
+                    
+                    if (this.selectedLayout === 'CNAB240') {
+                        // Identificar lote se aplicável
+                        if (line.length >= 7) {
+                            const loteField = line.substring(3, 7);
+                            if (loteField !== '0000') {
+                                record.lote = parseInt(loteField);
+                            }
+                        }
+                        
+                        // Parse fields baseado no layout
+                        const layout = this.cnab240Layout.header; // Simplificado
+                        layout.forEach(fieldDef => {
+                            const value = line.substring(fieldDef.start - 1, fieldDef.end);
+                            record.fields.push({
+                                name: fieldDef.name,
+                                value: value,
+                                start: fieldDef.start,
+                                end: fieldDef.end,
+                                type: fieldDef.type
+                            });
+                        });
+                    }
+                    
+                    return record;
+                },
+                
+                getRecordType(line) {
+                    if (line.length < 8) return 'UNKNOWN';
+                    
+                    const tipoRegistro = line.substring(7, 8);
+                    const lote = line.substring(3, 7);
+                    
+                    if (lote === '0000' && tipoRegistro === '0') return 'HEADER';
+                    if (lote === '9999' && tipoRegistro === '9') return 'TRAILER';
+                    if (tipoRegistro === '1') return 'LOTE';
+                    if (tipoRegistro === '3') return 'SEGMENTO';
+                    
+                    return 'SEGMENTO';
+                },
+                
+                validateCnabStructure() {
+                    if (this.cnabData.records.length === 0) return false;
+                    
+                    const hasHeader = this.cnabData.records.some(r => r.type === 'HEADER');
+                    const hasTrailer = this.cnabData.records.some(r => r.type === 'TRAILER');
+                    
+                    return hasHeader && hasTrailer;
+                },
+                
+                toggleFieldView() {
+                    this.showFields = !this.showFields;
+                },
+                
+                exportToJson() {
+                    const json = JSON.stringify(this.cnabData, null, 2);
+                    this.downloadFile('cnab-export.json', json, 'application/json');
+                },
+                
+                addPayment() {
+                    this.generatorData.payments.push({
+                        favoredName: '',
+                        amount: 0,
+                        bank: '',
+                        agency: '',
+                        account: ''
+                    });
+                },
+                
+                removePayment(index) {
+                    this.generatorData.payments.splice(index, 1);
+                },
+                
+                generateCnab() {
+                    let cnab = '';
+                    const date = this.generatorData.date.replace(/-/g, '');
+                    const time = new Date().toTimeString().substring(0, 8).replace(/:/g, '');
+                    
+                    // Header
+                    cnab += this.padRight(this.generatorData.bankCode, 3, '0');
+                    cnab += '0000'; // Lote
+                    cnab += '0'; // Tipo registro
+                    cnab += ' '.repeat(9); // Filler
+                    cnab += '2'; // Tipo inscrição (CNPJ)
+                    cnab += this.padLeft(this.generatorData.cnpj, 14, '0');
+                    cnab += this.padRight('', 20, ' '); // Código convênio
+                    cnab += '00000'; // Agência
+                    cnab += ' '; // DV Agência
+                    cnab += '000000000000'; // Conta
+                    cnab += ' '; // DV Conta
+                    cnab += ' '; // DV Agência/Conta
+                    cnab += this.padRight(this.generatorData.companyName, 30, ' ');
+                    cnab += this.padRight('BANCO SIMULADO', 30, ' ');
+                    cnab += ' '.repeat(10); // Filler
+                    cnab += '1'; // Código arquivo
+                    cnab += date; // Data
+                    cnab += time.substring(0, 6); // Hora
+                    cnab += '000001'; // NSA
+                    cnab += '085'; // Versão
+                    cnab += '00000'; // Densidade
+                    cnab += ' '.repeat(69); // Filler final
+                    cnab += '\n';
+                    
+                    // Lotes e Segmentos (simplificado)
+                    this.generatorData.payments.forEach((payment, index) => {
+                        const lote = String(index + 1).padStart(4, '0');
+                        
+                        // Header do lote
+                        let line = this.generatorData.bankCode.padStart(3, '0');
+                        line += lote;
+                        line += '1'; // Tipo registro
+                        line += 'C'; // Tipo operação
+                        line += '20'; // Tipo serviço
+                        line += '01'; // Forma lançamento
+                        line += '045'; // Layout lote
+                        line += ' '; // Filler
+                        line += '2'; // Tipo inscrição
+                        line += this.generatorData.cnpj.padStart(14, '0');
+                        line += this.padRight(this.generatorData.companyName, 30, ' ');
+                        line += ' '.repeat(40); // Informações complementares
+                        line += this.padRight('RUA EXEMPLO 123', 30, ' '); // Endereço
+                        line += '00000'; // Número
+                        line += this.padRight('APTO 1', 15, ' '); // Complemento
+                        line += this.padRight('SAO PAULO', 20, ' '); // Cidade
+                        line += '01000000'; // CEP
+                        line += 'SP'; // Estado
+                        line += ' '.repeat(8); // Filler
+                        line += ' '.repeat(10); // Ocorrências
+                        line = line.substring(0, 240);
+                        cnab += line + '\n';
+                        
+                        // Segmento A (Pagamento)
+                        let segA = this.generatorData.bankCode.padStart(3, '0');
+                        segA += lote;
+                        segA += '3'; // Tipo registro
+                        segA += String(index + 1).padStart(5, '0'); // NSR
+                        segA += 'A'; // Segmento
+                        segA += '000'; // Tipo movimento
+                        segA += '00'; // Código instrução
+                        segA += payment.bank.padStart(3, '0'); // Banco favorecido
+                        segA += payment.agency.padStart(5, '0'); // Agência
+                        segA += ' '; // DV Agência
+                        segA += payment.account.padStart(12, '0'); // Conta
+                        segA += ' '; // DV Conta
+                        segA += ' '; // DV Agência/Conta
+                        segA += this.padRight(payment.favoredName, 30, ' '); // Nome favorecido
+                        segA += '        '; // Número documento
+                        segA += date; // Data pagamento
+                        segA += 'REA'; // Tipo moeda
+                        segA += '00000000000000000'; // Quantidade moeda
+                        segA += String(Math.round(payment.amount * 100)).padStart(15, '0'); // Valor pagamento
+                        segA += '               '; // Número documento
+                        segA += date; // Data real pagamento
+                        segA += String(Math.round(payment.amount * 100)).padStart(15, '0'); // Valor real
+                        segA += this.padRight('', 18, ' '); // Outras informações
+                        segA += '01'; // Tipo serviço
+                        segA += ' '.repeat(31); // Finalidade TED
+                        segA += ' '.repeat(5); // Filler
+                        segA += '00000'; // Aviso favorecido
+                        segA += ' '.repeat(10); // Ocorrências
+                        segA = segA.substring(0, 240);
+                        cnab += segA + '\n';
+                    });
+                    
+                    // Trailer
+                    let trailer = this.generatorData.bankCode.padStart(3, '0');
+                    trailer += '9999'; // Lote
+                    trailer += '9'; // Tipo registro
+                    trailer += ' '.repeat(9); // Filler
+                    trailer += String(this.generatorData.payments.length + 2).padStart(6, '0'); // Qtd registros
+                    trailer += String(this.generatorData.payments.length * 2).padStart(6, '0'); // Qtd lotes
+                    trailer += ' '.repeat(211); // Filler
+                    trailer = trailer.substring(0, 240);
+                    cnab += trailer;
+                    
+                    this.generatedCnab = cnab;
+                },
+                
+                downloadCnab() {
+                    this.downloadFile('remessa.rem', this.generatedCnab, 'text/plain');
+                },
+                
+                generateJavaCode() {
+                    let java = `public class CnabRecord {
+    
+    // Campos do Header
+    private String banco;
+    private String lote;
+    private String tipoRegistro;
+    private String nomeEmpresa;
+    private String cnpj;
+    private String dataGeracao;
+    
+    // Lista de pagamentos
+    private List<Pagamento> pagamentos;
+    
+    // Getters e Setters
+    public String getBanco() { return banco; }
+    public void setBanco(String banco) { this.banco = banco; }
+    
+    public String getLote() { return lote; }
+    public void setLote(String lote) { this.lote = lote; }
+    
+    public String getTipoRegistro() { return tipoRegistro; }
+    public void setTipoRegistro(String tipoRegistro) { this.tipoRegistro = tipoRegistro; }
+    
+    public String getNomeEmpresa() { return nomeEmpresa; }
+    public void setNomeEmpresa(String nomeEmpresa) { this.nomeEmpresa = nomeEmpresa; }
+    
+    public String getCnpj() { return cnpj; }
+    public void setCnpj(String cnpj) { this.cnpj = cnpj; }
+    
+    public String getDataGeracao() { return dataGeracao; }
+    public void setDataGeracao(String dataGeracao) { this.dataGeracao = dataGeracao; }
+    
+    public List<Pagamento> getPagamentos() { return pagamentos; }
+    public void setPagamentos(List<Pagamento> pagamentos) { this.pagamentos = pagamentos; }
+}
+
+public class Pagamento {
+    private String nomeFavorecido;
+    private String bancoFavorecido;
+    private String agencia;
+    private String conta;
+    private BigDecimal valor;
+    private String dataPagamento;
+    
+    // Getters e Setters
+    public String getNomeFavorecido() { return nomeFavorecido; }
+    public void setNomeFavorecido(String nomeFavorecido) { this.nomeFavorecido = nomeFavorecido; }
+    
+    public String getBancoFavorecido() { return bancoFavorecido; }
+    public void setBancoFavorecido(String bancoFavorecido) { this.bancoFavorecido = bancoFavorecido; }
+    
+    public String getAgencia() { return agencia; }
+    public void setAgencia(String agencia) { this.agencia = agencia; }
+    
+    public String getConta() { return conta; }
+    public void setConta(String conta) { this.conta = conta; }
+    
+    public BigDecimal getValor() { return valor; }
+    public void setValor(BigDecimal valor) { this.valor = valor; }
+    
+    public String getDataPagamento() { return dataPagamento; }
+    public void setDataPagamento(String dataPagamento) { this.dataPagamento = dataPagamento; }
+}
+
+// Classe utilitária para parsing
+public class CnabParser {
+    
+    public static CnabRecord parseCnab240(String conteudoArquivo) {
+        CnabRecord record = new CnabRecord();
+        String[] linhas = conteudoArquivo.split("\\n");
+        List<Pagamento> pagamentos = new ArrayList<>();
+        
+        for (String linha : linhas) {
+            if (linha.length() >= 240) {
+                String tipoRegistro = linha.substring(7, 8);
+                String lote = linha.substring(3, 7);
+                
+                if ("0".equals(tipoRegistro) && "0000".equals(lote)) {
+                    // Header do arquivo
+                    record.setBanco(linha.substring(0, 3));
+                    record.setNomeEmpresa(linha.substring(72, 102).trim());
+                    record.setCnpj(linha.substring(18, 32));
+                    record.setDataGeracao(linha.substring(143, 151));
+                }
+                else if ("3".equals(tipoRegistro) && linha.substring(13, 14).equals("A")) {
+                    // Segmento A - Pagamento
+                    Pagamento pag = new Pagamento();
+                    pag.setNomeFavorecido(linha.substring(43, 73).trim());
+                    pag.setBancoFavorecido(linha.substring(20, 23));
+                    pag.setAgencia(linha.substring(23, 28));
+                    pag.setConta(linha.substring(29, 41));
+                    
+                    String valorStr = linha.substring(119, 134);
+                    BigDecimal valor = new BigDecimal(valorStr).divide(new BigDecimal(100));
+                    pag.setValor(valor);
+                    
+                    pag.setDataPagamento(linha.substring(82, 90));
+                    pagamentos.add(pag);
+                }
+            }
+        }
+        
+        record.setPagamentos(pagamentos);
+        return record;
+    }
+}`;
+                    
+                    this.javaCode = java;
+                },
+                
+                padLeft(str, length, char) {
+                    return String(str).padStart(length, char);
+                },
+                
+                padRight(str, length, char) {
+                    return String(str).padEnd(length, char);
+                },
+                
+                downloadFile(filename, content, type) {
+                    const blob = new Blob([content], { type: type });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                },
+                
+                formatFileSize(bytes) {
+                    if (bytes === 0) return '0 Bytes';
+                    const k = 1024;
+                    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                    const i = Math.floor(Math.log(bytes) / Math.log(k));
+                    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+                },
+                
+                getLoteCount() {
+                    const lotes = new Set();
+                    this.cnabData.records.forEach(record => {
+                        if (record.lote) {
+                            lotes.add(record.lote);
+                        }
+                    });
+                    return lotes.size;
+                },
+                
+                getTotalAmount() {
+                    let total = 0;
+                    this.cnabData.records.forEach(record => {
+                        if (record.fields) {
+                            record.fields.forEach(field => {
+                                if (field.name && field.name.includes('VALOR') && field.type === 'N') {
+                                    const value = parseFloat(field.value) / 100;
+                                    if (!isNaN(value)) {
+                                        total += value;
+                                    }
+                                }
+                            });
+                        }
+                    });
+                    return total.toFixed(2);
+                },
+                
+                getBankCode() {
+                    if (this.cnabData.records.length > 0 && this.cnabData.records[0].fields) {
+                        const bancoField = this.cnabData.records[0].fields.find(f => f.name === 'BANCO');
+                        return bancoField ? bancoField.value : 'N/A';
+                    }
+                    return 'N/A';
+                }
+            },
+            
+            mounted() {
+                // Adicionar exemplo inicial
+                this.addPayment();
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
