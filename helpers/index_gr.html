@@ -1,0 +1,112 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo de Helpers</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+    .header {
+      background-color: #343a40;
+      color: white;
+      padding: 2rem;
+      text-align: center;
+    }
+    .card {
+      transition: transform 0.2s;
+    }
+    .card:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Catálogo de Helpers</h1>
+    <p>Explore as ferramentas disponíveis</p>
+  </div>
+  <div id="app" class="container my-5">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+      <div v-for="helper in helpers" :key="helper.name" class="col">
+        <div class="card h-100">
+          <div class="card-body">
+            <h5 class="card-title">{{ helper.name }}</h5>
+            <p class="card-text">{{ helper.description }}</p>
+            <a :href="helper.link" class="btn btn-primary">Acessar</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap 5 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  <!-- Vue 3 -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@3.4.38/dist/vue.global.prod.js"></script>
+  <script>
+    const { createApp } = Vue;
+
+    createApp({
+      data() {
+        return {
+          helpers: [
+            { name: 'Base64 Encoder/Decoder', description: 'Codifique e decodifique textos em Base64.', link: 'base64.html' },
+            { name: 'Calculadora', description: 'Realize cálculos matemáticos simples.', link: 'calc.html' },
+            { name: 'Consulta CEP', description: 'Consulte informações de endereços por CEP.', link: 'cep.html' },
+            { name: 'CNPJ', description: 'Valide e gere números de CNPJ.', link: 'cnpj.html' },
+            { name: 'CPF', description: 'Valide e gere números de CPF.', link: 'cpf.html' },
+            { name: 'Cronômetro', description: 'Cronometre o tempo com precisão.', link: 'cronometro.html' },
+            { name: 'QR Code', description: 'Gere códigos QR para links ou textos.', link: 'qrcode.html' },
+            { name: 'Regex', description: 'Teste expressões regulares.', link: 'regex.html' },
+            { name: 'Título Eleitoral', description: 'Valide números de título de eleitor.', link: 'titulo.html' },
+            { name: 'UUID', description: 'Gere identificadores únicos (UUID).', link: 'uuid.html' }
+          ]
+        };
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>
