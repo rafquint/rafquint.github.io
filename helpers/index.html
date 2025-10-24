@@ -1,283 +1,514 @@
-<!doctype html>
-<html lang="pt-br">
+<!DOCTYPE html>
+<html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Helpers — Catálogo</title>
-
-  <!-- Bootstrap 5 -->
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-    crossorigin="anonymous"
-  />
-  <!-- Bootstrap Icons (opcional) -->
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
-    rel="stylesheet"
-  />
-  <!-- Vue 3 (global build) -->
-  <script src="https://unpkg.com/vue@3.5.12/dist/vue.global.prod.js" defer></script>
-
-  <style>
-    body { background:#0b1220; }
-    .brand-grad {
-      background: radial-gradient(1200px 600px at 10% 0%, #15213a 0%, transparent 60%),
-                  radial-gradient(1200px 600px at 90% 0%, #13223a 0%, transparent 60%),
-                  radial-gradient(1400px 800px at 50% 120%, #0f1a2d 0%, transparent 60%);
-    }
-    .card { border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.02); }
-    .card:hover { transform: translateY(-2px); transition: transform .2s ease; }
-    .text-muted-2 { color: rgba(255,255,255,.6)!important; }
-    .text-hero { color:#dbe7ff; }
-    .chip { background: rgba(255,255,255,.08); color:#dbe7ff; border-radius:999px; padding:.15rem .6rem; font-size:.8rem; }
-    .form-control, .form-select { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.15); color:#eaf0ff; }
-    .form-control::placeholder { color: rgba(255,255,255,.5); }
-    .link-light-soft { color:#eaf0ff; text-decoration:none; }
-    .link-light-soft:hover { color:#fff; text-decoration:underline; }
-    .footer { color: rgba(255,255,255,.55); }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Catálogo de Helpers - Ferramentas e utilitários úteis">
+    <meta name="author" content="rafquint">
+    <title>Catálogo de Helpers</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3.3.4/dist/vue.global.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --success-color: #198754;
+            --info-color: #0dcaf0;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --dark-color: #212529;
+            --light-color: #f8f9fa;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+        
+        .main-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .header-section {
+            text-align: center;
+            padding: 2rem 0;
+            border-bottom: 3px solid var(--primary-color);
+            margin-bottom: 2rem;
+        }
+        
+        .header-section h1 {
+            color: var(--dark-color);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header-section p {
+            color: var(--secondary-color);
+            font-size: 1.1rem;
+        }
+        
+        .search-section {
+            margin-bottom: 2rem;
+        }
+        
+        .search-box {
+            border-radius: 25px;
+            border: 2px solid var(--primary-color);
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .search-box:focus {
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+            border-color: var(--primary-color);
+        }
+        
+        .category-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            margin: 0.25rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .category-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .category-badge.active {
+            border-color: var(--dark-color);
+            font-weight: bold;
+        }
+        
+        .helper-card {
+            border: none;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            height: 100%;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .helper-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .helper-card .card-header {
+            background: linear-gradient(135deg, var(--primary-color), #0a58ca);
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+            padding: 1rem;
+            font-weight: 600;
+        }
+        
+        .helper-card .card-body {
+            padding: 1.5rem;
+        }
+        
+        .helper-link {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.5rem 1.5rem;
+            background-color: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+        
+        .helper-link:hover {
+            background-color: #0a58ca;
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        .badge-category {
+            font-size: 0.75rem;
+            padding: 0.35rem 0.65rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stats-section {
+            background: var(--light-color);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .stat-item {
+            display: inline-block;
+            margin: 0 1.5rem;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .stat-label {
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+        }
+        
+        .footer-section {
+            text-align: center;
+            padding: 2rem 0;
+            color: white;
+            margin-top: 2rem;
+        }
+        
+        .fade-enter-active, .fade-leave-active {
+            transition: opacity 0.3s ease;
+        }
+        
+        .fade-enter-from, .fade-leave-to {
+            opacity: 0;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: var(--secondary-color);
+        }
+        
+        .no-results i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+    </style>
 </head>
-<body class="brand-grad text-light">
-<div id="app">
-  <!-- Header -->
-  <header class="container py-4">
-    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-      <div>
-        <h1 class="h3 text-hero mb-1">
-          <i class="bi bi-card-checklist me-2"></i> Catálogo de Helpers
-        </h1>
-        <div class="text-muted-2">Páginas estáticas no diretório <code>/helpers</code>.</div>
-      </div>
-      <div class="d-flex align-items-center gap-2">
-        <a class="btn btn-sm btn-outline-light" target="_blank"
-           href="https://github.com/rafquint/rafquint.github.io/tree/main/helpers">
-          <i class="bi bi-github me-1"></i> Ver no GitHub
-        </a>
-        <a class="btn btn-sm btn-primary" href="../">
-          <i class="bi bi-house-door me-1"></i> Ir para raiz
-        </a>
-      </div>
-    </div>
-  </header>
-
-  <!-- Filtros -->
-  <section class="container pb-3">
-    <div class="row g-3">
-      <div class="col-12 col-md-6">
-        <label class="form-label mb-1">Buscar</label>
-        <input type="search" class="form-control" v-model.trim="q" placeholder="Digite parte do nome… (ex.: hex, imagem)" />
-      </div>
-      <div class="col-6 col-md-3">
-        <label class="form-label mb-1">Ordenar por</label>
-        <select class="form-select" v-model="sortBy">
-          <option value="name">Nome (A→Z)</option>
-          <option value="nameDesc">Nome (Z→A)</option>
-        </select>
-      </div>
-      <div class="col-6 col-md-3">
-        <label class="form-label mb-1">Exibir</label>
-        <select class="form-select" v-model.number="pageSize">
-          <option :value="12">12 por página</option>
-          <option :value="24">24 por página</option>
-          <option :value="48">48 por página</option>
-          <option :value="9999">Tudo</option>
-        </select>
-      </div>
-    </div>
-  </section>
-
-  <!-- Lista -->
-  <main class="container pb-5">
-    <div class="d-flex justify-content-between align-items-center mb-2">
-      <div class="text-muted-2">
-        <strong>{{ filtered.length }}</strong> item(ns) listado(s)
-      </div>
-      <div class="d-none d-md-block">
-        <span class="chip me-1" v-for="tag in topTags" :key="tag" @click="toggleTag(tag)" role="button">
-          <i class="bi bi-tag me-1"></i>{{ tag }}
-        </span>
-      </div>
-    </div>
-
-    <div class="row g-3">
-      <div class="col-12 col-sm-6 col-lg-4 col-xxl-3" v-for="file in paginated" :key="file.path">
-        <div class="card h-100">
-          <div class="card-body d-flex flex-column">
-            <div class="d-flex align-items-start justify-content-between">
-              <h2 class="h6 mb-2">
-                <a class="link-light-soft" :href="file.href" :title="file.name">
-                  <i class="bi bi-filetype-html me-1"></i>{{ displayName(file.name) }}
-                </a>
-              </h2>
-              <span class="badge bg-secondary">HTML</span>
+<body>
+    <div id="app">
+        <div class="container">
+            <!-- Header -->
+            <div class="main-container">
+                <div class="header-section">
+                    <h1><i class="bi bi-tools"></i> Catálogo de Helpers</h1>
+                    <p>Ferramentas e utilitários para facilitar seu desenvolvimento</p>
+                </div>
+                
+                <!-- Stats -->
+                <div class="stats-section">
+                    <div class="stat-item">
+                        <div class="stat-number">{{ helpers.length }}</div>
+                        <div class="stat-label">Total de Helpers</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">{{ categories.length }}</div>
+                        <div class="stat-label">Categorias</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">{{ filteredHelpers.length }}</div>
+                        <div class="stat-label">Exibidos</div>
+                    </div>
+                </div>
+                
+                <!-- Search -->
+                <div class="search-section">
+                    <div class="input-group">
+                        <span class="input-group-text bg-primary text-white border-0">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input 
+                            type="text" 
+                            class="form-control search-box border-start-0" 
+                            v-model="searchQuery"
+                            placeholder="Pesquisar helpers..."
+                            @input="filterHelpers">
+                    </div>
+                </div>
+                
+                <!-- Category Filter -->
+                <div class="text-center mb-4">
+                    <span 
+                        class="category-badge bg-secondary text-white"
+                        :class="{ active: selectedCategory === 'all' }"
+                        @click="filterByCategory('all')">
+                        Todas
+                    </span>
+                    <span 
+                        v-for="category in categories" 
+                        :key="category"
+                        class="category-badge text-white"
+                        :class="[getCategoryColor(category), { active: selectedCategory === category }]"
+                        @click="filterByCategory(category)">
+                        {{ category }}
+                    </span>
+                </div>
+                
+                <!-- Helpers Grid -->
+                <transition-group name="fade" tag="div" class="row g-4">
+                    <div 
+                        v-for="helper in filteredHelpers" 
+                        :key="helper.id"
+                        class="col-md-6 col-lg-4">
+                        <div class="card helper-card">
+                            <div class="card-header">
+                                <i :class="helper.icon"></i> {{ helper.title }}
+                            </div>
+                            <div class="card-body">
+                                <span 
+                                    class="badge badge-category"
+                                    :class="getCategoryColor(helper.category)">
+                                    {{ helper.category }}
+                                </span>
+                                <p class="card-text mt-2">{{ helper.description }}</p>
+                                <div class="d-flex flex-wrap gap-1">
+                                    <span 
+                                        v-for="tag in helper.tags" 
+                                        :key="tag"
+                                        class="badge bg-light text-dark">
+                                        {{ tag }}
+                                    </span>
+                                </div>
+                                <a :href="helper.url" class="helper-link" target="_blank">
+                                    Acessar <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </transition-group>
+                
+                <!-- No Results -->
+                <div v-if="filteredHelpers.length === 0" class="no-results">
+                    <i class="bi bi-search"></i>
+                    <h3>Nenhum helper encontrado</h3>
+                    <p>Tente ajustar sua pesquisa ou filtros</p>
+                </div>
             </div>
-            <p class="text-muted-2 small mb-3">{{ file.desc || describe(file.name) }}</p>
-            <div class="mt-auto d-flex align-items-center gap-2">
-              <a class="btn btn-sm btn-outline-light" :href="file.href">
-                <i class="bi bi-box-arrow-up-right me-1"></i>Abrir
-              </a>
-              <a class="btn btn-sm btn-outline-light" target="_blank" :href="toGitHub(file.path)">
-                <i class="bi bi-github me-1"></i>GitHub
-              </a>
+            
+            <!-- Footer -->
+            <div class="footer-section">
+                <p>&copy; {{ currentYear }} rafquint - Todos os direitos reservados</p>
+                <p>
+                    <a href="https://github.com/rafquint" class="text-white text-decoration-none" target="_blank">
+                        <i class="bi bi-github"></i> GitHub
+                    </a>
+                </p>
             </div>
-          </div>
         </div>
-      </div>
-
-      <!-- vazio -->
-      <div v-if="filtered.length === 0" class="col-12">
-        <div class="text-center py-5 text-muted-2">
-          <i class="bi bi-emoji-frown display-5 d-block mb-3"></i>
-          Nenhum helper encontrado para a busca/filtros atuais.
-        </div>
-      </div>
     </div>
 
-    <!-- Paginação -->
-    <div class="d-flex justify-content-center gap-2 mt-4" v-if="pages > 1">
-      <button class="btn btn-outline-light btn-sm" :disabled="page===1" @click="page--">
-        <i class="bi bi-chevron-left"></i>
-      </button>
-      <span class="chip">Página {{ page }} / {{ pages }}</span>
-      <button class="btn btn-outline-light btn-sm" :disabled="page===pages" @click="page++">
-        <i class="bi bi-chevron-right"></i>
-      </button>
-    </div>
-  </main>
-
-  <!-- Rodapé -->
-  <footer class="container pb-4 footer small">
-    <div class="d-flex flex-wrap justify-content-between">
-      <div>© {{ new Date().getFullYear() }} — Helpers</div>
-      <div>Catálogo estático (sem chamadas à API).</div>
-    </div>
-  </footer>
-</div>
-
-<!-- Bootstrap JS -->
-<script
-  src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-  integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-  crossorigin="anonymous"
-  defer></script>
-
-<script>
-window.addEventListener('DOMContentLoaded', () => {
-  const { createApp, computed, ref } = Vue;
-
-  createApp({
-    setup() {
-      const owner  = 'rafquint';
-      const repo   = 'rafquint.github.io';
-      const branch = 'main';
-      const basePath = 'helpers'; // este index.html está em /helpers
-
-      // 🔒 LISTA ESTÁTICA — edite aqui para adicionar/remover helpers
-      const helpers = ref([
-        {
-          name: 'conversor_imagem_para_hex.html',
-          path: `${basePath}/conversor_imagem_para_hex.html`,
-          href: './conversor_imagem_para_hex.html',
-          desc: 'Converte imagens para representação hexadecimal (hex).'
-        },
-        {
-          name: 'visualizador_imagem_hex.html',
-          path: `${basePath}/visualizador_imagem_hex.html`,
-          href: './visualizador_imagem_hex.html',
-          desc: 'Renderiza/visualiza imagem a partir de conteúdo hexadecimal.'
-        }
-        // { name: 'meu_novo_helper.html', path: 'helpers/meu_novo_helper.html', href: './meu_novo_helper.html', desc: 'Descrição opcional.' }
-      ]);
-
-      const q = ref('');
-      const sortBy = ref('name');
-      const pageSize = ref(24);
-      const page = ref(1);
-      const selectedTags = ref(new Set());
-
-      // "tags" derivadas do nome do arquivo
-      function extractTags(name) {
-        return name
-          .replace(/\.html?$/i, '')
-          .split(/[-_.\s]+/)
-          .filter(w => w.length >= 3)
-          .map(w => w.toLowerCase());
-      }
-
-      const allTags = computed(() => {
-        const set = new Set();
-        helpers.value.forEach(f => extractTags(f.name).forEach(t => set.add(t)));
-        return Array.from(set).sort();
-      });
-      const topTags = computed(() => allTags.value.slice(0, 10));
-      function toggleTag(tag) {
-        if (selectedTags.value.has(tag)) selectedTags.value.delete(tag);
-        else selectedTags.value.add(tag);
-        page.value = 1;
-      }
-
-      const filtered = computed(() => {
-        let arr = helpers.value.slice();
-
-        // busca
-        const term = q.value.trim().toLowerCase();
-        if (term) {
-          arr = arr.filter(f =>
-            f.name.toLowerCase().includes(term) ||
-            (f.desc || '').toLowerCase().includes(term)
-          );
-        }
-
-        // filtro por tags
-        if (selectedTags.value.size > 0) {
-          arr = arr.filter(f => {
-            const tags = new Set(extractTags(f.name));
-            for (const t of selectedTags.value) if (!tags.has(t)) return false;
-            return true;
-          });
-        }
-
-        // ordenação
-        switch (sortBy.value) {
-          case 'nameDesc': arr.sort((a,b)=>a.name.localeCompare(b.name)*-1); break;
-          default: arr.sort((a,b)=>a.name.localeCompare(b.name));
-        }
-
-        return arr;
-      });
-
-      const pages = computed(() => Math.max(1, Math.ceil(filtered.value.length / pageSize.value)));
-      const paginated = computed(() => {
-        const start = (page.value - 1) * pageSize.value;
-        return filtered.value.slice(start, start + pageSize.value);
-      });
-
-      function displayName(name) {
-        return name
-          .replace(/\.html?$/i, '')
-          .replace(/[-_.]+/g, ' ')
-          .replace(/\b\w/g, c => c.toUpperCase());
-      }
-
-      function describe(name) {
-        const base = displayName(name);
-        return `Página auxiliar: ${base}`;
-      }
-
-      function toGitHub(filePath) {
-        return `https://github.com/${owner}/${repo}/blob/${branch}/${filePath}`;
-      }
-
-      return {
-        q, sortBy, pageSize, page, pages,
-        filtered, paginated, topTags, toggleTag,
-        displayName, describe, toGitHub
-      };
-    }
-  }).mount('#app');
-});
-</script>
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    
+    <!-- Vue 3 App -->
+    <script>
+        const { createApp } = Vue;
+        
+        createApp({
+            data() {
+                return {
+                    searchQuery: '',
+                    selectedCategory: 'all',
+                    currentYear: new Date().getFullYear(),
+                    helpers: [
+                        {
+                            id: 1,
+                            title: 'String Helper',
+                            description: 'Utilitários para manipulação de strings, formatação e validação de texto.',
+                            category: 'Utilidades',
+                            icon: 'bi bi-type',
+                            url: 'string-helper.html',
+                            tags: ['string', 'text', 'format']
+                        },
+                        {
+                            id: 2,
+                            title: 'Date Helper',
+                            description: 'Funções para trabalhar com datas, formatação e cálculos temporais.',
+                            category: 'Utilidades',
+                            icon: 'bi bi-calendar-event',
+                            url: 'date-helper.html',
+                            tags: ['date', 'time', 'calendar']
+                        },
+                        {
+                            id: 3,
+                            title: 'Array Helper',
+                            description: 'Métodos auxiliares para manipulação e transformação de arrays.',
+                            category: 'Utilidades',
+                            icon: 'bi bi-list-ul',
+                            url: 'array-helper.html',
+                            tags: ['array', 'list', 'collection']
+                        },
+                        {
+                            id: 4,
+                            title: 'Validation Helper',
+                            description: 'Validadores para email, CPF, CNPJ, telefone e outros formatos.',
+                            category: 'Validação',
+                            icon: 'bi bi-check-circle',
+                            url: 'validation-helper.html',
+                            tags: ['validation', 'cpf', 'email']
+                        },
+                        {
+                            id: 5,
+                            title: 'API Helper',
+                            description: 'Facilitadores para requisições HTTP, tratamento de respostas e errors.',
+                            category: 'API',
+                            icon: 'bi bi-cloud-arrow-up',
+                            url: 'api-helper.html',
+                            tags: ['api', 'http', 'fetch']
+                        },
+                        {
+                            id: 6,
+                            title: 'DOM Helper',
+                            description: 'Utilitários para manipulação do DOM e eventos do navegador.',
+                            category: 'Frontend',
+                            icon: 'bi bi-code-square',
+                            url: 'dom-helper.html',
+                            tags: ['dom', 'javascript', 'events']
+                        },
+                        {
+                            id: 7,
+                            title: 'Storage Helper',
+                            description: 'Gerenciamento simplificado de localStorage e sessionStorage.',
+                            category: 'Frontend',
+                            icon: 'bi bi-database',
+                            url: 'storage-helper.html',
+                            tags: ['storage', 'cache', 'local']
+                        },
+                        {
+                            id: 8,
+                            title: 'Form Helper',
+                            description: 'Utilitários para trabalhar com formulários, serialização e validação.',
+                            category: 'Frontend',
+                            icon: 'bi bi-input-cursor-text',
+                            url: 'form-helper.html',
+                            tags: ['form', 'input', 'validation']
+                        },
+                        {
+                            id: 9,
+                            title: 'Number Helper',
+                            description: 'Formatação de números, moeda, porcentagens e cálculos matemáticos.',
+                            category: 'Utilidades',
+                            icon: 'bi bi-calculator',
+                            url: 'number-helper.html',
+                            tags: ['number', 'math', 'currency']
+                        },
+                        {
+                            id: 10,
+                            title: 'File Helper',
+                            description: 'Manipulação de arquivos, upload, download e conversão de formatos.',
+                            category: 'Utilidades',
+                            icon: 'bi bi-file-earmark',
+                            url: 'file-helper.html',
+                            tags: ['file', 'upload', 'download']
+                        },
+                        {
+                            id: 11,
+                            title: 'Color Helper',
+                            description: 'Conversão e manipulação de cores entre diferentes formatos.',
+                            category: 'Frontend',
+                            icon: 'bi bi-palette',
+                            url: 'color-helper.html',
+                            tags: ['color', 'hex', 'rgb']
+                        },
+                        {
+                            id: 12,
+                            title: 'URL Helper',
+                            description: 'Parsing e construção de URLs, query strings e parâmetros.',
+                            category: 'Utilidades',
+                            icon: 'bi bi-link-45deg',
+                            url: 'url-helper.html',
+                            tags: ['url', 'params', 'query']
+                        },
+                        {
+                            id: 13,
+                            title: 'Crypto Helper',
+                            description: 'Funções de criptografia, hash e geração de tokens seguros.',
+                            category: 'Segurança',
+                            icon: 'bi bi-shield-lock',
+                            url: 'crypto-helper.html',
+                            tags: ['crypto', 'hash', 'security']
+                        },
+                        {
+                            id: 14,
+                            title: 'Debug Helper',
+                            description: 'Ferramentas para debugging, logging e análise de performance.',
+                            category: 'Desenvolvimento',
+                            icon: 'bi bi-bug',
+                            url: 'debug-helper.html',
+                            tags: ['debug', 'log', 'performance']
+                        },
+                        {
+                            id: 15,
+                            title: 'Animation Helper',
+                            description: 'Facilitadores para criar animações e transições suaves.',
+                            category: 'Frontend',
+                            icon: 'bi bi-lightning',
+                            url: 'animation-helper.html',
+                            tags: ['animation', 'transition', 'effect']
+                        }
+                    ],
+                    filteredHelpers: []
+                }
+            },
+            computed: {
+                categories() {
+                    return [...new Set(this.helpers.map(h => h.category))].sort();
+                }
+            },
+            methods: {
+                filterHelpers() {
+                    let result = this.helpers;
+                    
+                    // Filter by category
+                    if (this.selectedCategory !== 'all') {
+                        result = result.filter(h => h.category === this.selectedCategory);
+                    }
+                    
+                    // Filter by search query
+                    if (this.searchQuery.trim()) {
+                        const query = this.searchQuery.toLowerCase();
+                        result = result.filter(h => 
+                            h.title.toLowerCase().includes(query) ||
+                            h.description.toLowerCase().includes(query) ||
+                            h.category.toLowerCase().includes(query) ||
+                            h.tags.some(tag => tag.toLowerCase().includes(query))
+                        );
+                    }
+                    
+                    this.filteredHelpers = result;
+                },
+                filterByCategory(category) {
+                    this.selectedCategory = category;
+                    this.filterHelpers();
+                },
+                getCategoryColor(category) {
+                    const colors = {
+                        'Utilidades': 'bg-primary',
+                        'Validação': 'bg-success',
+                        'API': 'bg-info',
+                        'Frontend': 'bg-warning',
+                        'Segurança': 'bg-danger',
+                        'Desenvolvimento': 'bg-dark'
+                    };
+                    return colors[category] || 'bg-secondary';
+                }
+            },
+            mounted() {
+                this.filteredHelpers = this.helpers;
+            }
+        }).mount('#app');
+    </script>
 </body>
 </html>
