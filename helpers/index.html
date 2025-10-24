@@ -1,3 +1,352 @@
-<html>
-  
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Helpers — Catálogo</title>
+
+  <!-- Bootstrap 5 -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+    crossorigin="anonymous"
+  />
+
+  <!-- Bootstrap Icons (opcional, para ícones bonitos) -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+    rel="stylesheet"
+  />
+
+  <!-- Vue 3 (build global) -->
+  <script src="https://unpkg.com/vue@3.5.12/dist/vue.global.prod.js" defer></script>
+
+  <style>
+    body { background: #0b1220; }
+    .brand-grad {
+      background: radial-gradient(1200px 600px at 10% 0%, #15213a 0%, transparent 60%),
+                  radial-gradient(1200px 600px at 90% 0%, #13223a 0%, transparent 60%),
+                  radial-gradient(1400px 800px at 50% 120%, #0f1a2d 0%, transparent 60%);
+    }
+    .card { border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.02); }
+    .card:hover { transform: translateY(-2px); transition: transform .2s ease; }
+    .text-muted-2 { color: rgba(255,255,255,.6) !important; }
+    .text-hero { color: #dbe7ff; }
+    .chip { background: rgba(255,255,255,.08); color: #dbe7ff; border-radius: 999px; padding: .15rem .6rem; font-size: .8rem; }
+    .form-control, .form-select {
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.15); color: #eaf0ff;
+    }
+    .form-control::placeholder { color: rgba(255,255,255,.5); }
+    .link-light-soft { color: #eaf0ff; text-decoration: none; }
+    .link-light-soft:hover { color: #fff; text-decoration: underline; }
+    .footer { color: rgba(255,255,255,.55); }
+  </style>
+</head>
+<body class="brand-grad text-light">
+<div id="app">
+  <!-- Header -->
+  <header class="container py-4">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+      <div>
+        <h1 class="h3 text-hero mb-1">
+          <i class="bi bi-card-checklist me-2"></i> Catálogo de Helpers
+        </h1>
+        <div class="text-muted-2">Páginas estáticas no diretório <code>/helpers</code> do repositório.</div>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <a class="btn btn-sm btn-outline-light" target="_blank"
+           href="https://github.com/rafquint/rafquint.github.io/tree/main/helpers">
+          <i class="bi bi-github me-1"></i> Abrir pasta no GitHub
+        </a>
+        <a class="btn btn-sm btn-primary" :href="rootHref">
+          <i class="bi bi-house-door me-1"></i> Ir para raiz do site
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Filtros -->
+  <section class="container pb-3">
+    <div class="row g-3">
+      <div class="col-12 col-md-6">
+        <label class="form-label mb-1">Buscar</label>
+        <input type="search" class="form-control" v-model.trim="q" placeholder="Digite parte do nome… (ex.: jwt, s3, cors)" />
+      </div>
+      <div class="col-6 col-md-3">
+        <label class="form-label mb-1">Ordenar por</label>
+        <select class="form-select" v-model="sortBy">
+          <option value="name">Nome (A→Z)</option>
+          <option value="nameDesc">Nome (Z→A)</option>
+          <option value="size">Tamanho (asc)</option>
+          <option value="sizeDesc">Tamanho (desc)</option>
+        </select>
+      </div>
+      <div class="col-6 col-md-3">
+        <label class="form-label mb-1">Exibir</label>
+        <select class="form-select" v-model.number="pageSize">
+          <option :value="12">12 por página</option>
+          <option :value="24">24 por página</option>
+          <option :value="48">48 por página</option>
+          <option :value="9999">Tudo</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <!-- Lista -->
+  <main class="container pb-5">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <div class="text-muted-2">
+        <span v-if="loading"><i class="bi bi-arrow-repeat me-1"></i>Carregando…</span>
+        <span v-else><strong>{{ filtered.length }}</strong> item(ns) encontrado(s)</span>
+        <span v-if="erro" class="ms-2 text-warning">
+          <i class="bi bi-exclamation-triangle me-1"></i>Erro ao consultar a API do GitHub. Usando lista local.
+        </span>
+      </div>
+      <div class="d-none d-md-block">
+        <span class="chip me-1" v-for="tag in topTags" :key="tag" @click="toggleTag(tag)" role="button">
+          <i class="bi bi-tag me-1"></i>{{ tag }}
+        </span>
+      </div>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-12 col-sm-6 col-lg-4 col-xxl-3" v-for="file in paginated" :key="file.path">
+        <div class="card h-100">
+          <div class="card-body d-flex flex-column">
+            <div class="d-flex align-items-start justify-content-between">
+              <h2 class="h6 mb-2">
+                <a class="link-light-soft" :href="toRelative(file.path)" :title="file.name">
+                  <i class="bi bi-filetype-html me-1"></i>{{ displayName(file.name) }}
+                </a>
+              </h2>
+              <span class="badge bg-secondary" v-if="file.size">{{ prettyBytes(file.size) }}</span>
+            </div>
+            <p class="text-muted-2 small mb-3">{{ describe(file.name) }}</p>
+            <div class="mt-auto d-flex align-items-center gap-2">
+              <a class="btn btn-sm btn-outline-light" :href="toRelative(file.path)">
+                <i class="bi bi-box-arrow-up-right me-1"></i>Abrir
+              </a>
+              <a class="btn btn-sm btn-outline-light" target="_blank" :href="toGitHub(file.path)">
+                <i class="bi bi-github me-1"></i>Ver no GitHub
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- vazio -->
+      <div v-if="!loading && filtered.length === 0" class="col-12">
+        <div class="text-center py-5 text-muted-2">
+          <i class="bi bi-emoji-frown display-5 d-block mb-3"></i>
+          Nenhum helper encontrado para a busca/filtros atuais.
+        </div>
+      </div>
+    </div>
+
+    <!-- Paginação simples -->
+    <div class="d-flex justify-content-center gap-2 mt-4" v-if="pages > 1">
+      <button class="btn btn-outline-light btn-sm" :disabled="page===1" @click="page--">
+        <i class="bi bi-chevron-left"></i>
+      </button>
+      <span class="chip">Página {{ page }} / {{ pages }}</span>
+      <button class="btn btn-outline-light btn-sm" :disabled="page===pages" @click="page++">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </main>
+
+  <!-- Rodapé -->
+  <footer class="container pb-4 footer small">
+    <div class="d-flex flex-wrap justify-content-between">
+      <div>© {{ new Date().getFullYear() }} — Helpers</div>
+      <div>
+        Fonte de dados: API pública do GitHub (fallback local se indisponível).
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- Bootstrap JS -->
+<script
+  src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+  crossorigin="anonymous"
+  defer></script>
+
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  const { createApp, computed, ref, onMounted } = Vue;
+
+  createApp({
+    setup() {
+      const owner = 'rafquint';
+      const repo  = 'rafquint.github.io';
+      const path  = 'helpers';
+      const branch = 'main';
+
+      const q = ref('');
+      const sortBy = ref('name');
+      const pageSize = ref(24);
+      const page = ref(1);
+      const loading = ref(true);
+      const erro = ref(false);
+
+      // **Fallback manual** — edite esta lista caso não queira depender da API
+      // Use nomes exatamente como no diretório /helpers (exceto index.html)
+      const localFiles = ref([
+        // Ex.: 'jwt-helper.html', 's3-uploader.html', 'cors-tester.html'
+        // deixe vazio; será usado apenas se a API falhar
+      ]);
+
+      const files = ref([]);
+      const selectedTags = ref(new Set());
+
+      const rootHref = computed(() => {
+        // sobe 1 nível a partir de /helpers
+        // Se publicar em páginas GitHub, isto assume que index.html está em /helpers
+        return '../';
+      });
+
+      function extractTags(name) {
+        // pega palavras significativas do nome do arquivo como "tags"
+        return name
+          .replace(/\.html?$/i, '')
+          .split(/[-_.\s]+/)
+          .filter(w => w.length >= 3)
+          .map(w => w.toLowerCase());
+      }
+
+      const allTags = computed(() => {
+        const set = new Set();
+        files.value.forEach(f => extractTags(f.name).forEach(t => set.add(t)));
+        return Array.from(set).sort();
+      });
+
+      const topTags = computed(() => allTags.value.slice(0, 10));
+
+      function toggleTag(tag) {
+        if (selectedTags.value.has(tag)) selectedTags.value.delete(tag);
+        else selectedTags.value.add(tag);
+      }
+
+      const filtered = computed(() => {
+        let arr = files.value.filter(f => /\.html?$/i.test(f.name) && !/^index\.html?$/i.test(f.name));
+        const term = q.value.trim().toLowerCase();
+
+        // filtro por busca
+        if (term) {
+          arr = arr.filter(f =>
+            f.name.toLowerCase().includes(term) ||
+            describe(f.name).toLowerCase().includes(term)
+          );
+        }
+
+        // filtro por "tags" clicadas
+        if (selectedTags.value.size > 0) {
+          arr = arr.filter(f => {
+            const tags = new Set(extractTags(f.name));
+            for (const t of selectedTags.value) if (!tags.has(t)) return false;
+            return true;
+          });
+        }
+
+        // ordenação
+        switch (sortBy.value) {
+          case 'nameDesc':
+            arr.sort((a, b) => a.name.localeCompare(b.name) * -1); break;
+          case 'size':
+            arr.sort((a, b) => (a.size ?? 0) - (b.size ?? 0)); break;
+          case 'sizeDesc':
+            arr.sort((a, b) => (b.size ?? 0) - (a.size ?? 0)); break;
+          default:
+            arr.sort((a, b) => a.name.localeCompare(b.name));
+        }
+
+        return arr;
+      });
+
+      const pages = computed(() => Math.max(1, Math.ceil(filtered.value.length / pageSize.value)));
+      const paginated = computed(() => {
+        const start = (page.value - 1) * pageSize.value;
+        return filtered.value.slice(start, start + pageSize.value);
+      });
+
+      function displayName(name) {
+        return name
+          .replace(/\.html?$/i, '')
+          .replace(/[-_.]+/g, ' ')
+          .replace(/\b\w/g, c => c.toUpperCase());
+      }
+
+      function describe(name) {
+        // descrição simples derivada do nome do arquivo
+        const base = displayName(name);
+        return `Página auxiliar: ${base}`;
+      }
+
+      function toRelative(filePath) {
+        // file.path já contém "helpers/arquivo.html"; removemos o prefixo
+        const rel = filePath.replace(/^helpers\//i, '');
+        return `./${rel}`;
+      }
+
+      function toGitHub(filePath) {
+        return `https://github.com/${owner}/${repo}/blob/${branch}/${filePath}`;
+      }
+
+      function prettyBytes(n = 0) {
+        if (!n) return '';
+        const u = ['B','KB','MB','GB','TB'];
+        let i = 0;
+        while (n >= 1024 && i < u.length - 1) { n /= 1024; i++; }
+        return `${n.toFixed(n >= 1024 ? 1 : 0)} ${u[i]}`;
+      }
+
+      async function loadFromGitHub() {
+        try {
+          const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`;
+          const res = await fetch(url, {
+            headers: { 'Accept': 'application/vnd.github+json' }
+          });
+          if (!res.ok) throw new Error(`GitHub API status ${res.status}`);
+          const data = await res.json();
+
+          // Apenas arquivos .html no diretório (ignorando subpastas)
+          const htmlFiles = data
+            .filter(item => item.type === 'file' && /\.html?$/i.test(item.name))
+            .map(item => ({ name: item.name, path: item.path, size: item.size ?? 0 }));
+
+          files.value = htmlFiles;
+        } catch (e) {
+          console.warn('[helpers/index] Falha ao buscar API do GitHub:', e);
+          erro.value = true;
+
+          // Fallback manual
+          files.value = (localFiles.value || []).map(n => ({
+            name: n, path: `${path}/${n}`, size: 0
+          }));
+        } finally {
+          loading.value = false;
+        }
+      }
+
+      onMounted(() => loadFromGitHub());
+
+      // Reinicia paginação quando filtros mudam
+      [q, sortBy, pageSize].forEach(r => {
+        watchEffect?.(() => { page.value = 1; });
+      });
+
+      return {
+        q, sortBy, pageSize, page, pages, loading, erro,
+        files, filtered, paginated, topTags, toggleTag,
+        displayName, describe, toRelative, toGitHub, prettyBytes, rootHref
+      };
+    }
+  }).mount('#app');
+});
+</script>
+</body>
 </html>
