@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visualizador de Imagem CLOB - Versão Avançada</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    .header h1 { font-size: 28px; margin-bottom: 8px; }
+    .header p { opacity: 0.9; font-size: 14px; }
+    .content { padding: 30px; }
+    .section { margin-bottom: 25px; }
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: #e3f2fd;
+      color: #1976d2;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      resize: vertical;
+      transition: border-color 0.3s;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    .controls {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 14px;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+    }
+    .btn-secondary {
+      background: #f5f5f5;
+      color: #666;
+    }
+    .btn-secondary:hover {
+      background: #e0e0e0;
+    }
+    .alert {
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-top: 12px;
+      font-size: 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      line-height: 1.5;
+    }
+    .alert-success {
+      background: #e8f5e9;
+      color: #2e7d32;
+      border-left: 4px solid #4caf50;
+    }
+    .alert-error {
+      background: #ffebee;
+      color: #c62828;
+      border-left: 4px solid #f44336;
+    }
+    .alert-warning {
+      background: #fff3e0;
+      color: #e65100;
+      border-left: 4px solid #ff9800;
+    }
+    .alert-info {
+      background: #e3f2fd;
+      color: #1565c0;
+      border-left: 4px solid #2196f3;
+    }
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+    .info-card {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      border-left: 3px solid #667eea;
+    }
+    .info-label {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .info-value {
+      font-size: 16px;
+      color: #333;
+      font-weight: 600;
+      word-break: break-all;
+      font-family: 'Courier New', monospace;
+    }
+    .image-preview {
+      background: #fafafa;
+      border: 2px dashed #e0e0e0;
+      border-radius: 12px;
+      padding: 30px;
+      text-align: center;
+      min-height: 300px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .image-preview img {
+      max-width: 100%;
+      max-height: 500px;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    .placeholder {
+      color: #999;
+      font-size: 16px;
+    }
+    .image-container {
+      position: relative;
+      display: inline-block;
+    }
+    .zoom-controls {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: flex;
+      gap: 5px;
+    }
+    .zoom-btn {
+      padding: 8px 12px;
+      background: rgba(255,255,255,0.9);
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 18px;
+    }
+    .zoom-btn:hover {
+      background: white;
+    }
+    code {
+      background: #f5f5f5;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="container">
+      <div class="header">
+        <h1>🖼️ Visualizador Avançado de Imagem CLOB</h1>
+        <p>Converte dados HEX do banco de dados para imagem • Corrige GIFs truncados automaticamente</p>
+      </div>
+
+      <div class="content">
+        <!-- Input Section -->
+        <div class="section">
+          <div class="section-title">
+            <span>📥 Dados HEX do CLOB</span>
+            <span class="badge">HEX → Base64</span>
+          </div>
+          <textarea 
+            v-model="hexInput" 
+            placeholder="Cole aqui os dados hexadecimais do campo CLOB (pode começar com 0x ou não)&#10;Exemplo: 0x47494638396A00..."
+          ></textarea>
+          
+          <div class="controls" style="margin-top: 15px;">
+            <button class="btn-primary" @click="processar">
+              🔄 Processar e Exibir
+            </button>
+            <button class="btn-secondary" @click="limpar">
+              🗑️ Limpar
+            </button>
+            <label style="display: flex; align-items: center; gap: 8px; margin-left: 10px; cursor: pointer;">
+              <input type="checkbox" v-model="autoCorrigirGIF" style="cursor: pointer;">
+              <span style="font-size: 14px; color: #666;">Auto-corrigir GIFs truncados</span>
+            </label>
+          </div>
+
+          <div v-if="mensagemErro" class="alert alert-error">
+            <span>❌</span>
+            <div v-html="mensagemErro"></div>
+          </div>
+          <div v-if="mensagemSucesso" class="alert alert-success">
+            <span>✅</span>
+            <div v-html="mensagemSucesso"></div>
+          </div>
+          <div v-if="mensagemAviso" class="alert alert-warning">
+            <span>⚠️</span>
+            <div v-html="mensagemAviso"></div>
+          </div>
+          <div v-if="mensagemInfo" class="alert alert-info">
+            <span>ℹ️</span>
+            <div v-html="mensagemInfo"></div>
+          </div>
+        </div>
+
+        <!-- Info Section -->
+        <div v-if="imagemInfo.bytes > 0" class="section">
+          <div class="section-title">📊 Informações da Imagem</div>
+          <div class="info-grid">
+            <div class="info-card">
+              <div class="info-label">Tipo MIME</div>
+              <div class="info-value">{{ imagemInfo.mime }}</div>
+            </div>
+            <div class="info-card">
+              <div class="info-label">Tamanho</div>
+              <div class="info-value">{{ imagemInfo.bytes }} bytes</div>
+            </div>
+            <div class="info-card">
+              <div class="info-label">Assinatura (Magic Number)</div>
+              <div class="info-value">{{ imagemInfo.magicNumber }}</div>
+            </div>
+            <div class="info-card" v-if="imagemInfo.status">
+              <div class="info-label">Status</div>
+              <div class="info-value" style="font-size: 14px;">{{ imagemInfo.status }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Preview Section -->
+        <div class="section">
+          <div class="section-title">🖼️ Visualização</div>
+          <div class="image-preview">
+            <div v-if="dataUrl" class="image-container">
+              <img 
+                :src="dataUrl" 
+                :alt="imagemInfo.mime"
+                :style="{ transform: `scale(${zoomLevel})` }"
+              >
+              <div class="zoom-controls">
+                <button class="zoom-btn" @click="zoom(0.8)" title="Diminuir zoom">−</button>
+                <button class="zoom-btn" @click="zoom(1.2)" title="Aumentar zoom">+</button>
+                <button class="zoom-btn" @click="zoomLevel = 1" title="Zoom 100%">⟲</button>
+              </div>
+            </div>
+            <div v-else class="placeholder">
+              <div style="font-size: 48px; margin-bottom: 10px;">📷</div>
+              Aguardando dados para processar...
+            </div>
+          </div>
+        </div>
+
+        <!-- Debug Section -->
+        <details v-if="debugInfo.length > 0" style="margin-top: 20px;">
+          <summary style="cursor: pointer; padding: 10px; background: #f5f5f5; border-radius: 8px; font-weight: 600;">
+            🐛 Informações de Debug
+          </summary>
+          <div style="margin-top: 10px; padding: 15px; background: #263238; color: #aed581; border-radius: 8px; font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto;">
+            <div v-for="(log, index) in debugInfo" :key="index" style="margin-bottom: 5px;">
+              {{ log }}
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const { createApp } = Vue;
+
+    createApp({
+      data() {
+        return {
+          hexInput: '',
+          dataUrl: '',
+          mensagemErro: '',
+          mensagemSucesso: '',
+          mensagemAviso: '',
+          mensagemInfo: '',
+          autoCorrigirGIF: true,
+          zoomLevel: 1,
+          imagemInfo: {
+            mime: '',
+            bytes: 0,
+            magicNumber: '',
+            status: ''
+          },
+          debugInfo: []
+        };
+      },
+      methods: {
+        limparMensagens() {
+          this.mensagemErro = '';
+          this.mensagemSucesso = '';
+          this.mensagemAviso = '';
+          this.mensagemInfo = '';
+          this.debugInfo = [];
+        },
+
+        log(message) {
+          this.debugInfo.push(`[${new Date().toLocaleTimeString()}] ${message}`);
+        },
+
+        normalizarHex(input) {
+          if (!input) return '';
+          let hex = input.trim().replace(/^0x/i, '');
+          hex = hex.replace(/[^0-9a-fA-F]/g, '');
+          return hex.toLowerCase();
+        },
+
+        hexParaBytes(hex) {
+          if (hex.length % 2 !== 0) {
+            throw new Error('Dados HEX com comprimento ímpar. Possível truncamento.');
+          }
+          
+          const bytes = new Uint8Array(hex.length / 2);
+          for (let i = 0; i < hex.length; i += 2) {
+            const byte = parseInt(hex.substr(i, 2), 16);
+            if (isNaN(byte)) {
+              throw new Error(`Caractere HEX inválido na posição ${i}`);
+            }
+            bytes[i / 2] = byte;
+          }
+          return bytes;
+        },
+
+        bytesParaBase64(bytes) {
+          let binary = '';
+          const chunkSize = 0x8000;
+          
+          for (let i = 0; i < bytes.length; i += chunkSize) {
+            const chunk = bytes.subarray(i, Math.min(i + chunkSize, bytes.length));
+            binary += String.fromCharCode.apply(null, chunk);
+          }
+          
+          return btoa(binary);
+        },
+
+        detectarTipoImagem(bytes) {
+          if (bytes.length < 4) return 'application/octet-stream';
+
+          // GIF: 47 49 46 38
+          if (bytes[0] === 0x47 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x38) {
+            return 'image/gif';
+          }
+
+          // PNG: 89 50 4E 47
+          if (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4E && bytes[3] === 0x47) {
+            return 'image/png';
+          }
+
+          // JPEG: FF D8 FF
+          if (bytes[0] === 0xFF && bytes[1] === 0xD8 && bytes[2] === 0xFF) {
+            return 'image/jpeg';
+          }
+
+          // BMP: 42 4D
+          if (bytes[0] === 0x42 && bytes[1] === 0x4D) {
+            return 'image/bmp';
+          }
+
+          // WEBP: RIFF ... WEBP
+          if (bytes.length >= 12 && 
+              bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46 &&
+              bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50) {
+            return 'image/webp';
+          }
+
+          return 'application/octet-stream';
+        },
+
+        verificarGIFValido(bytes) {
+          const mime = this.detectarTipoImagem(bytes);
+          if (mime !== 'image/gif') {
+            return { valido: true, truncado: false };
+          }
+
+          // GIF deve terminar com 0x3B (terminador de trailer)
+          const ultimoByte = bytes[bytes.length - 1];
+          
+          if (ultimoByte !== 0x3B) {
+            this.log(`GIF truncado detectado! Último byte: 0x${ultimoByte.toString(16).toUpperCase()} (esperado: 0x3B)`);
+            return { valido: false, truncado: true };
+          }
+
+          return { valido: true, truncado: false };
+        },
+
+        corrigirGIF(bytes) {
+          // Adiciona o terminador GIF (0x3B) se estiver faltando
+          const novoArray = new Uint8Array(bytes.length + 1);
+          novoArray.set(bytes);
+          novoArray[bytes.length] = 0x3B;
+          this.log(`Terminador 0x3B adicionado. Novo tamanho: ${novoArray.length} bytes`);
+          return novoArray;
+        },
+
+        obterMagicNumber(bytes) {
+          const primeirosBytes = bytes.slice(0, 8);
+          return Array.from(primeirosBytes)
+            .map(b => b.toString(16).padStart(2, '0').toUpperCase())
+            .join(' ');
+        },
+
+        zoom(factor) {
+          this.zoomLevel *= factor;
+          this.zoomLevel = Math.max(0.5, Math.min(5, this.zoomLevel));
+        },
+
+        processar() {
+          this.limparMensagens();
+          this.dataUrl = '';
+          this.imagemInfo = { mime: '', bytes: 0, magicNumber: '', status: '' };
+          this.zoomLevel = 1;
+
+          if (!this.hexInput.trim()) {
+            this.mensagemErro = 'Por favor, cole os dados hexadecimais do CLOB.';
+            return;
+          }
+
+          try {
+            this.log('Iniciando processamento...');
+            
+            // Normaliza o HEX
+            const hexLimpo = this.normalizarHex(this.hexInput);
+            this.log(`HEX normalizado: ${hexLimpo.length} caracteres`);
+            
+            if (!hexLimpo) {
+              this.mensagemErro = 'Nenhum dado hexadecimal válido encontrado.';
+              return;
+            }
+
+            // Converte HEX para bytes
+            let bytes = this.hexParaBytes(hexLimpo);
+            this.log(`Convertido para ${bytes.length} bytes`);
+            
+            // Detecta o tipo de imagem
+            const mimeType = this.detectarTipoImagem(bytes);
+            this.log(`Tipo detectado: ${mimeType}`);
+            
+            // Verifica se o GIF está completo
+            const gifStatus = this.verificarGIFValido(bytes);
+            let statusMsg = '';
+            
+            if (mimeType === 'image/gif' && gifStatus.truncado) {
+              statusMsg = '⚠️ GIF Truncado';
+              
+              if (this.autoCorrigirGIF) {
+                this.mensagemAviso = '<strong>GIF truncado detectado!</strong><br>' +
+                  'O arquivo termina com <code>0x' + bytes[bytes.length-1].toString(16).toUpperCase() + '</code> ' +
+                  'em vez de <code>0x3B</code> (terminador GIF).<br>' +
+                  '<strong>Correção aplicada automaticamente.</strong>';
+                
+                bytes = this.corrigirGIF(bytes);
+                statusMsg = '✓ Corrigido';
+              } else {
+                this.mensagemAviso = '<strong>GIF truncado detectado!</strong><br>' +
+                  'O arquivo termina com <code>0x' + bytes[bytes.length-1].toString(16).toUpperCase() + '</code> ' +
+                  'em vez de <code>0x3B</code>.<br>' +
+                  'Ative "Auto-corrigir GIFs truncados" para tentar corrigi-lo.';
+              }
+            } else if (mimeType === 'image/gif') {
+              statusMsg = '✓ Válido';
+            }
+            
+            // Converte bytes para Base64
+            const base64 = this.bytesParaBase64(bytes);
+            this.log(`Base64 gerado: ${base64.length} caracteres`);
+            
+            // Cria a Data URL
+            this.dataUrl = `data:${mimeType};base64,${base64}`;
+            
+            // Atualiza informações
+            this.imagemInfo = {
+              mime: mimeType,
+              bytes: bytes.length,
+              magicNumber: this.obterMagicNumber(bytes),
+              status: statusMsg
+            };
+
+            this.mensagemSucesso = `<strong>Imagem processada com sucesso!</strong><br>Tipo: ${mimeType} • Tamanho: ${bytes.length} bytes`;
+            this.log('Processamento concluído com sucesso');
+            
+          } catch (erro) {
+            this.mensagemErro = `<strong>Erro ao processar:</strong><br>${erro.message}`;
+            this.log(`ERRO: ${erro.message}`);
+            console.error('Erro detalhado:', erro);
+          }
+        },
+
+        limpar() {
+          this.hexInput = '';
+          this.dataUrl = '';
+          this.limparMensagens();
+          this.imagemInfo = { mime: '', bytes: 0, magicNumber: '', status: '' };
+          this.zoomLevel = 1;
+        }
+      },
+      mounted() {
+        console.log('Visualizador Avançado de Imagem CLOB carregado!');
+        this.mensagemInfo = 'Cole os dados HEX do campo CLOB e clique em "Processar e Exibir"';
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>

@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conversor de Imagem para HEX</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    .header h1 { font-size: 28px; margin-bottom: 8px; }
+    .header p { opacity: 0.9; font-size: 14px; }
+    .content { padding: 30px; }
+    
+    .upload-area {
+      border: 3px dashed #667eea;
+      border-radius: 12px;
+      padding: 60px 30px;
+      text-align: center;
+      background: #f8f9ff;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: 30px;
+    }
+    .upload-area:hover {
+      background: #eef2ff;
+      border-color: #5568d3;
+    }
+    .upload-area.dragover {
+      background: #e0e7ff;
+      border-color: #4c51bf;
+      transform: scale(1.02);
+    }
+    .upload-icon {
+      font-size: 64px;
+      margin-bottom: 15px;
+    }
+    .upload-area h3 {
+      color: #667eea;
+      margin-bottom: 10px;
+      font-size: 20px;
+    }
+    .upload-area p {
+      color: #6b7280;
+      font-size: 14px;
+    }
+    
+    input[type="file"] {
+      display: none;
+    }
+    
+    .preview-section {
+      margin-bottom: 30px;
+    }
+    .preview-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 768px) {
+      .preview-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .preview-card {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 20px;
+      border: 2px solid #e9ecef;
+    }
+    .preview-card h3 {
+      font-size: 16px;
+      color: #495057;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .preview-card img {
+      max-width: 100%;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .info-item {
+      background: white;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #e9ecef;
+    }
+    .info-label {
+      font-size: 11px;
+      color: #6c757d;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .info-value {
+      font-size: 16px;
+      font-weight: 600;
+      color: #212529;
+    }
+    
+    .hex-output {
+      background: #2d3748;
+      border-radius: 12px;
+      padding: 20px;
+      position: relative;
+      margin-bottom: 20px;
+    }
+    .hex-output-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .hex-output-header h3 {
+      color: #68d391;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .hex-content {
+      background: #1a202c;
+      padding: 15px;
+      border-radius: 8px;
+      max-height: 300px;
+      overflow-y: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      color: #68d391;
+      word-break: break-all;
+    }
+    
+    button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+    }
+    .btn-success {
+      background: #28a745;
+      color: white;
+    }
+    .btn-success:hover {
+      background: #218838;
+    }
+    
+    .alert {
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .alert-success {
+      background: #d4edda;
+      color: #155724;
+      border-left: 4px solid #28a745;
+    }
+    .alert-info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border-left: 4px solid #17a2b8;
+    }
+    
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      background: #e3f2fd;
+      color: #1976d2;
+    }
+    
+    .exemplo-section {
+      background: #fff3e0;
+      border-left: 4px solid #ff9800;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 30px;
+    }
+    .exemplo-section h3 {
+      color: #e65100;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+    .exemplo-section ol {
+      margin-left: 20px;
+      line-height: 1.8;
+      color: #5d4037;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="container">
+      <div class="header">
+        <h1>📸 Conversor: Imagem → HEX (0x...)</h1>
+        <p>Faça upload de uma imagem e obtenha o código HEX para testar no visualizador</p>
+      </div>
+
+      <div class="content">
+        <!-- Upload Area -->
+        <div 
+          class="upload-area"
+          :class="{ dragover: isDragging }"
+          @click="$refs.fileInput.click()"
+          @dragover.prevent="isDragging = true"
+          @dragleave.prevent="isDragging = false"
+          @drop.prevent="handleDrop"
+        >
+          <div class="upload-icon">{{ imagemCarregada ? '✅' : '📤' }}</div>
+          <h3>{{ imagemCarregada ? 'Imagem Carregada!' : 'Clique ou Arraste uma Imagem' }}</h3>
+          <p>{{ imagemCarregada ? 'Clique novamente para carregar outra' : 'Suporta: JPG, PNG, GIF, BMP, WEBP' }}</p>
+          <input 
+            type="file" 
+            ref="fileInput" 
+            accept="image/*"
+            @change="handleFileSelect"
+          >
+        </div>
+
+        <!-- Preview -->
+        <div v-if="imagemCarregada" class="preview-section">
+          <div class="preview-grid">
+            <!-- Imagem Original -->
+            <div class="preview-card">
+              <h3>🖼️ Imagem Original</h3>
+              <img :src="imagemPreview" alt="Preview">
+            </div>
+
+            <!-- Informações -->
+            <div class="preview-card">
+              <h3>📊 Informações</h3>
+              <div class="info-grid">
+                <div class="info-item">
+                  <div class="info-label">Tipo</div>
+                  <div class="info-value">{{ imagemInfo.tipo }}</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Tamanho</div>
+                  <div class="info-value">{{ formatarBytes(imagemInfo.tamanho) }}</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Dimensões</div>
+                  <div class="info-value" style="font-size: 13px;">{{ imagemInfo.largura }} × {{ imagemInfo.altura }}</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">HEX Bytes</div>
+                  <div class="info-value">{{ imagemInfo.hexBytes.toLocaleString() }}</div>
+                </div>
+              </div>
+
+              <div class="alert alert-info">
+                ℹ️ Pronto para copiar e testar no visualizador!
+              </div>
+            </div>
+          </div>
+
+          <!-- HEX Output -->
+          <div class="hex-output">
+            <div class="hex-output-header">
+              <h3>
+                <span>🔤</span>
+                <span>Código HEX</span>
+                <span class="badge">{{ hexCompleto ? 'Completo' : 'Carregando...' }}</span>
+              </h3>
+              <div class="actions">
+                <button class="btn-success" @click="copiarHex" v-if="hexCompleto">
+                  {{ copiado ? '✓ Copiado!' : '📋 Copiar HEX' }}
+                </button>
+                <button class="btn-primary" @click="baixarArquivo" v-if="hexCompleto">
+                  💾 Baixar .txt
+                </button>
+              </div>
+            </div>
+            <div class="hex-content" ref="hexContent">
+              <div v-if="hexCompleto">{{ hexDados }}</div>
+              <div v-else style="color: #a0aec0;">Processando imagem...</div>
+            </div>
+          </div>
+
+          <div class="alert alert-success" v-if="copiado">
+            ✅ HEX copiado! Cole no visualizador de imagens CLOB para testar.
+          </div>
+        </div>
+
+        <!-- Exemplo de Uso -->
+        <div class="exemplo-section">
+          <h3>💡 Como usar:</h3>
+          <ol>
+            <li>Faça upload de uma imagem (JPG, PNG, GIF, etc.)</li>
+            <li>Aguarde a conversão para HEX</li>
+            <li>Clique em <strong>"Copiar HEX"</strong></li>
+            <li>Cole no visualizador de imagens CLOB</li>
+            <li>Verifique se a imagem é exibida corretamente</li>
+            <li>Compare com os dados do seu banco - se o tamanho for muito diferente, seus dados do banco estão truncados!</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const { createApp } = Vue;
+
+    createApp({
+      data() {
+        return {
+          imagemCarregada: false,
+          imagemPreview: '',
+          imagemInfo: {
+            tipo: '',
+            tamanho: 0,
+            largura: 0,
+            altura: 0,
+            hexBytes: 0
+          },
+          hexDados: '',
+          hexCompleto: false,
+          copiado: false,
+          isDragging: false,
+          arquivoOriginal: null
+        };
+      },
+      methods: {
+        handleFileSelect(event) {
+          const file = event.target.files[0];
+          if (file) {
+            this.processarImagem(file);
+          }
+        },
+
+        handleDrop(event) {
+          this.isDragging = false;
+          const file = event.dataTransfer.files[0];
+          if (file && file.type.startsWith('image/')) {
+            this.processarImagem(file);
+          }
+        },
+
+        async processarImagem(file) {
+          this.imagemCarregada = false;
+          this.hexCompleto = false;
+          this.copiado = false;
+          this.arquivoOriginal = file;
+
+          // Preview da imagem
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            this.imagemPreview = e.target.result;
+            
+            // Obter dimensões
+            const img = new Image();
+            img.onload = () => {
+              this.imagemInfo.largura = img.width;
+              this.imagemInfo.altura = img.height;
+            };
+            img.src = e.target.result;
+          };
+          reader.readAsDataURL(file);
+
+          // Informações básicas
+          this.imagemInfo.tipo = file.type.split('/')[1].toUpperCase();
+          this.imagemInfo.tamanho = file.size;
+
+          // Converter para HEX
+          const arrayReader = new FileReader();
+          arrayReader.onload = (e) => {
+            const arrayBuffer = e.target.result;
+            const bytes = new Uint8Array(arrayBuffer);
+            
+            // Converter para HEX com prefixo 0x
+            const hexArray = Array.from(bytes).map(b => 
+              b.toString(16).padStart(2, '0').toUpperCase()
+            );
+            
+            this.hexDados = '0x' + hexArray.join('');
+            this.imagemInfo.hexBytes = bytes.length;
+            this.hexCompleto = true;
+            this.imagemCarregada = true;
+          };
+          arrayReader.readAsArrayBuffer(file);
+        },
+
+        formatarBytes(bytes) {
+          if (bytes === 0) return '0 Bytes';
+          const k = 1024;
+          const sizes = ['Bytes', 'KB', 'MB'];
+          const i = Math.floor(Math.log(bytes) / Math.log(k));
+          return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        },
+
+        async copiarHex() {
+          try {
+            await navigator.clipboard.writeText(this.hexDados);
+            this.copiado = true;
+            setTimeout(() => {
+              this.copiado = false;
+            }, 3000);
+          } catch (err) {
+            // Fallback para navegadores antigos
+            const textarea = document.createElement('textarea');
+            textarea.value = this.hexDados;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            this.copiado = true;
+            setTimeout(() => {
+              this.copiado = false;
+            }, 3000);
+          }
+        },
+
+        baixarArquivo() {
+          const blob = new Blob([this.hexDados], { type: 'text/plain' });
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `imagem_hex_${Date.now()}.txt`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+        }
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>
